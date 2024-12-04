@@ -1,0 +1,60 @@
+2024-12-04 08:46:23: [34m[INFO][0m | El CONTROLLER TestController ha ejecutado el método GetError
+2024-12-04 08:46:23: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:46:23: [34m[INFO][0m | El HANDLER ErrorHandler se ha ejecutado
+2024-12-04 08:47:50: [34m[INFO][0m | El MANAGER ServerManager se ha ejecutado
+2024-12-04 08:47:50: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:48:03: [34m[INFO][0m | El MANAGER ServerManager se ha ejecutado
+2024-12-04 08:48:03: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:48:05: [34m[INFO][0m | El CONTROLLER TestController ha ejecutado el método GetError
+2024-12-04 08:48:05: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:48:06: [33m[WARN][0m | El HANDLER ErrorHandler se ha ejecutado
+2024-12-04 08:49:20: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:49:20: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:49:35: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método GetError
+2024-12-04 08:49:35: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:49:35: [33m[WARN][0m | El HANDLER [ErrorHandler] se ha ejecutado
+2024-12-04 08:49:59: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:49:59: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:50:07: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método GetError
+2024-12-04 08:50:07: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:50:07: [33m[WARN][0m | El HANDLER [ErrorHandler] se ha ejecutado
+2024-12-04 08:51:17: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:51:17: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:51:26: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:51:26: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:51:29: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método GetError
+2024-12-04 08:51:29: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:51:29: [33m[WARN][0m | El HANDLER [ErrorHandler] se ha ejecutado
+2024-12-04 08:51:37: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método GetError
+2024-12-04 08:51:37: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:51:37: [33m[WARN][0m | El HANDLER [ErrorHandler] se ha ejecutado
+2024-12-04 08:51:44: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:51:44: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:51:49: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método GetError
+2024-12-04 08:51:49: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:51:49: [33m[WARN][0m | El HANDLER [ErrorHandler] se ha ejecutado
+2024-12-04 08:52:00: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:52:00: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:52:10: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método GetError
+2024-12-04 08:52:10: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:52:10: [33m[WARN][0m | El HANDLER [ErrorHandler] se ha ejecutado
+2024-12-04 08:52:28: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:52:28: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:52:31: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método GetError
+2024-12-04 08:52:31: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER TestController en el método GetError
+2024-12-04 08:52:31: [33m[WARN][0m | El HANDLER [ErrorHandler] se ha ejecutado
+2024-12-04 08:56:51: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:56:51: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:57:02: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:57:02: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:57:22: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:57:22: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:57:44: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:57:44: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:58:02: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:58:02: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:58:21: [34m[INFO][0m | El MANAGER [ServerManager] se ha ejecutado
+2024-12-04 08:58:21: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-04 08:58:43: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método [GetError]
+2024-12-04 08:58:43: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER [TestController] en el método [GetError]
+2024-12-04 08:58:43: [33m[WARN][0m | El HANDLER [ErrorHandler] se ha ejecutado

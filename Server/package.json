@@ -1,0 +1,51 @@
+{
+  "name": "home_budget",
+  "version": "1.0.0",
+  "description": "App para manejo de finanzas del hogar",
+  "main": "src/API/startup.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node ./src/API/startup.ts ",
+    "start-dev": "pm2 start ecosystem.config.js --only HomeBudgetCluster --env development && pm2 logs HomeBudgetCluster",
+    "start-prod": "pm2 start ecosystem.config.js --only HomeBudgetCluster --env production && pm2 logs HomeBudgetCluster",
+    "stop-dev": "pm2 stop ecosystem.config.js --only HomeBudgetCluster",
+    "restart-dev": "pm2 restart ecosystem.config.js --only HomeBudgetCluster",
+    "reload-dev": "pm2 reload ecosystem.config.js --only HomeBudgetCluster",
+    "delete-dev": "pm2 delete ecosystem.config.js --only HomeBudgetCluster && pm2 save --force",
+    "list": "pm2 list",
+    "monit": "pm2 monit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/Eifhen/FinanzasHogar"
+  },
+  "keywords": [
+    "Finanzas",
+    "Hogar",
+    "Home",
+    "Budget"
+  ],
+  "author": "GJimenez",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^22.9.1",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "awilix": "^12.0.3",
+    "awilix-express": "^9.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "kysely": "^0.27.4",
+    "pm2": "^5.4.3",
+    "tarn": "^3.0.2", 
+    "tedious": "^18.6.1", 
+    "ts-node": "^10.9.2"
+  }
+}
