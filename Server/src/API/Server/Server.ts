@@ -42,7 +42,7 @@ export default class ServerManager {
   private OnUncaughtException = () => {
     process.on("uncaughtException", (err: Error) => {
 
-      this._logger.Error(LoggerTypes.FATAL, {
+      this._logger.Error(LoggerTypes.FATAL, "OnUncaughtException", {
         message: err.message,
         stack: err.stack
       });
@@ -73,7 +73,7 @@ export default class ServerManager {
   private OnUnhandledRejection = () => {
     process.on('unhandledRejection', (reason: any, promise: any) => {
       const data = { reason, promise };
-      this._logger.Error(LoggerTypes.FATAL, data)
+      this._logger.Error(LoggerTypes.FATAL, "OnUnhandledRejection", data)
     });
   }
 

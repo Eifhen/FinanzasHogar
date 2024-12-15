@@ -5,7 +5,8 @@ import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Infraest
 import LoggerManager from "../../Infraestructure/Managers/LoggerManager";
 import ApplicationContext from "../../Infraestructure/Configurations/ApplicationContext";
 import IErrorManager from "../../Infraestructure/Shered/ErrorHandling/Interfaces/IErrorManager";
-import { HttpStatusCode } from "../../Infraestructure/Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusMessage } from "../../Infraestructure/Utils/HttpCodes";
+import IDataBaseConfig from "../../Infraestructure/Configurations/types/IDataBaseConfig";
 
 
 
@@ -13,6 +14,7 @@ interface TestControllerDependencies {
   testService: ITestService;
   errorManager: IErrorManager;
   context: ApplicationContext;
+  database: IDataBaseConfig;
 }
 
 @route("/test")
@@ -22,11 +24,13 @@ export default class TestController {
   private readonly _context: ApplicationContext;
   private readonly _logger: ILoggerManager;
   private readonly _errorManager: IErrorManager;
+  private readonly _database: IDataBaseConfig;
 
   constructor(deps: TestControllerDependencies) {
     this._testService = deps.testService;
     this._context = deps.context;
     this._errorManager = deps.errorManager;
+    this._database = deps.database;
     this._logger = new LoggerManager({
       context: this._context,
       entityName: "TestController",
@@ -97,7 +101,7 @@ export default class TestController {
           throw new Error("Prueba Error GetControledError");
         } catch (err: any) {
           // Manejar el error y evitar que se propague
-          this._logger.Error(LoggerTypes.ERROR, "Error manejado dentro del setTimeout: " + err.message);
+          this._logger.Error("ERROR", "Error manejado dentro del setTimeout: " + err.message);
         }
       }, 0);
 
@@ -134,5 +138,23 @@ export default class TestController {
   }
 
 
+  @route("/usuarios")
+  @GET()
+  public GetUsuarios = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      this._logger.Activity("GetUsuarios");
+      const usuarios = await this._database.instance.selectFrom("usuarios").selectAll().execute();
+      return res.status(HttpStatusCode.OK).send(usuarios);
+    }
+    catch(err:any){
+      this._logger.Error("ERROR", "GetUsuarios");
+      next(this._errorManager.GetException(
+        HttpStatusCode.InternalServerError, 
+        HttpStatusMessage.InternalServerError, 
+        __filename, 
+        err
+      ));
+    }
+  }
 
 }

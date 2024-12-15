@@ -35,6 +35,14 @@ module.exports = {
         API_BASE_ROUTE: `/api/v${1}`,
         CONTROLLERS: "../../API/Controllers/*.ts", 
         LOG_LEVEL: 30,
+        DB_USERNAME: "eifhen",
+        DB_PASSWORD: "thetrue123",
+        DB_DOMAIN: "JIMENEZG",
+        DB_SERVER: "JIMENEZG",
+        DB_NAME: "FinanzasHogar",
+        DB_PORT: "1433",
+        DB_INSTANCE: "MSSQLSERVER"
+
       },
       env_production: {
         PORT: 5000,
@@ -45,6 +53,11 @@ module.exports = {
         API_BASE_ROUTE: `/api/v${1}`,
         CONTROLLERS: "../../API/Controllers/*.ts", 
         LOG_LEVEL: 30,
+        DB_USERNAME: "",
+        DB_PASSWORD: "",
+        DB_SERVER: "",
+        DB_NAME: "",
+        DB_PORT: "",
       },
       // Configuración de logs
       out_file: './src/API/Logs/out.log', // Logs de stdout

@@ -1,4 +1,7 @@
 import ApplicationContext from "../Configurations/ApplicationContext";
+import { NO_REQUEST_ID } from "../Shered/CommonTypes/const";
+import ApplicationException from "../Shered/ErrorHandling/ApplicationException";
+import { HttpStatusCode } from "../Utils/HttpCodes";
 import ILoggerManager, { LoggEntityCategorys, LoggEntityCategory, LoggErrorType, LoggerType, LoggerTypes, LogLevels } from "./Interfaces/ILoggerManager";
 import Line from "./LinePrinterManager";
 
@@ -74,8 +77,15 @@ export default class LoggerManager implements ILoggerManager {
         Line.Print(type, `${msg}`, obj);
       }
     }
-    catch (err) {
-      // hacer throw
+    catch (err:any) {
+      Line.Print("FATAL", "Ha ocurrido un error al ejecutar el método [Message] del LoggerManager", err);
+      throw new ApplicationException(
+        err.message, 
+        this._context?.request_id ?? NO_REQUEST_ID, 
+        HttpStatusCode.InternalServerError, 
+        __filename, 
+        err
+      );
     }
   }
 
@@ -85,7 +95,7 @@ export default class LoggerManager implements ILoggerManager {
    * @param this._entityCategory - Categoría que se intenta loguear
    * @param method - Método ejecutado
    */
-  public Activity = async (method?: string, type:LoggerType = LoggerTypes.INFO) => {
+  public Activity = async (method?: string, obj?: any) => {
     try {
       if (!this._entityCategory) {
         return;
@@ -122,10 +132,43 @@ export default class LoggerManager implements ILoggerManager {
       }
 
       // agregar request ID desde el context
-      this.Message(type, msg);
+      this.Message(LoggerTypes.INFO, msg, obj);
+      return;
     }
-    catch (err) {
-      // hacer throw 
+    catch (err:any) {
+      this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Activity] del LoggerManager", err);
+      throw new ApplicationException(
+        err.message, 
+        this._context?.request_id ?? NO_REQUEST_ID, 
+        HttpStatusCode.InternalServerError, 
+        __filename, 
+        err
+      );
+    }
+  }
+
+/**
+   * @description - Similar a Activity, pero este nos permite definir el tipo de logg
+   * @param type -Tipo de log
+   * @param method - nombre del método que lo ejecuta
+   * @param obj - objeto a imprimir si lo hay
+   * @returns 
+   */
+  public Register = async (type: LoggerType, method: string, obj?:any) => {
+    try {
+      const msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`;
+      this.Message(type, msg, obj);
+      return;
+    }
+    catch(err:any){
+      this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Register] del LoggerManager", err);
+      throw new ApplicationException(
+        err.message, 
+        this._context?.request_id ?? NO_REQUEST_ID, 
+        HttpStatusCode.InternalServerError, 
+        __filename, 
+        err
+      );
     }
   }
 
@@ -134,13 +177,12 @@ export default class LoggerManager implements ILoggerManager {
    * @param request_id - Id de la solicitud (opcional)
    * @param type - Tipo de error ( Fatal o Error)
    */
-  public Error = async (type: LoggErrorType = LoggerTypes.ERROR, arg?: any) => {
+  public Error = async (type: LoggErrorType = LoggerTypes.ERROR, method?:string, obj?:any) => {
     try {
-      const argIsValid = arg && typeof arg === 'string' ? true : false;
 
       // Si el último argumento es un string, se trata de un método
-      let msg = argIsValid ?
-        `Ha ocurrido un error en el ${this._entityCategory} [${this._entityName}] en el método [${arg}]` :
+      let msg = method ?
+        `Ha ocurrido un error en el ${this._entityCategory} [${this._entityName}] en el método [${method}]` :
         `Ha ocurrido un error en el ${this._entityCategory} [${this._entityName}]`;
 
       // Agregar request id desde el context si lo hay
@@ -148,13 +190,19 @@ export default class LoggerManager implements ILoggerManager {
         msg = `RequestId: ${this._context.request_id} | ` + msg;
       }
 
-      argIsValid ?
-        this.Message(type, msg) :
-        this.Message(type, msg, arg);
+      this.Message(type, msg, obj);
+      return;
 
     }
-    catch (err) {
-      // Hacer throw
+    catch (err:any) {
+      this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Error] del LoggerManager", err);
+      throw new ApplicationException(
+        err.message, 
+        this._context?.request_id ?? NO_REQUEST_ID, 
+        HttpStatusCode.InternalServerError, 
+        __filename, 
+        err
+      );
     }
   }
 }

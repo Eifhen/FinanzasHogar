@@ -19,7 +19,8 @@ export const LoggEntityCategorys = {
   SERVICE: "SERVICE",
   REPOSITORY: "REPOSITORY",
   HANDLER: "HANDLER",
-  MANAGER: "MANAGER"
+  MANAGER: "MANAGER",
+  CONFIGURATION: "CONFIGURATION"
 } as const;
 
 export type LoggEntityCategory = keyof typeof LoggEntityCategorys;
@@ -52,15 +53,25 @@ export default interface ILoggerManager {
  * @param category - Categoría que se intenta loguear
  * @param entityName - Nombre de la entidad que se está loggeando
  * @param method - Método ejecutado
+ * @param obj - Objeto que queremos mostrar en la actividad
  */
-  Activity: (method?: string, type?:LoggerType) => Promise<void>;
+  Activity: (method?: string, obj?:any) => Promise<void>;
+
+  /**
+   * @description - Similar a Activity, pero este nos permite definir el tipo de logg
+   * @param type -Tipo de log
+   * @param method - nombre del método que lo ejecuta
+   * @param obj - objeto a imprimir si lo hay
+   * @returns 
+   */
+  Register: (type: LoggerType, method: string, obj?:any) => Promise<void>;
 
   /**
    * @description - Método para loguear una excepcióon dentro de la aplicación
    * @param request_id - Id de la solicitud (opcional)
    * @param type - Tipo de error ( Fatal o Error)
+   * @param obj = Objeto de error 
   */
-  Error(type: LoggErrorType, method?: string): Promise<void>;
-  Error(type: LoggErrorType, obj: Object): Promise<void>;
+  Error(type: LoggErrorType, method?: string, obj?:any): Promise<void>;
 
 }

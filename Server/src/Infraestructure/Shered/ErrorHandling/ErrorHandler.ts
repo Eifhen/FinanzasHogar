@@ -20,7 +20,7 @@ export default class ErrorHandler {
 
   /** Middleware que permite interceptar los errores de la aplicación */
   private Intercept = (error: ApplicationException, req: Request, res: Response, next:NextFunction) : any => {
-    this._logger.Activity("Intercept", "WARN");
+    this._logger.Register("WARN", "Intercept");
     const status = error instanceof ApplicationException && error.status ? error.status : HttpStatusCode.InternalServerError;
     return res.status(status).send(error);
   }
