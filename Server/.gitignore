@@ -5,3 +5,4 @@
 
 # Archivos a ignorar
 node_modules
+src/API/Logs/*
