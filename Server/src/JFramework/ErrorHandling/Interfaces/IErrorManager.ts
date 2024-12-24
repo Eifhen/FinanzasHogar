@@ -1,4 +1,4 @@
-import { HttpStatusCodes } from "../../../Utils/HttpCodes";
+import { HttpStatusCodes } from "../../Utils/HttpCodes";
 import ApplicationException from "../ApplicationException";
 
 

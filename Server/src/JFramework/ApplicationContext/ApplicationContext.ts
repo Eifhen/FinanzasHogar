@@ -1,5 +1,5 @@
-import { LogLevel, LogLevels } from "../Managers/Interfaces/ILoggerManager";
-import { Environment, EnvironmentStatus } from "../Utils/Environment";
+import { LogLevel, LogLevels } from "../../JFramework/Managers/Interfaces/ILoggerManager";
+import { Environment, EnvironmentStatus } from "../../JFramework/Utils/Environment";
 
 
 

@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2024-12-10T11:11:49.001Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="xxgOEsPfBxmb4p1Eq5wm" version="22.1.2" type="device" pages="4">
+<mxfile host="Electron" modified="2024-12-24T01:42:38.002Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="zhlPQtK4FyzYBqv-pJB7" version="22.1.2" type="device" pages="5">
   <diagram id="Gm47odLJpjWmuO-QlfPj" name="Arquitecture">
     <mxGraphModel dx="1886" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -2359,6 +2359,74 @@
         </mxCell>
         <mxCell id="m8Y-SNAOSBU-FTurxMVD-3" value="Email Enviado" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="360" y="440" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="o9iS4E6bqg4rSzT7k58q" name="Page-5">
+    <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-1" value="ServerManager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="120" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-2" value="WebServerConfig" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="250" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-3" value="AppContainer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="380" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-4" value="DatabaseConfig" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="510" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-5" value="Dependencias del sistema" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="380" y="230" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-6" value="Configuración Base de datos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="510" y="230" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-7" value="Configuración del servidor web: Middlewares, Json, Controllers etc" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="250" y="230" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-8" value="Configuración y Inicialziación del servidor, manejo de errores criticos etc." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="120" y="230" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-9" value="Quisiera separar la inicialización de la base de datos, de la creación de la instancia.&lt;br&gt;Quisiera separar los contenedores de dependencias y que estos puedan agregarse&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="50" width="510" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-10" value="ServerBuilder" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="260" y="350" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-11" value="ServiceManager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="400" y="350" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-12" value="Startup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="120" y="350" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-13" value="Configuración del servidor web: Middlewares, Json, Controllers etc, Manejo de errores del servidor etc" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="255" y="420" width="130" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-14" value="Manejo del contenedor de dependencias" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="395" y="420" width="130" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-15" value="Agrega los servicios &lt;br&gt;y middlewares del negocio al contenedor de dependencias" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="120" y="420" width="120" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-16" value="DatabaseManager (Director)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="190" y="690" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-17" value="IDatabaseManager&lt;br&gt;(Interfaz)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="190" y="620" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-18" value="DatabaseStrategy" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="690" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nNDW8F90NM3p4cCfI6Ug-19" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="719.5" as="sourcePoint" />
+            <mxPoint x="320" y="719.5" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>

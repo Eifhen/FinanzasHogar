@@ -1,6 +1,7 @@
-import ApplicationContext from "../Configurations/ApplicationContext";
-import { NO_REQUEST_ID } from "../Shered/CommonTypes/const";
-import ApplicationException from "../Shered/ErrorHandling/ApplicationException";
+
+import ApplicationContext from "../ApplicationContext/ApplicationContext";
+import { NO_REQUEST_ID } from "../CommonTypes/const";
+import ApplicationException from "../ErrorHandling/ApplicationException";
 import { HttpStatusCode } from "../Utils/HttpCodes";
 import ILoggerManager, { LoggEntityCategorys, LoggEntityCategory, LoggErrorType, LoggerType, LoggerTypes, LogLevels } from "./Interfaces/ILoggerManager";
 import Line from "./LinePrinterManager";
@@ -102,30 +103,11 @@ export default class LoggerManager implements ILoggerManager {
       }
 
       let msg = "";
-
-      if (this._entityCategory === LoggEntityCategorys.MIDDLEWARE) {
-        msg = `El ${this._entityCategory} [${this._entityName}] se ha ejecutado`;
-      }
-
-      if (this._entityCategory === LoggEntityCategorys.CONTROLLER) {
-        msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`
-      }
-
-      if (this._entityCategory === LoggEntityCategorys.SERVICE) {
-        msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`
-      }
-
-      if (this._entityCategory === LoggEntityCategorys.REPOSITORY) {
-        msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`
-      }
-
-      if (this._entityCategory === LoggEntityCategorys.HANDLER) {
-        msg = `El ${this._entityCategory} [${this._entityName}] se ha ejecutado`;
-      }
-
-      if (this._entityCategory === LoggEntityCategorys.MANAGER) {
-        msg = `El ${this._entityCategory} [${this._entityName}] se ha ejecutado`;
-      }
+    
+      msg = method ?  
+        `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]` : 
+        `El ${this._entityCategory} [${this._entityName}] se ha ejecutado`;
+     
 
       if (this._context && this._context.request_id != "") {
         msg = `RequestId: ${this._context.request_id} | ` + msg;

@@ -13,7 +13,7 @@ module.exports = {
   apps : [
     {
       name: "HomeBudgetCluster",
-      script: './src/API/startup.ts',
+      script: './src/API/index.ts',
       watch: true,
 
       ignore_watch:["./src/API/Logs"],

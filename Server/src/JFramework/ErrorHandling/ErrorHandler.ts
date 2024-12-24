@@ -1,12 +1,13 @@
 import {Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import ApplicationException from "./ApplicationException";
-import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../../Managers/LoggerManager";
-import { HttpStatusCode } from "../../Utils/HttpCodes";
-import { MiddleWareFunction } from '../../Configurations/types/WebServerConfigTypes';
+import { ApplicationMiddleware, MiddleWareFunction } from "../Configurations/types/ServerTypes";
+import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../Managers/LoggerManager";
+import { HttpStatusCode } from "../Utils/HttpCodes";
+
 
 /** Esta clase representa al middleware de manejo de errores de la aplicación */
-export default class ErrorHandler {
+export default class ErrorHandler implements ApplicationMiddleware {
 
   /** Instancia del logger */
   private _logger: ILoggerManager;
@@ -26,9 +27,7 @@ export default class ErrorHandler {
   }
 
   /** Método que nos permite obtener el middleware de intercepción de errores */
-  public GetInterceptor = () : MiddleWareFunction => {
+  public Init = () : MiddleWareFunction => {
     return this.Intercept;
   }
-
-
 }

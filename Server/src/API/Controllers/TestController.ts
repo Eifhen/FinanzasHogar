@@ -1,12 +1,13 @@
 import { GET, route } from "awilix-express";
 import { ITestService } from "../../Application/Services/Interfaces/ITestService";
 import { NextFunction, Request, Response } from "express";
-import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Infraestructure/Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../../Infraestructure/Managers/LoggerManager";
-import ApplicationContext from "../../Infraestructure/Configurations/ApplicationContext";
-import IErrorManager from "../../Infraestructure/Shered/ErrorHandling/Interfaces/IErrorManager";
-import { HttpStatusCode, HttpStatusMessage } from "../../Infraestructure/Utils/HttpCodes";
-import IDataBaseConfig from "../../Infraestructure/Configurations/types/IDataBaseConfig";
+import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../JFramework/Managers/LoggerManager";
+
+import IErrorManager from "../../JFramework/ErrorHandling/Interfaces/IErrorManager";
+import { HttpStatusCode, HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
+import ApplicationContext from "../../JFramework/ApplicationContext/ApplicationContext";
+
 
 
 
@@ -14,7 +15,6 @@ interface TestControllerDependencies {
   testService: ITestService;
   errorManager: IErrorManager;
   context: ApplicationContext;
-  database: IDataBaseConfig;
 }
 
 @route("/test")
@@ -24,13 +24,11 @@ export default class TestController {
   private readonly _context: ApplicationContext;
   private readonly _logger: ILoggerManager;
   private readonly _errorManager: IErrorManager;
-  private readonly _database: IDataBaseConfig;
 
   constructor(deps: TestControllerDependencies) {
     this._testService = deps.testService;
     this._context = deps.context;
     this._errorManager = deps.errorManager;
-    this._database = deps.database;
     this._logger = new LoggerManager({
       context: this._context,
       entityName: "TestController",
@@ -143,8 +141,8 @@ export default class TestController {
   public GetUsuarios = async (req: Request, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("GetUsuarios");
-      const usuarios = await this._database.instance.selectFrom("usuarios").selectAll().execute();
-      return res.status(HttpStatusCode.OK).send(usuarios);
+      // const usuarios = await this._database.instance.selectFrom("usuarios").selectAll().execute();
+      return res.status(HttpStatusCode.OK).send([]);
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetUsuarios");

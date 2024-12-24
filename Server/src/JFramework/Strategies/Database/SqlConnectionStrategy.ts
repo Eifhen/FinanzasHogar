@@ -1,40 +1,33 @@
-import * as tedious from 'tedious'
-import * as tarn from 'tarn'
-import { Kysely, MssqlDialect } from 'kysely'
-import { DataBase } from '../Data/DataBase'
-import ILoggerManager, { LoggEntityCategorys } from '../Managers/Interfaces/ILoggerManager'
-import LoggerManager from '../Managers/LoggerManager'
-import { NO_REQUEST_ID } from '../Shered/CommonTypes/const'
-import { HttpStatusCode } from '../Utils/HttpCodes'
-import ApplicationException from '../Shered/ErrorHandling/ApplicationException'
-import IDataBaseConfig from './types/IDataBaseConfig'
+import { Kysely, MssqlDialect } from "kysely";
+import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../Managers/LoggerManager";
+import IDatabaseConnectionStrategy from "./IDatabaseConnectionStrategy";
+import * as tarn from 'tarn';
+import * as tedious from 'tedious';
+import { NO_REQUEST_ID } from "../../CommonTypes/const";
+import { HttpStatusCode } from "../../Utils/HttpCodes";
+import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/Data/DataBase";
+import ApplicationException from "../../ErrorHandling/ApplicationException";
 
 
-/** Esta clase sirve para manejar la 
- * configuración del acceso a la base de datos 
- */
-export default class DataBaseConfig implements IDataBaseConfig {
-
+/** Estrategia de conección a SQL usandoy Kysely */
+export default class SqlConnectionStrategy implements IDatabaseConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
 
   /** Logger Manager Instance */
   private _loggerManager: ILoggerManager = new LoggerManager({
-    entityCategory: LoggEntityCategorys.CONFIGURATION,
-    entityName: "DataBaseConfig"
+    entityCategory: LoggEntityCategorys.STRATEGY,
+    entityName: "SqlConnectionStrategy"
   });
 
-  /** Keysely DataBase instance */
-  public instance: Kysely<DataBase>;
+  private _dialect: MssqlDialect|null = null;
+  private _instance: ApplicationSQLDatabase|null = null;
 
-  constructor() {
-    this._loggerManager.Register("INFO", "CONSTRUCTOR");
-    this.instance = this.GetDataBaseInstance();
-  }
+  constructor() { }
 
-  /** Este método ejecuta la conección con la base de datos */
-  private Build = (): MssqlDialect => {
+  /** Método que permite realizar la conección a SQL Server */
+  public Connect = () => {
     try {
-      this._loggerManager.Activity("Build");
-
+      this._loggerManager.Activity("Connect");
       const dialect = new MssqlDialect({
         tarn: {
           ...tarn,
@@ -84,10 +77,11 @@ export default class DataBaseConfig implements IDataBaseConfig {
         },
       });
 
+      this._dialect = dialect;
       return dialect;
     }
     catch (err: any) {
-      this._loggerManager.Error("FATAL", "Build", err);
+      this._loggerManager.Error("FATAL", "Connect", err);
       throw new ApplicationException(
         err.message,
         NO_REQUEST_ID,
@@ -96,32 +90,46 @@ export default class DataBaseConfig implements IDataBaseConfig {
         err
       );
     }
-  }
-
-  /**
-   * @description
-   *  Database interface is passed to Kysely's constructor, and from now on, Kysely 
-      knows your database structure.
-      Dialect is passed to Kysely's constructor, and from now on, Kysely knows how 
-      to communicate with your database.
-
-    * @returns - Keysely database instance 
-  */
-  private GetDataBaseInstance = (): Kysely<DataBase> => {
-    this._loggerManager.Activity("GetDataBaseInstance");
-    const dialect = this.Build();
-    return new Kysely<DataBase>({ dialect });
-  }
+  };
 
 
-  /** Cierra el pool de conexiones */
-  public async CloseDataBaseConnection(): Promise<void> {
+  /** Método que permite obtener una instancia de la connección a SQL Server */
+  public GetInstance = () => {
+    try {
+      this._loggerManager.Activity("GetInstance");
+      if(this._dialect === null){
+        throw Error("Por el momento no hay un dialecto disponible");
+      }
+
+      this._instance = new Kysely<DataBase>({ dialect: this._dialect });
+      return this._instance; 
+    }
+    catch(err:any){
+      this._loggerManager.Error("FATAL", "GetInstance", err);
+      throw new ApplicationException(
+        err.message,
+        NO_REQUEST_ID,
+        HttpStatusCode.InternalServerError,
+        __filename,
+        err
+      );
+    }
+  };
+
+  /** Método que permite cerrar la connección con la base de datos */
+  public CloseConnection = async () => {
     try {
       this._loggerManager.Activity("CloseDataBaseConnection");
-      await this.instance.destroy();
+      
+      if(this._instance === null){
+        throw Error("Por el momento no hay una instancia disponible");
+      }
+
+      await this._instance.destroy();
       this._loggerManager.Message("INFO", "Database connection pool has been closed.");
-    } catch (err: any) {
-      this._loggerManager.Error("FATAL", "CloseDataBaseConnection", err);
+    }
+    catch(err: any){
+      this._loggerManager.Error("FATAL", "CloseConnection", err);
       throw new ApplicationException(
         err.message,
         NO_REQUEST_ID,
@@ -131,7 +139,5 @@ export default class DataBaseConfig implements IDataBaseConfig {
       );
     }
   }
+
 }
-
-
-
