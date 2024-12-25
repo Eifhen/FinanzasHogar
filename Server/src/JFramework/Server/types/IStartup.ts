@@ -1,16 +1,16 @@
 
 import ServerConfig from "../../Configurations/ServerConfig";
-import ServiceManager from "../../../JFramework/Managers/ServiceManager";
+import ServiceManager from "../../Managers/ServiceManager";
 
 
 
-export default interface IStartupBuilder {
+export default interface IStartup {
 
   /** Permite manipular la configuración del servidor */
-  Configuration(serverConfig: ServerConfig): void;
+  Configuration(serverConfig: ServerConfig): Promise<void>;
 
   /** Permite manipular los servicios del sistema */
-  ConfigurationServices(services:ServiceManager): void;
+  ConfigurationServices(services:ServiceManager): Promise<void>;
 
   /** Este método se ejecuta cuando ocurre un error critico/fatal en el sistema */
   OnApplicationCriticalException(data:any): void;

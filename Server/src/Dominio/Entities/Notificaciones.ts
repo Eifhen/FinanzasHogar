@@ -13,7 +13,8 @@ export interface NotificacionesTable {
   /** Mensaje a notificar */
   mensaje: string;
 
-  /** Tipo de notificacion a enviar  1 system, 2 entity | El tipo de notificación (solicitud, cambios en finanzas, etc.). */
+  /** Tipo de notificacion a enviar  1 system, 2 entity | 
+   * El tipo de notificación (solicitud, cambios en finanzas, etc.). */
   tipo: number;
 
   /** Id de la entidad relacionada que envío la notificación */

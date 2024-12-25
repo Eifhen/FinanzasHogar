@@ -4,28 +4,30 @@ import ServerConfig from "../../JFramework/Configurations/ServerConfig";
 import ServiceManager from "../../JFramework/Managers/ServiceManager";
 import SqlConnectionStrategy from "../../JFramework/Strategies/Database/SqlConnectionStrategy";
 import DatabaseManager from "../../JFramework/Managers/DatabaseManager";
-import IStartupBuilder from "../../JFramework/Server/types/IStartupBuilder";
+import IStartup from "../../JFramework/Server/types/IStartup";
 import ErrorHandler from "../../JFramework/ErrorHandling/ErrorHandler";
 
 
-export default class Startup implements IStartupBuilder {
+export default class Startup implements IStartup {
  
   private _databaseManager: DatabaseManager<any, any> | null = null;
 
   // Permite configurar la configuración del servidor
-  Configuration(config: ServerConfig): void {
+  Configuration = async (config: ServerConfig) : Promise<void> => {
     config.AddCors();
     config.AddJsonResponse();
   }
 
   // Configura los servicios de la aplicación
-  ConfigurationServices(services: ServiceManager): void {
-
+  ConfigurationServices = async (services: ServiceManager) : Promise<void> => {
+    
+    /** Se establece la conección con la BD */
+    this._databaseManager = await services.AddDataBaseConnection(new SqlConnectionStrategy());
+    
     // services.AddAuthorization();
+    
     // services.AddAplicationContext();
-
-    services.AddDataBaseConnection(new SqlConnectionStrategy());
-
+    
     // Instancia los controladores
     services.AddControllers();
  
@@ -36,7 +38,6 @@ export default class Startup implements IStartupBuilder {
     // services.AddService<ApplicationContext>("applicationContext", ApplicationContext);
     services.AddService<ITestService, TestService>("testService", TestService);
   }
-
 
   // Ejecuta en el momento que se genera un error grave en el sistema
   OnApplicationCriticalException(data:any): void {

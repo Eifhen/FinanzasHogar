@@ -53,3 +53,14 @@
 2024-12-23 22:46:52: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
 2024-12-23 22:46:52: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddInstance]
 2024-12-23 22:46:52: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2024-12-23 22:47:11: [34m[INFO][0m | El MANAGER [ServerManager] ha ejecutado el método [START]
+2024-12-23 22:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddDataBaseConnection]
+2024-12-23 22:47:11: [34m[INFO][0m | El MANAGER [DatabaseManager] ha ejecutado el método [Connect]
+2024-12-23 22:47:11: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [Connect]
+2024-12-23 22:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddControllers]
+2024-12-23 22:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
+2024-12-23 22:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddService]
+2024-12-23 22:47:11: [34m[INFO][0m | El MANAGER [DatabaseManager] ha ejecutado el método [GetInstance]
+2024-12-23 22:47:11: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
+2024-12-23 22:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddInstance]
+2024-12-23 22:47:11: [34m[INFO][0m | El servidor está corriendo en el puerto 5000

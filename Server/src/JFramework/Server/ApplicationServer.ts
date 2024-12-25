@@ -4,14 +4,14 @@ import LoggerManager from "../Managers/LoggerManager";
 import express, { Application } from "express";
 import ServiceManager from "../Managers/ServiceManager";
 import ServerConfig from "../Configurations/ServerConfig";
-import IStartupBuilder from "./types/IStartupBuilder";
+import IStartup from "./types/IStartup";
 
 
-interface IServerBuilderDependencies {
-  startupBuilder: IStartupBuilder;
+interface IApplicationServerDependencies {
+  startupBuilder: IStartup;
 }
 
-export default class ServerBuilder {
+export default class ApplicationServer {
 
   /** Objeto server, este objeto nos sirve para manipular nuestro servidor*/
   private _server?: Server;
@@ -23,7 +23,7 @@ export default class ServerBuilder {
   private _PORT: number = Number(process.env.PORT ?? 0);
   
   /** Instancia del startup */
-  private _startup: IStartupBuilder;
+  private _startup: IStartup;
 
   /** Instancia del logger */
   private _logger: ILoggerManager;
@@ -35,7 +35,7 @@ export default class ServerBuilder {
   private _serverConfig: ServerConfig;
 
 
-  constructor(deps: IServerBuilderDependencies) {
+  constructor(deps: IApplicationServerDependencies) {
 
     // Instanciamos el logger
     this._logger = new LoggerManager({
@@ -118,8 +118,8 @@ export default class ServerBuilder {
       this.OnUnhandledRejection();
       
       // Se ejecuta el Startup
-      this._startup.Configuration(this._serverConfig);
-      this._startup.ConfigurationServices(this._serviceManager);
+      await this._startup.Configuration(this._serverConfig);
+      await this._startup.ConfigurationServices(this._serviceManager);
   
       this._server = this._app.listen(this._PORT, () => {
         this._logger.Message(LoggerTypes.INFO, `El servidor está corriendo en el puerto ${this._PORT}`);

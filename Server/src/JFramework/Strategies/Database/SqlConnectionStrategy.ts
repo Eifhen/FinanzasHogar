@@ -1,17 +1,17 @@
 import { Kysely, MssqlDialect } from "kysely";
 import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
-import IDatabaseConnectionStrategy from "./IDatabaseConnectionStrategy";
+import IDBConnectionStrategy from "./IDBConnectionStrategy";
 import * as tarn from 'tarn';
 import * as tedious from 'tedious';
 import { NO_REQUEST_ID } from "../../CommonTypes/const";
 import { HttpStatusCode } from "../../Utils/HttpCodes";
-import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/Data/DataBase";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
+import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
 
 
 /** Estrategia de conección a SQL usandoy Kysely */
-export default class SqlConnectionStrategy implements IDatabaseConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
+export default class SqlConnectionStrategy implements IDBConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
 
   /** Logger Manager Instance */
   private _loggerManager: ILoggerManager = new LoggerManager({

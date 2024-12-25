@@ -1,7 +1,7 @@
-import ServerBuilder from "../JFramework/Server/ServerBuilder";
+import ApplicationServer from "../JFramework/Server/ApplicationServer";
 import Startup from "./Server/Startup";
 
 
 
 /** Inicializa el servidor */
-new ServerBuilder({ startupBuilder: new Startup() }).Start();
+new ApplicationServer({ startupBuilder: new Startup() }).Start();

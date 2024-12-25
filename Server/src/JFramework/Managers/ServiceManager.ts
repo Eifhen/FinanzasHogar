@@ -4,7 +4,7 @@ import LoggerManager from "./LoggerManager";
 import { loadControllers } from "awilix-express";
 import { asClass, asValue, AwilixContainer, createContainer, InjectionMode, Lifetime, LifetimeType } from "awilix";
 import { ApplicationMiddleware } from "../Configurations/types/ServerTypes";
-import IDatabaseConnectionStrategy from "../Strategies/Database/IDatabaseConnectionStrategy";
+import IDBConnectionStrategy from "../Strategies/Database/IDBConnectionStrategy";
 import DatabaseManager from "./DatabaseManager";
 import { NO_REQUEST_ID } from "../CommonTypes/const";
 import { HttpStatusCode } from "../Utils/HttpCodes";
@@ -159,8 +159,8 @@ export default class ServiceManager {
 
   /** Reliza la connección a la base de datos en base a la estrategia definida y agrega la instancia a la base de datos */
   public AddDataBaseConnection = async <ConnectionType, InstanceType>(
-    strategy: IDatabaseConnectionStrategy<ConnectionType, InstanceType>
-  ) => {
+    strategy: IDBConnectionStrategy<ConnectionType, InstanceType>
+  ) : Promise<DatabaseManager<ConnectionType, InstanceType>> => {
     try {
       this._logger.Activity(`AddDataBaseConnection`);
       // se inserta la estrategia al DatabaseManager
@@ -171,6 +171,8 @@ export default class ServiceManager {
    
       // Agrega la instancia de la base de datos al contenedor de dependencias
       this.AddInstance("database", databaseManager.GetInstance());
+
+      return databaseManager;
     }
     catch(err:any){
       this._logger.Error("FATAL", "AddDataBaseConnection", err);
