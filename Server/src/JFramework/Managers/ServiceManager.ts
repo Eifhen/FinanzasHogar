@@ -1,7 +1,7 @@
 import { Application } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";
-import { loadControllers } from "awilix-express";
+import { loadControllers, scopePerRequest } from "awilix-express";
 import { asClass, asValue, AwilixContainer, createContainer, InjectionMode, Lifetime, LifetimeType } from "awilix";
 import { ApplicationMiddleware } from "../Configurations/types/ServerTypes";
 import IDBConnectionStrategy from "../Strategies/Database/IDBConnectionStrategy";
@@ -10,9 +10,6 @@ import { NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusCode } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 
-interface IServiceManagerDependencies {
-  app: Application;
-}
 
 export default class ServiceManager {
 
@@ -30,9 +27,9 @@ export default class ServiceManager {
   private _logger: ILoggerManager;
 
   /** Propiedad que contiene nuestro contenedor de dependencias */
-  private _container?: AwilixContainer;
+  private _container: AwilixContainer;
 
-  constructor(deps: IServiceManagerDependencies){
+  constructor(app:Application){
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MANAGER,
@@ -40,7 +37,7 @@ export default class ServiceManager {
     });
 
     // Instanciamos la app de express
-    this._app = deps.app;
+    this._app = app;
 
     // Creamos el contenedor de dependencias
     this._container = createContainer({
@@ -54,6 +51,7 @@ export default class ServiceManager {
   public AddControllers =  async () : Promise<void> => {
     try {
       this._logger.Activity("AddControllers");
+      this._app.use(scopePerRequest(this._container));
       this._app.use(
         this._api_route, 
         loadControllers(this._controllers_route, { cwd: __dirname})
@@ -78,7 +76,7 @@ export default class ServiceManager {
     lifetime: LifetimeType = Lifetime.SCOPED
   )=> {
     try {
-      this._logger.Activity(`AddService`);
+     // this._logger.Activity(`AddService`);
       
       // Registrar la implementación asociada a la interfaz
       this._container?.register(
@@ -101,7 +99,7 @@ export default class ServiceManager {
   /** Permite registrar la instancia de una clase como singleton */
   public AddInstance = <K, T extends K>(name:string, implementation:T) => {
     try {
-      this._logger.Activity(`AddInstance`);
+     // this._logger.Activity(`AddInstance`);
       
       // Registrar la implementación asociada a la interfaz
       this._container?.register(

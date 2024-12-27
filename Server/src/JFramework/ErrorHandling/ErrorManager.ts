@@ -10,7 +10,7 @@ import IErrorManager from "./Interfaces/IErrorManager";
 
 
 interface ErrorManagerDependencies {
-  context: ApplicationContext;
+  // context: ApplicationContext;
 }
 
 /**
@@ -19,10 +19,10 @@ interface ErrorManagerDependencies {
 export default class ErrorManager implements IErrorManager {
 
   /** Contexto de la aplicación */
-  private _context: ApplicationContext;
+   // private _context: ApplicationContext;
 
   constructor(deps: ErrorManagerDependencies){
-    this._context = deps.context;
+    //this._context = deps.context;
   }
 
   /**  Retorna un objeto ApplicationException en base a la configuración ingresada */
@@ -34,10 +34,10 @@ export default class ErrorManager implements IErrorManager {
     exception.status = status;
     
     // muestra el stack solo en desarrollo.
-    if(this._context.environment === EnvironmentStatus.DEVELOPMENT){
-      exception.path = path;
-      exception.fullDescription = innerException && innerException.stack ? innerException.stack :  "";
-    }
+    // if(this._context.environment === EnvironmentStatus.DEVELOPMENT){
+    //   exception.path = path;
+    //   exception.fullDescription = innerException && innerException.stack ? innerException.stack :  "";
+    // }
 
     return exception;
   } 

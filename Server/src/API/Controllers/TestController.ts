@@ -7,6 +7,8 @@ import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import IErrorManager from "../../JFramework/ErrorHandling/Interfaces/IErrorManager";
 import { HttpStatusCode, HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
+import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
+import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 
 
 
@@ -14,23 +16,26 @@ import ApplicationContext from "../../JFramework/Application/ApplicationContext"
 interface TestControllerDependencies {
   testService: ITestService;
   errorManager: IErrorManager;
-  context: ApplicationContext;
+ // context: ApplicationContext;
+  usuariosRepository: IUsuariosSqlRepository;
 }
 
 @route("/test")
 export default class TestController {
 
   private readonly _testService: ITestService;
-  private readonly _context: ApplicationContext;
+ // private readonly _context: ApplicationContext;
   private readonly _logger: ILoggerManager;
   private readonly _errorManager: IErrorManager;
+  private readonly _usuariosRepository: IUsuariosSqlRepository;
 
   constructor(deps: TestControllerDependencies) {
     this._testService = deps.testService;
-    this._context = deps.context;
+  //  this._context = deps.context;
     this._errorManager = deps.errorManager;
+    this._usuariosRepository = deps.usuariosRepository;    
     this._logger = new LoggerManager({
-      context: this._context,
+    //  context: this._context,
       entityName: "TestController",
       entityCategory: LoggEntityCategorys.CONTROLLER,
     });
@@ -141,8 +146,18 @@ export default class TestController {
   public GetUsuarios = async (req: Request, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("GetUsuarios");
-      // const usuarios = await this._database.instance.selectFrom("usuarios").selectAll().execute();
-      return res.status(HttpStatusCode.OK).send([]);
+
+      const [error, data] = await this._usuariosRepository.paginate({
+        pageSize: 10,
+        currentPage: 1,
+      });
+
+      if(error){
+        console.log("error =>", error);
+        throw new ApplicationException("error al buscar usuarios")
+      }
+
+      return res.status(HttpStatusCode.OK).send(data);
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetUsuarios");

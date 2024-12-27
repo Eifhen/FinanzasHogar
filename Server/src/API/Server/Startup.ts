@@ -5,7 +5,11 @@ import ServiceManager from "../../JFramework/Managers/ServiceManager";
 import SqlConnectionStrategy from "../../JFramework/Strategies/Database/SqlConnectionStrategy";
 import DatabaseStrategyDirector from "../../JFramework/Strategies/Database/DatabaseStrategyDirector";
 import IApplicationStart from "../../JFramework/Application/types/IApplicationStart";
-import ErrorHandler from "../../JFramework/ErrorHandling/ErrorHandler";
+import ErrorHandlerMiddleware from "../../JFramework/ErrorHandling/ErrorHandlerMiddleware";
+import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
+import UsuariosSqlRepository from "../../Infraestructure/Repositories/UsuariosSqlRepository";
+import IErrorManager from "../../JFramework/ErrorHandling/Interfaces/IErrorManager";
+import ErrorManager from "../../JFramework/ErrorHandling/ErrorManager";
 
 
 export default class Startup implements IApplicationStart {
@@ -32,15 +36,19 @@ export default class Startup implements IApplicationStart {
     services.AddControllers();
  
     // Middlewares
-    services.AddMiddleware(new ErrorHandler());
+    services.AddMiddleware(new ErrorHandlerMiddleware());
 
-    // Dependencias
+    // Managers
     // services.AddService<ApplicationContext>("applicationContext", ApplicationContext);
+    services.AddService<IErrorManager, ErrorManager>("errorManager", ErrorManager);
+
+    // Servicios
     services.AddService<ITestService, TestService>("testService", TestService);
 
     // Repositorios
-
+    services.AddService<IUsuariosSqlRepository, UsuariosSqlRepository>("usuariosRepository", UsuariosSqlRepository);
   
+    
 
   }
 

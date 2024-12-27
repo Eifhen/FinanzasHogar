@@ -50,14 +50,10 @@ export default class ApplicationServer {
     this._startup = deps.startupBuilder;
 
     // Instanciamos el manejador de servicios
-    this._serviceManager = new ServiceManager({
-      app: this._app,
-    });
+    this._serviceManager = new ServiceManager(this._app);
     
     // Instanciamos la configuración del server
-    this._serverConfig = new ServerConfig({
-      app: this._app
-    });
+    this._serverConfig = new ServerConfig(this._app);
   }
 
   /** Este evento se ejecuta si algún error no fue manejado por la app */

@@ -2,19 +2,16 @@ import { Application } from "express";
 import express from 'express';
 import cors, { CorsOptions } from 'cors';
 
-export interface IServerConfigDependencies {
-  app: Application;
-}
 
 export default class ServerConfig {
 
   /** Instancia de express */
   private _app: Application;
 
-  constructor(deps: IServerConfigDependencies) {
+  constructor(app: Application) {
 
     /** Inicializamos nuestra instancia de express */
-    this._app = deps.app;
+    this._app = app;
   }
 
   /** Método que maneja la respuesta JSON de la aplicación */

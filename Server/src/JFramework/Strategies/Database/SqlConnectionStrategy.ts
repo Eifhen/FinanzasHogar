@@ -1,4 +1,4 @@
-import { Kysely, MssqlDialect } from "kysely";
+import { Kysely, MssqlDialect, SqliteDriver } from "kysely";
 import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
 import IDBConnectionStrategy from "./IDBConnectionStrategy";
@@ -9,6 +9,11 @@ import { HttpStatusCode } from "../../Utils/HttpCodes";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
 
+
+/** 
+  Si la connección no funciona revisar las credenciales de acceso y 
+  que el Sql Agent esté corriendo
+*/
 
 /** Estrategia de conección a SQL usandoy Kysely */
 export default class SqlConnectionStrategy implements IDBConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
@@ -32,21 +37,27 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
         tarn: {
           ...tarn,
           options: {
-            min: 0,
-            max: 10,
+            min: 1, // tamaño minimo del conection pool
+            max: 10, // tamaño maximo del connection pool
           },
         },
         tedious: {
           ...tedious,
           connectionFactory: () => {
-            // console.log("data =>", {
-            //   userName: process.env.DB_USERNAME,
-            //   password: process.env.DB_PASSWORD ?? "",
-            //   database: process.env.DB_NAME,
-            //   port: process.env.DB_PORT,
-            //   server: process.env.DB_SERVER,
-            // });
+          
+            /** 
+              Agregar esto al logger para ver que datos están entrando.
+                 {
+                  userName: process.env.DB_USERNAME,
+                  password: process.env.DB_PASSWORD ?? "",
+                  database: process.env.DB_NAME,
+                  port: process.env.DB_PORT,
+                  server: process.env.DB_SERVER,
+                }
+            */
+
             this._loggerManager.Register("INFO", "connectionFactory");
+
             return new tedious.Connection({
               server: process.env.DB_SERVER ?? "",
               options: {
@@ -55,12 +66,12 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
                 // port: Number(process.env.DB_PORT ?? 0),
                 trustServerCertificate: true,
                 abortTransactionOnError: true, // Aborta cualquier transacción automaticamente si ocurre un error en sql.
+                connectTimeout: 3000, // The number of milliseconds before the attempt to connect is considered failed (default: 15000).
 
                 /**
                   maxRetriesOnTransientErrors: 2, // The maximum number of connection retries for transient errors. (default: 3).
                   requestTimeout: 1000, // The number of milliseconds before a request is considered failed, or 0 for no timeout (default: 15000).
                   cancelTimeout: 1000, // The number of milliseconds before the cancel (abort) of a request is considered failed (default: 5000).
-                  connectTimeout: 1000, // The number of milliseconds before the attempt to connect is considered failed (default: 15000).
                   connectionRetryInterval: 1000, // Tiempo entre intentos (en ms)
                 */
               },
@@ -101,7 +112,10 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
         throw Error("Por el momento no hay un dialecto disponible");
       }
 
-      this._instance = new Kysely<DataBase>({ dialect: this._dialect });
+      this._instance = new Kysely<DataBase>({ 
+        dialect: this._dialect 
+      });
+
       return this._instance; 
     }
     catch(err:any){
