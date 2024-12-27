@@ -1,4 +1,4 @@
-import ApplicationServer from "../JFramework/Server/ApplicationServer";
+import ApplicationServer from "../JFramework/Application/ApplicationServer";
 import Startup from "./Server/Startup";
 
 

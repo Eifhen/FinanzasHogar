@@ -6,7 +6,7 @@ import LoggerManager from "../../JFramework/Managers/LoggerManager";
 
 import IErrorManager from "../../JFramework/ErrorHandling/Interfaces/IErrorManager";
 import { HttpStatusCode, HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
-import ApplicationContext from "../../JFramework/ApplicationContext/ApplicationContext";
+import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 
 
 

@@ -4,7 +4,7 @@ import ServiceManager from "../../Managers/ServiceManager";
 
 
 
-export default interface IStartup {
+export default interface IApplicationStart {
 
   /** Permite manipular la configuración del servidor */
   Configuration(serverConfig: ServerConfig): Promise<void>;

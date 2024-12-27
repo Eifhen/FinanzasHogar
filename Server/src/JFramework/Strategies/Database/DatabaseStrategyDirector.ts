@@ -1,9 +1,9 @@
-import { NO_REQUEST_ID } from '../CommonTypes/const';
-import IDBConnectionStrategy from '../Strategies/Database/IDBConnectionStrategy';
-import ApplicationException from '../ErrorHandling/ApplicationException';
-import { HttpStatusCode } from '../Utils/HttpCodes';
-import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/ILoggerManager";
-import LoggerManager from './LoggerManager';
+import { NO_REQUEST_ID } from '../../Utils/const';
+import IDBConnectionStrategy from './IDBConnectionStrategy';
+import ApplicationException from '../../ErrorHandling/ApplicationException';
+import { HttpStatusCode } from '../../Utils/HttpCodes';
+import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
+import LoggerManager from '../../Managers/LoggerManager';
 
 
 interface IDatabaseManagerDependencies<C, I> {
@@ -11,7 +11,7 @@ interface IDatabaseManagerDependencies<C, I> {
 }
 
 /** Implementa la estrategia de base de datos */
-export default class DatabaseManager<ConnectionType, InstanceType> {
+export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   
   /** Instancia del logger */
   private _logger: ILoggerManager;

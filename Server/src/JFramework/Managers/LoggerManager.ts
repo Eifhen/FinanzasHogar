@@ -1,6 +1,6 @@
 
-import ApplicationContext from "../ApplicationContext/ApplicationContext";
-import { NO_REQUEST_ID } from "../CommonTypes/const";
+import ApplicationContext from "../Application/ApplicationContext";
+import { NO_REQUEST_ID } from "../Utils/const";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { HttpStatusCode } from "../Utils/HttpCodes";
 import ILoggerManager, { LoggEntityCategorys, LoggEntityCategory, LoggErrorType, LoggerType, LoggerTypes, LogLevels } from "./Interfaces/ILoggerManager";

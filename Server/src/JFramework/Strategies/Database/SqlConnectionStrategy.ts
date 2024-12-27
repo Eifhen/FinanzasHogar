@@ -4,7 +4,7 @@ import LoggerManager from "../../Managers/LoggerManager";
 import IDBConnectionStrategy from "./IDBConnectionStrategy";
 import * as tarn from 'tarn';
 import * as tedious from 'tedious';
-import { NO_REQUEST_ID } from "../../CommonTypes/const";
+import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusCode } from "../../Utils/HttpCodes";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";

@@ -5,12 +5,10 @@ import { loadControllers } from "awilix-express";
 import { asClass, asValue, AwilixContainer, createContainer, InjectionMode, Lifetime, LifetimeType } from "awilix";
 import { ApplicationMiddleware } from "../Configurations/types/ServerTypes";
 import IDBConnectionStrategy from "../Strategies/Database/IDBConnectionStrategy";
-import DatabaseManager from "./DatabaseManager";
-import { NO_REQUEST_ID } from "../CommonTypes/const";
+import DatabaseStrategyDirector from "../Strategies/Database/DatabaseStrategyDirector";
+import { NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusCode } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
-
-
 
 interface IServiceManagerDependencies {
   app: Application;
@@ -100,6 +98,7 @@ export default class ServiceManager {
     }
   }
 
+  /** Permite registrar la instancia de una clase como singleton */
   public AddInstance = <K, T extends K>(name:string, implementation:T) => {
     try {
       this._logger.Activity(`AddInstance`);
@@ -157,14 +156,16 @@ export default class ServiceManager {
     this.AddMiddleware(middleware);
   }
 
-  /** Reliza la connección a la base de datos en base a la estrategia definida y agrega la instancia a la base de datos */
+  /** Reliza la connección a la base de datos en base a la estrategia 
+   * definida y agrega la instancia a la base de datos */
   public AddDataBaseConnection = async <ConnectionType, InstanceType>(
     strategy: IDBConnectionStrategy<ConnectionType, InstanceType>
-  ) : Promise<DatabaseManager<ConnectionType, InstanceType>> => {
+  ) : Promise<DatabaseStrategyDirector<ConnectionType, InstanceType>> => {
     try {
       this._logger.Activity(`AddDataBaseConnection`);
+
       // se inserta la estrategia al DatabaseManager
-      const databaseManager = new DatabaseManager({ strategy });
+      const databaseManager = new DatabaseStrategyDirector({ strategy });
       
       // Se inicia la conección a la base de datos
       await databaseManager.Connect();
@@ -186,4 +187,5 @@ export default class ServiceManager {
       );
     }
   }
+
 }

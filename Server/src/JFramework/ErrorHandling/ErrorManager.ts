@@ -1,6 +1,6 @@
 
 
-import ApplicationContext from "../ApplicationContext/ApplicationContext";
+import ApplicationContext from "../Application/ApplicationContext";
 import { EnvironmentStatus } from "../Utils/Environment";
 import { HttpStatusCodes } from "../Utils/HttpCodes";
 import ApplicationException from "./ApplicationException";

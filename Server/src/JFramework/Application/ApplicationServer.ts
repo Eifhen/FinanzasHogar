@@ -4,11 +4,11 @@ import LoggerManager from "../Managers/LoggerManager";
 import express, { Application } from "express";
 import ServiceManager from "../Managers/ServiceManager";
 import ServerConfig from "../Configurations/ServerConfig";
-import IStartup from "./types/IStartup";
+import IApplicationStart from "./types/IApplicationStart";
 
 
 interface IApplicationServerDependencies {
-  startupBuilder: IStartup;
+  startupBuilder: IApplicationStart;
 }
 
 export default class ApplicationServer {
@@ -23,7 +23,7 @@ export default class ApplicationServer {
   private _PORT: number = Number(process.env.PORT ?? 0);
   
   /** Instancia del startup */
-  private _startup: IStartup;
+  private _startup: IApplicationStart;
 
   /** Instancia del logger */
   private _logger: ILoggerManager;
