@@ -154,13 +154,10 @@ export default class MssSqlGenericRepository<
         // Calcular el offset y limitar los resultados
         const offset = (currentPage - 1) * pageSize;
 
-        // OJO AQUI
-        console.log("SQL QUERY PRINTED =>", 
-          baseQuery.selectAll().offset(offset).limit(pageSize).compile().sql,
-          baseQuery.selectAll().offset(offset).limit(pageSize).compile().parameters,
-        );
-        
-        const paginatedQuery = baseQuery.selectAll().limit(pageSize).offset(offset);
+        const paginatedQuery = baseQuery.selectAll()
+          .orderBy(this._primaryKey as ReferenceExpression<DataBase, ExtractTableAlias<DataBase, TableName>>)
+          .offset(offset)
+          .fetch(pageSize);
         
         const items = await paginatedQuery.execute() as unknown as Selectable<DataBase[TableName]>[];
         

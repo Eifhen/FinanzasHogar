@@ -43,3 +43,30 @@ VALUES (
     '{"theme": "dark", "notifications": true}', -- Preferencias en formato JSON
     'USA' -- País
 );
+
+
+
+/** 
+	Este es el query que me está imprimiendo kysily 
+	RequestError: Incorrect syntax near '@1'
+*/
+select * from "usuarios" limit @1 offset @2 rows
+
+
+SELECT * FROM usuarios
+ORDER BY id_usuario
+LIMIT 10
+OFFSET 0 ROWS;
+
+
+DECLARE @1 INT;
+SET @1 = 10;
+
+DECLARE @2 INT;
+SET @2 = 0;
+
+SELECT * 
+FROM "usuarios"
+ORDER BY "id_usuario"  -- Es necesario incluir un ORDER BY para usar OFFSET/FETCH
+OFFSET @2 ROWS
+FETCH NEXT @1 ROWS ONLY;

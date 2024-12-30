@@ -153,7 +153,6 @@ export default class TestController {
       });
 
       if(error){
-        console.log("error =>", error);
         throw new ApplicationException("error al buscar usuarios")
       }
 

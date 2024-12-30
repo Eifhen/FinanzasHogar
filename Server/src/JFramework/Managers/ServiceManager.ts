@@ -155,8 +155,9 @@ export default class ServiceManager {
   }
 
   /** Reliza la connección a la base de datos en base a la estrategia 
-   * definida y agrega la instancia a la base de datos */
+   * definida y devuelve la instancia de la conección a la DB */
   public AddDataBaseConnection = async <ConnectionType, InstanceType>(
+    dbManager: DatabaseStrategyDirector<any, any>|null = null,
     strategy: IDBConnectionStrategy<ConnectionType, InstanceType>
   ) : Promise<DatabaseStrategyDirector<ConnectionType, InstanceType>> => {
     try {
@@ -171,6 +172,8 @@ export default class ServiceManager {
       // Agrega la instancia de la base de datos al contenedor de dependencias
       this.AddInstance("database", databaseManager.GetInstance());
 
+      /** Se pasa por referencia el objeto databaseManager */
+      dbManager = databaseManager;
       return databaseManager;
     }
     catch(err:any){
