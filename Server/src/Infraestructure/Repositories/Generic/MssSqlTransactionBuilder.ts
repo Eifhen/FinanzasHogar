@@ -3,7 +3,7 @@ import ApplicationException from "../../../JFramework/ErrorHandling/ApplicationE
 import ILoggerManager, { LoggEntityCategorys } from "../../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../../JFramework/Managers/LoggerManager";
 import { NO_REQUEST_ID } from "../../../JFramework/Utils/const";
-import { HttpStatusCode } from "../../../JFramework/Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusName } from "../../../JFramework/Utils/HttpCodes";
 import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
 import IMssSqlGenericRepository from "./Interfaces/IMssSqlGenericRepository";
 
@@ -52,8 +52,9 @@ export default class MssSqlTransactionBuilder {
         this._logger.Error("ERROR", "Start", err);
         throw new ApplicationException(
           err.message,
-          NO_REQUEST_ID,
+          HttpStatusName.InternalServerError,
           HttpStatusCode.InternalServerError,
+          NO_REQUEST_ID,
           __filename,
           err
         );
@@ -80,8 +81,9 @@ export default class MssSqlTransactionBuilder {
       this._logger.Error("ERROR", "SetTransactions", err);
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );

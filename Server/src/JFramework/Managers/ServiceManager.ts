@@ -1,14 +1,15 @@
-import { Application } from "express";
+import { Application, RequestHandler } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";
 import { loadControllers, scopePerRequest } from "awilix-express";
 import { asClass, asValue, AwilixContainer, createContainer, InjectionMode, Lifetime, LifetimeType } from "awilix";
-import { ApplicationMiddleware } from "../Configurations/types/ServerTypes";
+import { ApplicationMiddleware } from '../Configurations/types/ServerTypes';
 import IDBConnectionStrategy from "../Strategies/Database/IDBConnectionStrategy";
 import DatabaseStrategyDirector from "../Strategies/Database/DatabaseStrategyDirector";
 import { NO_REQUEST_ID } from "../Utils/const";
-import { HttpStatusCode } from "../Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
+import { ErrorRequestHandler } from "express-serve-static-core";
 
 
 export default class ServiceManager {
@@ -61,8 +62,9 @@ export default class ServiceManager {
       this._logger.Error(LoggerTypes.FATAL, "AddControllers", err);
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );
@@ -88,8 +90,9 @@ export default class ServiceManager {
       this._logger.Error(LoggerTypes.FATAL, "AddService", err);
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );
@@ -111,8 +114,9 @@ export default class ServiceManager {
       this._logger.Error(LoggerTypes.FATAL, "AddService", err);
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );
@@ -128,8 +132,9 @@ export default class ServiceManager {
       this._logger.Error(LoggerTypes.FATAL, `No se pudo resolver el servicio: ${serviceName}`, err);
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );
@@ -139,12 +144,18 @@ export default class ServiceManager {
   /** Agrega un middleware a la aplicación */
   public AddMiddleware = (middleware:ApplicationMiddleware) => {
     this._logger.Activity(`AddMiddleware`);
-    this._app.use(middleware.Init());
+    this._app.use(middleware.Init() as RequestHandler | ErrorRequestHandler);
   }
 
-  /** Agrega el middleware de authorización del sistema */
+  /** Agrega el middleware de autorización del sistema */
   public AddAuthorization = (middleware: ApplicationMiddleware) => {
     this._logger.Activity(`AddAuthorization`);
+    this.AddMiddleware(middleware);
+  }
+
+   /** Agrega el middleware de autenticación del sistema */
+   public AddAuthentication = (middleware: ApplicationMiddleware) => {
+    this._logger.Activity(`AddAuthentication`);
     this.AddMiddleware(middleware);
   }
 
@@ -154,8 +165,12 @@ export default class ServiceManager {
     this.AddMiddleware(middleware);
   }
 
-  /** Reliza la connección a la base de datos en base a la estrategia 
-   * definida y devuelve la instancia de la conección a la DB */
+  /** 
+   * @param {DatabaseStrategyDirector} dbManager - Manejador de base de datos
+   * @param {IDBConnectionStrategy} strategy - Estrategia de connección a base de datos
+   * @description - Reliza la connección a la base de datos en base a la estrategia 
+   * definida y devuelve la instancia de la conección a la DB.
+  */
   public AddDataBaseConnection = async <ConnectionType, InstanceType>(
     dbManager: DatabaseStrategyDirector<any, any>|null = null,
     strategy: IDBConnectionStrategy<ConnectionType, InstanceType>
@@ -181,8 +196,9 @@ export default class ServiceManager {
 
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );

@@ -2,13 +2,14 @@
 import ApplicationContext from "../Application/ApplicationContext";
 import { NO_REQUEST_ID } from "../Utils/const";
 import ApplicationException from "../ErrorHandling/ApplicationException";
-import { HttpStatusCode } from "../Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ILoggerManager, { LoggEntityCategorys, LoggEntityCategory, LoggErrorType, LoggerType, LoggerTypes, LogLevels } from "./Interfaces/ILoggerManager";
 import Line from "./LinePrinterManager";
+import IsNullOrEmpty from "../Utils/utils";
 
 
 interface LoggManagerDependencies {
-  context?: ApplicationContext;
+  applicationContext?: ApplicationContext;
   entityCategory: LoggEntityCategory;
   entityName: string;
 }
@@ -25,10 +26,10 @@ export default class LoggerManager implements ILoggerManager {
   private _entityCategory?: LoggEntityCategory;
 
   /** Contexto de la aplicación */
-  private _context?: ApplicationContext;
+  private _applicationContext?: ApplicationContext;
 
   constructor(dependencies?: LoggManagerDependencies) {
-    this._context = dependencies?.context;
+    this._applicationContext = dependencies?.applicationContext;
     this._entityName = dependencies?.entityName ?? "";
     this._entityCategory = dependencies?.entityCategory;
   }
@@ -82,8 +83,9 @@ export default class LoggerManager implements ILoggerManager {
       Line.Print("FATAL", "Ha ocurrido un error al ejecutar el método [Message] del LoggerManager", err);
       throw new ApplicationException(
         err.message, 
-        this._context?.request_id ?? NO_REQUEST_ID, 
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError, 
+        IsNullOrEmpty(this._applicationContext?.requestID) ? NO_REQUEST_ID : this._applicationContext?.requestID, 
         __filename, 
         err
       );
@@ -109,8 +111,8 @@ export default class LoggerManager implements ILoggerManager {
         `El ${this._entityCategory} [${this._entityName}] se ha ejecutado`;
      
 
-      if (this._context && this._context.request_id != "") {
-        msg = `RequestId: ${this._context.request_id} | ` + msg;
+      if (this._applicationContext && this._applicationContext.requestID != "") {
+        msg = `RequestId: ${this._applicationContext.requestID} | ` + msg;
       }
 
       // agregar request ID desde el context
@@ -121,8 +123,9 @@ export default class LoggerManager implements ILoggerManager {
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Activity] del LoggerManager", err);
       throw new ApplicationException(
         err.message, 
-        this._context?.request_id ?? NO_REQUEST_ID, 
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError, 
+        IsNullOrEmpty(this._applicationContext?.requestID) ? NO_REQUEST_ID : this._applicationContext?.requestID, 
         __filename, 
         err
       );
@@ -146,8 +149,9 @@ export default class LoggerManager implements ILoggerManager {
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Register] del LoggerManager", err);
       throw new ApplicationException(
         err.message, 
-        this._context?.request_id ?? NO_REQUEST_ID, 
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError, 
+        IsNullOrEmpty(this._applicationContext?.requestID) ? NO_REQUEST_ID : this._applicationContext?.requestID, 
         __filename, 
         err
       );
@@ -168,8 +172,8 @@ export default class LoggerManager implements ILoggerManager {
         `Ha ocurrido un error en el ${this._entityCategory} [${this._entityName}]`;
 
       // Agregar request id desde el context si lo hay
-      if (this._context && this._context.request_id != "") {
-        msg = `RequestId: ${this._context.request_id} | ` + msg;
+      if (this._applicationContext && this._applicationContext.requestID != "") {
+        msg = `RequestId: ${this._applicationContext.requestID} | ` + msg;
       }
 
       this.Message(type, msg, obj);
@@ -180,8 +184,9 @@ export default class LoggerManager implements ILoggerManager {
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Error] del LoggerManager", err);
       throw new ApplicationException(
         err.message, 
-        this._context?.request_id ?? NO_REQUEST_ID, 
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError, 
+        IsNullOrEmpty(this._applicationContext?.requestID) ? NO_REQUEST_ID : this._applicationContext?.requestID, 
         __filename, 
         err
       );

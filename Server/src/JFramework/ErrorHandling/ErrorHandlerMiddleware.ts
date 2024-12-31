@@ -1,9 +1,12 @@
-import {Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import { Response, NextFunction } from "express";
 import ApplicationException from "./ApplicationException";
 import { ApplicationMiddleware, MiddleWareFunction } from "../Configurations/types/ServerTypes";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
-import { HttpStatusCode } from "../Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
+import ApplicationRequest from "../Application/ApplicationRequest";
+import IsNullOrEmpty from "../Utils/utils";
+import { NO_REQUEST_ID } from "../Utils/const";
 
 
 /** Esta clase representa al middleware de manejo de errores de la aplicación */
@@ -20,17 +23,22 @@ export default class ErrorHandlerMiddleware implements ApplicationMiddleware {
   }
 
   /** Middleware que permite interceptar los errores de la aplicación */
-  private Intercept = (error: ApplicationException, req: Request, res: Response, next:NextFunction) : any => {
+  private Intercept = (error: ApplicationException|Error, req: ApplicationRequest, res: Response, next:NextFunction) : any => {
     this._logger.Register("WARN", "Intercept", error);
     
     const status = error instanceof ApplicationException && error.status ? 
         error.status : HttpStatusCode.InternalServerError;
 
+    if(error instanceof ApplicationException){
+      return res.status(status).send(error);
+    }
+    
     return res.status(status).send(new ApplicationException(
       error.message,
-      error.request_id,
-      error.status ? error.status : HttpStatusCode.InternalServerError,
-      error.path,
+      HttpStatusName.InternalServerError,
+      status,
+      IsNullOrEmpty(req.requestID)  ? NO_REQUEST_ID : req.requestID,
+      "",
       error
     ));
   }

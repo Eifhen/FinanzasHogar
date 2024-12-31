@@ -5,9 +5,10 @@ import IDBConnectionStrategy from "./IDBConnectionStrategy";
 import * as tarn from 'tarn';
 import * as tedious from 'tedious';
 import { NO_REQUEST_ID } from "../../Utils/const";
-import { HttpStatusCode } from "../../Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
+import { sqlDBConfig } from "../../Configurations/DatabaseConfig";
 
 
 /** 
@@ -24,13 +25,13 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
     entityName: "SqlConnectionStrategy"
   });
 
-  private _dialect: MssqlDialect|null = null;
-  private _instance: ApplicationSQLDatabase|null = null;
+  private _dialect: MssqlDialect | null = null;
+  private _instance: ApplicationSQLDatabase | null = null;
 
   constructor() { }
 
   /** Método que permite realizar la conección a SQL Server */
-  public Connect = () => {
+  public Connect = async () => {
     try {
       this._loggerManager.Activity("Connect");
       const dialect = new MssqlDialect({
@@ -44,46 +45,21 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
         tedious: {
           ...tedious,
           connectionFactory: () => {
-          
-            /** 
-              Agregar esto al logger para ver que datos están entrando.
-                 {
-                  userName: process.env.DB_USERNAME,
-                  password: process.env.DB_PASSWORD ?? "",
-                  database: process.env.DB_NAME,
-                  port: process.env.DB_PORT,
-                  server: process.env.DB_SERVER,
-                }
-            */
-
             this._loggerManager.Register("INFO", "connectionFactory");
+            const connection = new tedious.Connection(sqlDBConfig);
 
-            return new tedious.Connection({
-              server: process.env.DB_SERVER ?? "",
-              options: {
-                database: process.env.DB_NAME ?? "",
-                instanceName: process.env.DB_INSTANCE ?? "",
-                // port: Number(process.env.DB_PORT ?? 0),
-                trustServerCertificate: true,
-                abortTransactionOnError: true, // Aborta cualquier transacción automaticamente si ocurre un error en sql.
-                connectTimeout: 3000, // The number of milliseconds before the attempt to connect is considered failed (default: 15000).
-
-                /**
-                  maxRetriesOnTransientErrors: 2, // The maximum number of connection retries for transient errors. (default: 3).
-                  requestTimeout: 1000, // The number of milliseconds before a request is considered failed, or 0 for no timeout (default: 15000).
-                  cancelTimeout: 1000, // The number of milliseconds before the cancel (abort) of a request is considered failed (default: 5000).
-                  connectionRetryInterval: 1000, // Tiempo entre intentos (en ms)
-                */
-              },
-              authentication: {
-                type: 'default',
-                options: {
-                  userName: process.env.DB_USERNAME ?? "",
-                  password: process.env.DB_PASSWORD ?? "",
-                  //domain: process.env.DB_DOMAIN ?? "",
-                },
-              },
-            })
+            // Manejador de conexión exitosa
+            connection.on("connect", (err) => {
+              if (err) {
+                // Si ocurre un error al conectar, se rechaza la promesa
+                this._loggerManager.Message("FATAL", "Database Connection failed", err);
+              } else {
+                // Si la conexión es exitosa, se resuelve la promesa
+                this._loggerManager.Message("INFO", "Database Connection established");
+              }
+            });
+             
+            return connection;
           },
         },
       });
@@ -95,8 +71,9 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
       this._loggerManager.Error("FATAL", "Connect", err);
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );
@@ -108,22 +85,23 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
   public GetInstance = () => {
     try {
       this._loggerManager.Activity("GetInstance");
-      if(this._dialect === null){
+      if (this._dialect === null) {
         throw Error("Por el momento no hay un dialecto disponible");
       }
 
-      this._instance = new Kysely<DataBase>({ 
-        dialect: this._dialect 
+      this._instance = new Kysely<DataBase>({
+        dialect: this._dialect
       });
 
-      return this._instance; 
+      return this._instance;
     }
-    catch(err:any){
+    catch (err: any) {
       this._loggerManager.Error("FATAL", "GetInstance", err);
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );
@@ -134,20 +112,21 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
   public CloseConnection = async () => {
     try {
       this._loggerManager.Activity("CloseDataBaseConnection");
-      
-      if(this._instance === null){
+
+      if (this._instance === null) {
         throw Error("Por el momento no hay una instancia disponible");
       }
 
       await this._instance.destroy();
       this._loggerManager.Message("INFO", "Database connection pool has been closed.");
     }
-    catch(err: any){
+    catch (err: any) {
       this._loggerManager.Error("FATAL", "CloseConnection", err);
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );

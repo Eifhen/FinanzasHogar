@@ -1,9 +1,9 @@
-import IOperationArgs from "./types/IOperationArgs";
-import {Request} from "express";
+import ApplicationRequest from "./ApplicationRequest";
+import IApplicationArgs from "./types/IApplicationArgs";
 
 
 /** Objeto para manejo de operaciones */
-export default class OperationArgs<T> implements IOperationArgs<T> {
+export default class ApplicationArgs<T> implements IApplicationArgs<T> {
 
   /** Id del request en curso */
   public requestID: string;
@@ -17,7 +17,7 @@ export default class OperationArgs<T> implements IOperationArgs<T> {
   /** Data recibida en el body del request*/
   public data: T;
 
-  constructor(request: Request){
+  constructor(request: ApplicationRequest){
     this.requestID = request.requestID;
     this.query = request.query;
     this.params = request.params;

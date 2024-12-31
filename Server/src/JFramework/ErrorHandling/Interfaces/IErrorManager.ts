@@ -1,4 +1,4 @@
-import { HttpStatusCodes } from "../../Utils/HttpCodes";
+import { HttpStatusCodes, HttpStatusNames } from "../../Utils/HttpCodes";
 import ApplicationException from "../ApplicationException";
 
 
@@ -11,6 +11,6 @@ export default interface IErrorManager {
 
 
   /**  Retorna un objeto ApplicationException en base a la configuración ingresada */
-  GetException(status:HttpStatusCodes, msg: string, path:string, innerException?: Error) : ApplicationException;
+  GetException(name:HttpStatusNames,status:HttpStatusCodes, msg: string, path:string, innerException?: Error) : ApplicationException;
 
 }

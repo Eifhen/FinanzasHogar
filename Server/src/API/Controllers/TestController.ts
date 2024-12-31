@@ -5,10 +5,11 @@ import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramewo
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 
 import IErrorManager from "../../JFramework/ErrorHandling/Interfaces/IErrorManager";
-import { HttpStatusCode, HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusMessage, HttpStatusName } from "../../JFramework/Utils/HttpCodes";
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
+import { NO_REQUEST_ID } from "../../JFramework/Utils/const";
 
 
 
@@ -68,7 +69,13 @@ export default class TestController {
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetError");
-      next(this._errorManager.GetException(HttpStatusCode.InternalServerError, "Error Prueba", __filename, err));
+      next(this._errorManager.GetException(
+        HttpStatusName.InternalServerError,
+        HttpStatusCode.InternalServerError, 
+        "Error Prueba", 
+        __filename, 
+        err
+      ));
     }
   }
 
@@ -87,7 +94,13 @@ export default class TestController {
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetPromiseError");
-      throw this._errorManager.GetException(HttpStatusCode.BadRequest, "Error Prueba", __dirname, err);
+      throw this._errorManager.GetException(
+        HttpStatusName.BadRequest,
+        HttpStatusCode.BadRequest,
+        "Error Prueba", 
+        __dirname, 
+        err
+      );
     }
   }
 
@@ -147,20 +160,33 @@ export default class TestController {
     try {
       this._logger.Activity("GetUsuarios");
 
-      const [error, data] = await this._usuariosRepository.paginate({
+      const [err, data] = await this._usuariosRepository.paginate({
         pageSize: 10,
         currentPage: 1,
       });
 
-      if(error){
-        throw new ApplicationException("error al buscar usuarios")
+      if(err){
+        throw new ApplicationException(
+          err.message, 
+          HttpStatusName.NotFound, 
+          HttpStatusCode.NotFound,
+          NO_REQUEST_ID,
+          __filename, 
+          err
+        )
       }
 
       return res.status(HttpStatusCode.OK).send(data);
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetUsuarios");
-      next(this._errorManager.GetException(
+      
+      if(err instanceof ApplicationException) {
+        return next(err);
+      }
+
+      return next(this._errorManager.GetException(
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError, 
         HttpStatusMessage.InternalServerError, 
         __filename, 

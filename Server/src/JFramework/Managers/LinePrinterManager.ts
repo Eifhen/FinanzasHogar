@@ -77,8 +77,6 @@ export default class Line {
       msg = `${COLORS.FgBlue}[${type}]${COLORS.Reset} | ${message}`;
     }
 
-    obj ?  
-    console.log(msg, this.Format(obj)) :
-    console.log(msg);
+    obj ?  console.log(msg, this.Format(obj)) : console.log(msg);
   }
 }

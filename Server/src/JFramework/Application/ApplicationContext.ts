@@ -8,7 +8,10 @@ interface ApplicationContextDependencies {
   user:any;
 
   /** Id del request en curso */
-  request_id: string;
+  requestID: string;
+
+  /** Ip del request en curso */
+  ipAddress: string;
 }
 
 /**
@@ -21,17 +24,31 @@ export default class ApplicationContext {
   public user:any = {};
 
   /** Id de la request en curso */
-  public request_id: string = "";
+  public requestID: string = "";
+
+  /** Ip del request en curso */
+  public ipAddress: string = "";
 
   /** Entorno de desarrollo actual. */
   public environment: Environment = process.env.NODE_ENV?.toUpperCase() as Environment ?? EnvironmentStatus.DEVELOPMENT;
 
   /** Indica el nivel de log definido en la aplicación, solo los logs mayor o igual a este nivel se podrán imprimir */
-  public LogLevel: number = Number(process.env.LOG_LEVEL ?? LogLevels.INFO);
+  public LogLevel: LogLevel;
   
-  // constructor(deps: ApplicationContextDependencies){
-  //   this.user = deps.user;
-  //   this.request_id = deps.request_id;
-  // }
+  constructor(deps?: ApplicationContextDependencies){
+
+    const envLogLevel = process.env.LOG_LEVEL;
+    if (envLogLevel && Object.keys(LogLevels).includes(envLogLevel)) {
+      this.LogLevel = LogLevels[envLogLevel as keyof typeof LogLevels];
+    } else {
+      this.LogLevel = LogLevels.INFO; // Valor por defecto
+    }
+    
+    if(deps){
+      this.user = deps.user;
+      this.requestID = deps.requestID;
+      this.ipAddress = deps.ipAddress;
+    }
+  }
 
 }

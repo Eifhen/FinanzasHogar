@@ -1,7 +1,7 @@
 import { NO_REQUEST_ID } from '../../Utils/const';
 import IDBConnectionStrategy from './IDBConnectionStrategy';
 import ApplicationException from '../../ErrorHandling/ApplicationException';
-import { HttpStatusCode } from '../../Utils/HttpCodes';
+import { HttpStatusCode, HttpStatusName } from '../../Utils/HttpCodes';
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from '../../Managers/LoggerManager';
 
@@ -30,17 +30,18 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   }
   
   /** Realiza la connección a la base de datos */
-  public Connect =() : ConnectionType => {
+  public Connect = async () : Promise<ConnectionType> => {
     try {
       this._logger.Activity("Connect");
-      return this._strategy.Connect();
+      return await this._strategy.Connect();
     }
     catch(err:any){
       this._logger.Error(LoggerTypes.FATAL, "Connect");
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );
@@ -55,10 +56,11 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
     }
     catch(err:any){
       this._logger.Error(LoggerTypes.FATAL, "GetInstance");
-      throw new ApplicationException(
+     throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );
@@ -75,8 +77,9 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
       this._logger.Error(LoggerTypes.FATAL, "CloseConnection");
       throw new ApplicationException(
         err.message,
-        NO_REQUEST_ID,
+        HttpStatusName.InternalServerError,
         HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
         __filename,
         err
       );

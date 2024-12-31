@@ -2,7 +2,7 @@
 
 import ApplicationContext from "../Application/ApplicationContext";
 import { EnvironmentStatus } from "../Utils/Environment";
-import { HttpStatusCodes } from "../Utils/HttpCodes";
+import { HttpStatusCodes, HttpStatusNames } from "../Utils/HttpCodes";
 import ApplicationException from "./ApplicationException";
 import IErrorManager from "./Interfaces/IErrorManager";
 
@@ -10,7 +10,7 @@ import IErrorManager from "./Interfaces/IErrorManager";
 
 
 interface ErrorManagerDependencies {
-  // context: ApplicationContext;
+  applicationContext: ApplicationContext;
 }
 
 /**
@@ -19,28 +19,25 @@ interface ErrorManagerDependencies {
 export default class ErrorManager implements IErrorManager {
 
   /** Contexto de la aplicación */
-   // private _context: ApplicationContext;
+  private _applicationContext: ApplicationContext;
 
-  constructor(deps: ErrorManagerDependencies){
-    //this._context = deps.context;
+  constructor(deps: ErrorManagerDependencies) {
+    this._applicationContext = deps.applicationContext;
   }
 
   /**  Retorna un objeto ApplicationException en base a la configuración ingresada */
-  public GetException = (status:HttpStatusCodes, msg: string, path:string, innerException?: Error) : ApplicationException => {
+  public GetException = (name: HttpStatusNames, status: HttpStatusCodes, msg: string, path: string, innerException?: Error): ApplicationException => {
 
-    const exception = new ApplicationException(msg);
+    const exception = new ApplicationException(msg, name, status);
 
-    exception.name = "ApplicationException";
-    exception.status = status;
-    
     // muestra el stack solo en desarrollo.
-    // if(this._context.environment === EnvironmentStatus.DEVELOPMENT){
-    //   exception.path = path;
-    //   exception.fullDescription = innerException && innerException.stack ? innerException.stack :  "";
-    // }
+    if (this._applicationContext.environment === EnvironmentStatus.DEVELOPMENT) {
+      exception.path = path;
+      exception.innerException = innerException?.stack;
+    }
 
     return exception;
-  } 
+  }
 
 
 }

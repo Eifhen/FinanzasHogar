@@ -6,7 +6,7 @@
 
 export default interface IDBConnectionStrategy<ConnectionType, InstanceType> {
   /** Método que ejecuta la connección con la base de datos */
-  Connect: () => ConnectionType;
+  Connect: () => Promise<ConnectionType>;
 
   /** Retorna una instancia de la base de datos */
   GetInstance: () => InstanceType;

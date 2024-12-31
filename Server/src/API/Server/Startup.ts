@@ -38,6 +38,8 @@ import ITransaccionesSqlRepository from "../../Dominio/Repositories/ITransaccion
 import TransaccionesSqlRepository from "../../Infraestructure/Repositories/TransaccionesSqlRepository";
 import IUsuarioHogarSqlRepository from "../../Dominio/Repositories/IUsuarioHogarSqlRepository";
 import UsuarioHogarSqlRepository from "../../Infraestructure/Repositories/UsuarioHogarSqlRepository";
+import ApplicationContextMiddleware from "../../JFramework/Middlewares/ApplicationContextMiddleware";
+import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 
 
 
@@ -58,8 +60,12 @@ export default class Startup implements IApplicationStart {
     services.AddDataBaseConnection(this._databaseManager, new SqlConnectionStrategy());
     
     // services.AddAuthorization();
+
+    // services.AddAuthentication();
     
-    // services.AddAplicationContext();
+    services.AddAplicationContext(new ApplicationContextMiddleware((context)=> {
+      services.AddInstance("applicationContext", context);
+    }));
     
     // Instancia los controladores
     services.AddControllers();

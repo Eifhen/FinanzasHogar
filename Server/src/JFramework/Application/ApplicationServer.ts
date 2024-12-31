@@ -39,8 +39,8 @@ export default class ApplicationServer {
 
     // Instanciamos el logger
     this._logger = new LoggerManager({
-      entityCategory: LoggEntityCategorys.MANAGER,
-      entityName: "ServerManager"
+      entityCategory: LoggEntityCategorys.CONFIGURATION,
+      entityName: "ApplicationServer"
     });
 
     // Instanciamos la app de express

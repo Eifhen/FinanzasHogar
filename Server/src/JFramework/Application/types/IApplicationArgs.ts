@@ -3,7 +3,7 @@
 
 
 /** Modelo de operaciones */
-export default interface IOperationArgs<T> {
+export default interface IApplicationArgs<T> {
   /** Id de la request en curso */
   requestID: string;
 

@@ -49,6 +49,33 @@ export const HttpStatusMessage = {
 } as const;
 
 
+export const HttpStatusName = {
+  // Información
+  OK : 'OK',
+  Created : 'Created',
+  Accepted : 'Accepted',
+  Updated : 'Updated',
+  Deleted : 'Deleted',
+  NoContent : 'No Content',
+
+  // Errores de cliente
+  BadRequest : 'Bad Request',
+  Unauthorized : 'Unauthorized',
+  Forbidden : 'Forbidden',
+  NotFound : 'Not Found',
+  MethodNotAllowed : 'Method Not Allowed',
+  UnprocessableEntity : 'Unprocessable Entity',
+
+  // Errores de servidor
+  InternalServerError : 'Internal Server Error',
+  NotImplemented : 'Not Implemented',
+  BadGateway : 'Bad Gateway',
+  ServiceUnavailable : 'Service Unavailable',
+} as const
+
+
+export type HttpStatusNames = (typeof HttpStatusName)[keyof typeof HttpStatusName];
+
 export type HttpStatusCodes = (typeof HttpStatusCode)[keyof typeof HttpStatusCode];
 
 export type HttpStatusMessages = (typeof HttpStatusMessage)[keyof typeof HttpStatusMessage];
