@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 import ApplicationException from "./ApplicationException";
-import { ApplicationMiddleware, MiddleWareFunction } from "../Configurations/types/ServerTypes";
+import { ApplicationExceptionHandler, IApplicationMiddleware, MiddleWareFunction } from "../Configurations/types/ServerTypes";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
@@ -10,7 +10,7 @@ import { NO_REQUEST_ID } from "../Utils/const";
 
 
 /** Esta clase representa al middleware de manejo de errores de la aplicación */
-export default class ErrorHandlerMiddleware implements ApplicationMiddleware {
+export default class ErrorHandlerMiddleware implements IApplicationMiddleware {
 
   /** Instancia del logger */
   private _logger: ILoggerManager;
@@ -23,7 +23,7 @@ export default class ErrorHandlerMiddleware implements ApplicationMiddleware {
   }
 
   /** Middleware que permite interceptar los errores de la aplicación */
-  private Intercept = (error: ApplicationException|Error, req: ApplicationRequest, res: Response, next:NextFunction) : any => {
+  public Intercept:ApplicationExceptionHandler = (error: ApplicationException|Error, req: ApplicationRequest, res: Response, next:NextFunction) : any => {
     this._logger.Register("WARN", "Intercept", error);
     
     const status = error instanceof ApplicationException && error.status ? 

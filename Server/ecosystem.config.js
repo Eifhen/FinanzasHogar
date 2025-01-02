@@ -29,7 +29,9 @@ module.exports = {
       env: {
         PORT: 5000,
         NODE_ENV: "development",
+        TOKEN_KEY: "KSJDAKSDQW##1235DSAKDAJDAQWIE23ZZ_AKFJOA",
         API_KEY: "KS2222222223",
+        API_KEY_HEADER: "fh-api-key",
         RETRY_TIMER: 5000,
         API_VERSION: 1,
         API_BASE_ROUTE: `/api/v${1}`,
@@ -47,7 +49,9 @@ module.exports = {
       env_production: {
         PORT: 5000,
         NODE_ENV: "production",
+        TOKEN_KEY: "KSJDAKSDQW##1235DSAKDAJDAQWIE23ZZ_AKFJOA",
         API_KEY: "KS2222222223",
+        API_KEY_HEADER: "fh-api-key",
         RETRY_TIMER: 5000,
         API_VERSION: 1,
         API_BASE_ROUTE: `/api/v${1}`,

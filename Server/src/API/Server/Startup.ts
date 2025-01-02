@@ -40,11 +40,19 @@ import IUsuarioHogarSqlRepository from "../../Dominio/Repositories/IUsuarioHogar
 import UsuarioHogarSqlRepository from "../../Infraestructure/Repositories/UsuarioHogarSqlRepository";
 import ApplicationContextMiddleware from "../../JFramework/Middlewares/ApplicationContextMiddleware";
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
+import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
+import ApiAuthenticationMiddleware from "../../JFramework/Middlewares/ApiAuthenticationMiddleware";
+import EncrypterManager from "../../JFramework/Managers/EncrypterManager";
+import IEncrypterManager from "../../JFramework/Managers/Interfaces/IEncrypterManager";
+import ITokenManager from "../../JFramework/Managers/Interfaces/ITokenManager";
+import TokenManager from "../../JFramework/Managers/TokenManager";
 
 
 
 export default class Startup implements IApplicationStart {
- 
+  
+  /** Instancia del DatabaseStrategyDirector, el cual nos permite 
+   * manipular la conección con la base de datos */
   private _databaseManager: DatabaseStrategyDirector<any, any> | null = null;
 
   // Permite configurar la configuración del servidor
@@ -59,14 +67,10 @@ export default class Startup implements IApplicationStart {
     /** Se establece la conección con la BD */
     services.AddDataBaseConnection(this._databaseManager, new SqlConnectionStrategy());
     
-    // services.AddAuthorization();
+    services.AddApiValidation(new ApiValidationMiddleware());
 
-    // services.AddAuthentication();
-    
-    services.AddAplicationContext(new ApplicationContextMiddleware((context)=> {
-      services.AddInstance("applicationContext", context);
-    }));
-    
+    services.AddAuthentication(new ApiAuthenticationMiddleware(services));
+      
     // Instancia los controladores
     services.AddControllers();
  
@@ -74,8 +78,9 @@ export default class Startup implements IApplicationStart {
     services.AddMiddleware(new ErrorHandlerMiddleware());
 
     // Managers
-    // services.AddService<ApplicationContext>("applicationContext", ApplicationContext);
     services.AddService<IErrorManager, ErrorManager>("errorManager", ErrorManager);
+    services.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);
+    services.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
 
     // Servicios
     services.AddService<ITestService, TestService>("testService", TestService);

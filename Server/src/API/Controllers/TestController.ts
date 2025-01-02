@@ -42,7 +42,6 @@ export default class TestController {
     });
   }
 
-
   @route("/")
   @GET()
   public GetAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -128,7 +127,6 @@ export default class TestController {
     }
   }
 
-
   @route("/error/fatal")
   @GET()
   public GetFatalError = (req: Request, res: Response, next: NextFunction) => {
@@ -152,7 +150,6 @@ export default class TestController {
       throw err;
     }
   }
-
 
   @route("/usuarios")
   @GET()

@@ -9,7 +9,7 @@ export default class ApplicationException extends Error {
 
 
   /** Nombre del error */
-  public name: HttpStatusNames;
+  public name: HttpStatusNames|string;
 
   /** Código de la excepción */
   public status: HttpStatusCodes;
@@ -26,7 +26,7 @@ export default class ApplicationException extends Error {
   /** Descripción completa del error */
   public innerException?: string;
 
-  constructor(message:string, name: HttpStatusNames, status: HttpStatusCodes, requestID?:string, path?:string, innerException?:Error){
+  constructor(message:string, name: HttpStatusNames|string, status: HttpStatusCodes, requestID?:string, path?:string, innerException?:Error){
     super(message);
     
     this.name = IsNullOrEmpty(name) ? HttpStatusName.InternalServerError : name;
@@ -53,7 +53,8 @@ export default class ApplicationException extends Error {
   }
 
 
-    /** Sobrescribe el método toJSON para asegurar que todas las propiedades sean serializables */
+    /** Sobrescribe el método toJSON para asegurar 
+    que todas las propiedades sean serializables */
     toJSON() {
       return {
         name: this.name,

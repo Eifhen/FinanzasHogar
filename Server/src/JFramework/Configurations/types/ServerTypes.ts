@@ -21,8 +21,15 @@ export type MiddleWareFunction =
   
 
 /** Todos los middlewares de la aplicación deben implementar esta interfaz */
-export interface ApplicationMiddleware {
+export interface IApplicationMiddleware {
 
   // Función que retorna un función de tipo middleware
-  Init() : MiddleWareFunction;
+  Init() : MiddleWareFunction | Promise<MiddleWareFunction>;
+
+  /** Middleware de intercepción */
+  Intercept: ApplicationRequestHandler|ApplicationExceptionHandler;
 }
+
+
+/** Representa una función resolver de Awilix */
+export type ApplicationResolver<T> = (serviceName: string) => T

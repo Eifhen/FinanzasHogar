@@ -3,7 +3,7 @@ import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/I
 import LoggerManager from "./LoggerManager";
 import { loadControllers, scopePerRequest } from "awilix-express";
 import { asClass, asValue, AwilixContainer, createContainer, InjectionMode, Lifetime, LifetimeType } from "awilix";
-import { ApplicationMiddleware } from '../Configurations/types/ServerTypes';
+import { IApplicationMiddleware } from '../Configurations/types/ServerTypes';
 import IDBConnectionStrategy from "../Strategies/Database/IDBConnectionStrategy";
 import DatabaseStrategyDirector from "../Strategies/Database/DatabaseStrategyDirector";
 import { NO_REQUEST_ID } from "../Utils/const";
@@ -62,7 +62,7 @@ export default class ServiceManager {
       this._logger.Error(LoggerTypes.FATAL, "AddControllers", err);
       throw new ApplicationException(
         err.message,
-        HttpStatusName.InternalServerError,
+        "AddControllers",
         HttpStatusCode.InternalServerError,
         NO_REQUEST_ID,
         __filename,
@@ -100,14 +100,17 @@ export default class ServiceManager {
   }
 
   /** Permite registrar la instancia de una clase como singleton */
-  public AddInstance = <K, T extends K>(name:string, implementation:T) => {
+  public AddInstance: {
+    <K>(name: string, implementation: K): void; // sobrecarga 1
+    <K, T extends K>(name: string, implementation: T): void; // sobrecarga 2
+  } = <K, T extends K>(name: string, implementation: K | T): void => {
     try {
      // this._logger.Activity(`AddInstance`);
       
       // Registrar la implementación asociada a la interfaz
       this._container?.register(
         name, 
-        asValue<T>(implementation)
+        asValue(implementation)
       );
   
     } catch (err: any) {
@@ -142,25 +145,31 @@ export default class ServiceManager {
   }
 
   /** Agrega un middleware a la aplicación */
-  public AddMiddleware = (middleware:ApplicationMiddleware) => {
+  public AddMiddleware = (middleware:IApplicationMiddleware) => {
     this._logger.Activity(`AddMiddleware`);
     this._app.use(middleware.Init() as RequestHandler | ErrorRequestHandler);
   }
 
   /** Agrega el middleware de autorización del sistema */
-  public AddAuthorization = (middleware: ApplicationMiddleware) => {
+  public AddAuthorization = (middleware: IApplicationMiddleware) => {
     this._logger.Activity(`AddAuthorization`);
     this.AddMiddleware(middleware);
   }
 
-   /** Agrega el middleware de autenticación del sistema */
-   public AddAuthentication = (middleware: ApplicationMiddleware) => {
+  /** Agrega el middleware de autenticación del sistema */
+  public AddAuthentication = (middleware: IApplicationMiddleware) => {
     this._logger.Activity(`AddAuthentication`);
     this.AddMiddleware(middleware);
   }
 
+  /** Agrega middleware para validación del api */
+  public AddApiValidation = (middleware: IApplicationMiddleware) => {
+    this._logger.Activity(`AddApiValidation`);
+    this.AddMiddleware(middleware);
+  }
+
   /** Permite configurar el contexto de la aplicación */
-  public AddAplicationContext = (middleware: ApplicationMiddleware) => {
+  public AddAplicationContext = (middleware: IApplicationMiddleware) => {
     this._logger.Activity(`AddAplicationContext`);
     this.AddMiddleware(middleware);
   }
