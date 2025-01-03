@@ -4,17 +4,19 @@ import { IApplicationMiddleware, ApplicationRequestHandler, MiddleWareFunction }
 import ApplicationContext from "../Application/ApplicationContext";
 import IsNullOrEmpty from "../Utils/utils";
 import { NO_REQUEST_ID } from "../Utils/const";
+import ServiceManager from "../Managers/ServiceManager";
 
 
 
 /** Middleware que maneja el contexto de aplicación */
 export default class ApplicationContextMiddleware implements IApplicationMiddleware {
   
-  /** Función que permite agregar una instancia al controlador */
-  private _AddInstance: (implementation:ApplicationContext) => void;
+  
+  /** Instancia del serviceManager */
+  private serviceManager: ServiceManager;
 
-  constructor (callback: (implementation:ApplicationContext) => void) {
-    this._AddInstance = callback;
+  constructor (services: ServiceManager) {
+    this.serviceManager = services;
   }
 
   /**  Intercepta el request en curso y agrega funcionalidad */
@@ -25,7 +27,7 @@ export default class ApplicationContextMiddleware implements IApplicationMiddlew
     context.requestID = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
     context.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
 
-    this._AddInstance(context);
+    this.serviceManager.AddInstance<ApplicationContext>("applicationContext", context);
     return next();
   }
 

@@ -150,17 +150,6 @@ export default class ServiceManager {
     this._app.use(middleware.Init() as RequestHandler | ErrorRequestHandler);
   }
 
-  /** Agrega el middleware de autorización del sistema */
-  public AddAuthorization = (middleware: IApplicationMiddleware) => {
-    this._logger.Activity(`AddAuthorization`);
-    this.AddMiddleware(middleware);
-  }
-
-  /** Agrega el middleware de autenticación del sistema */
-  public AddAuthentication = (middleware: IApplicationMiddleware) => {
-    this._logger.Activity(`AddAuthentication`);
-    this.AddMiddleware(middleware);
-  }
 
   /** Agrega middleware para validación del api */
   public AddApiValidation = (middleware: IApplicationMiddleware) => {

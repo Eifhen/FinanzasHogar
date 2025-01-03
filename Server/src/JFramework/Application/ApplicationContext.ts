@@ -35,20 +35,12 @@ export default class ApplicationContext {
   /** Indica el nivel de log definido en la aplicación, solo los logs mayor o igual a este nivel se podrán imprimir */
   public LogLevel: LogLevel;
   
-  constructor(deps?: ApplicationContextDependencies){
-
+  constructor(){
     const envLogLevel = process.env.LOG_LEVEL;
     if (envLogLevel && Object.keys(LogLevels).includes(envLogLevel)) {
       this.LogLevel = LogLevels[envLogLevel as keyof typeof LogLevels];
     } else {
       this.LogLevel = LogLevels.INFO; // Valor por defecto
     }
-    
-    if(deps){
-      this.user = deps.user;
-      this.requestID = deps.requestID;
-      this.ipAddress = deps.ipAddress;
-    }
   }
-
 }

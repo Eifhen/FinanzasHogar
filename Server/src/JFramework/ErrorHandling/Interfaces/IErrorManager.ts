@@ -11,6 +11,6 @@ export default interface IErrorManager {
 
 
   /**  Retorna un objeto ApplicationException en base a la configuración ingresada */
-  GetException(name:HttpStatusNames,status:HttpStatusCodes, msg: string, path:string, innerException?: Error) : ApplicationException;
+  GetException(name:HttpStatusNames | string,status:HttpStatusCodes, msg: string, path:string, innerException?: Error) : ApplicationException;
 
 }

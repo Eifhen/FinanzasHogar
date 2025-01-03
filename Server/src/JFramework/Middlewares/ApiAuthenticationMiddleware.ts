@@ -34,29 +34,6 @@ export default class ApiAuthenticationMiddleware implements IApplicationMiddlewa
     this._serviceManager = serviceManager;
   }
 
-  /** Agregar ApiContext */
-  private AddApiContext = async (req: ApplicationRequest) => {
-    const request_id = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
-    const ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
-    
-    try {
-      const context = new ApplicationContext();
-      context.requestID = request_id
-      context.ipAddress = ipAddress
-
-      this._serviceManager.AddInstance<ApplicationContext>("applicationContext", context);
-    }
-    catch(err:any){
-      throw new ApplicationException(
-        "ApiContext",
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError,
-        request_id,
-        __filename
-      );
-    }
-  }
-
 
   /** Middleware que intercepta la respuesta http para aplicar cambios a la solicitud */
   public Intercept:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next:NextFunction) => {
@@ -82,11 +59,6 @@ export default class ApiAuthenticationMiddleware implements IApplicationMiddlewa
 
        No todos los EndPoints requieren de authenticación.
       */
-
-      /** Agregamos el contexto de aplicación */
-      await this.AddApiContext(req);
-
-
       return next();
 
     }

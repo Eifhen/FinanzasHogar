@@ -46,6 +46,8 @@ import EncrypterManager from "../../JFramework/Managers/EncrypterManager";
 import IEncrypterManager from "../../JFramework/Managers/Interfaces/IEncrypterManager";
 import ITokenManager from "../../JFramework/Managers/Interfaces/ITokenManager";
 import TokenManager from "../../JFramework/Managers/TokenManager";
+import IAuthenticationService from "../../Application/Services/Interfaces/IAuthenticationService";
+import AuthenticationService from "../../Application/Services/AuthenticationService";
 
 
 
@@ -64,12 +66,14 @@ export default class Startup implements IApplicationStart {
   // Configura los servicios de la aplicación
   ConfigurationServices = async (services: ServiceManager) : Promise<void> => {
     
-    /** Se establece la conección con la BD */
+    /** DatabaseManager | Se establece la conección con la BD */
     services.AddDataBaseConnection(this._databaseManager, new SqlConnectionStrategy());
     
+    /** API Validation */
     services.AddApiValidation(new ApiValidationMiddleware());
 
-    services.AddAuthentication(new ApiAuthenticationMiddleware(services));
+    /** ApplicationContext */
+    services.AddAplicationContext(new ApplicationContextMiddleware(services));
       
     // Instancia los controladores
     services.AddControllers();
@@ -84,6 +88,7 @@ export default class Startup implements IApplicationStart {
 
     // Servicios
     services.AddService<ITestService, TestService>("testService", TestService);
+    services.AddService<IAuthenticationService, AuthenticationService>("authenticationService", AuthenticationService);
 
     // Repositorios
     services.AddService<IAhorrosSqlRepository, AhorrosSqlRepository>("ahorrosRepository", AhorrosSqlRepository);
