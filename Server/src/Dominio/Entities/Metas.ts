@@ -24,6 +24,9 @@ export interface MetasTable {
 
   /** Fecha limite para cumplir la meta (Toda meta necesita una fecha) */
   fecha_limite: Date;
+
+  /** Id Url de imagen relacionada a la meta */
+  image_public_id: string;
 }
 
 

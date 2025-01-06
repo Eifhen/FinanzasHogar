@@ -10,6 +10,8 @@ import { NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { ErrorRequestHandler } from "express-serve-static-core";
+import ImageStrategyDirector from "../Strategies/Image/ImageStrategyDirector";
+import IApplicationImageStrategy from "../Strategies/Image/IApplicationImageStrategy";
 
 
 export default class ServiceManager {
@@ -191,6 +193,31 @@ export default class ServiceManager {
     }
     catch(err:any){
       this._logger.Error("FATAL", "AddDataBaseConnection", err);
+
+      throw new ApplicationException(
+        err.message,
+        HttpStatusName.InternalServerError,
+        HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
+        __filename,
+        err
+      );
+    }
+  }
+
+  /** Método que permite agregar un director de estrategias */
+  public AddStrategy = async<T, K>(
+    name: string,
+    director: new (...args: any[]) => T, 
+    strategy: new (...args: any[]) => K
+  ) => {
+    try {
+      this._logger.Activity(`AddStrategy`);
+      const implementation = new director(new strategy());
+      this.AddInstance(name, implementation);
+    }
+    catch(err:any){
+      this._logger.Error("FATAL", "AddStrategy", err);
 
       throw new ApplicationException(
         err.message,

@@ -11,10 +11,10 @@ import { SignUpDTO } from "../../DTOs/SignUpDTO";
 export default interface IAuthenticationService {
 
   /** Método que permite el Registro de un usuario */
-  SignUp(args: ApplicationArgs<SignUpDTO.Type>) : Promise<ApplicationResponse<void>>;
+  SignUp(args: ApplicationArgs<SignUpDTO.Type>) : Promise<ApplicationResponse<boolean>>;
 
 
   /** Método que permite el Inicio de sesión de un usuario */
-  SignIn(args: ApplicationArgs<SignInDTO.Type>) : Promise<ApplicationResponse<void>>;
+  SignIn(args: ApplicationArgs<SignInDTO.Type>) : Promise<ApplicationResponse<boolean>>;
 
 }

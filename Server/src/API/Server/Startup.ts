@@ -48,6 +48,8 @@ import ITokenManager from "../../JFramework/Managers/Interfaces/ITokenManager";
 import TokenManager from "../../JFramework/Managers/TokenManager";
 import IAuthenticationService from "../../Application/Services/Interfaces/IAuthenticationService";
 import AuthenticationService from "../../Application/Services/AuthenticationService";
+import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
+import { CloudinaryImageStrategy } from "../../JFramework/Strategies/Image/CloudinaryImageStrategy";
 
 
 
@@ -80,6 +82,9 @@ export default class Startup implements IApplicationStart {
  
     // Middlewares
     services.AddMiddleware(new ErrorHandlerMiddleware());
+
+    // Strategys
+    services.AddStrategy("imageDirector", ImageStrategyDirector, CloudinaryImageStrategy);
 
     // Managers
     services.AddService<IErrorManager, ErrorManager>("errorManager", ErrorManager);

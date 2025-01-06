@@ -1,5 +1,7 @@
 import { z } from "zod";
-
+import { AppImage } from "../../JFramework/DTOs/AppImage";
+import { fromZodError } from "zod-validation-error";
+import { createDTO } from "../../JFramework/DTOs/BaseDTO";
 
 
 
@@ -27,8 +29,17 @@ export namespace SignUpDTO {
     /** Contraseña del usuario */
     password: z.string().min(10),
 
-  });
+    /** sexo del usuario */
+    sexo: z.boolean(),
 
+    /** foto perfil*/
+    foto: AppImage.Schema
+
+  });
+  
   /** Tipo SignUpDTO */
   export type Type = z.infer<typeof Schema>;
+
+  /** Función que valida y obtiene los errores del DTO */
+  export const { Validate, GetError } = createDTO(Schema);
 }

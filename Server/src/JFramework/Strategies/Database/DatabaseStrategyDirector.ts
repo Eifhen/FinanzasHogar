@@ -22,7 +22,7 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   constructor(deps: IDatabaseManagerDependencies<ConnectionType, InstanceType>){
     // Instanciamos el logger
     this._logger = new LoggerManager({
-      entityCategory: LoggEntityCategorys.MANAGER,
+      entityCategory: LoggEntityCategorys.DIRECTOR,
       entityName: "DatabaseManager"
     });
 

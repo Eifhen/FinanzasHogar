@@ -51,12 +51,17 @@ export default class AuthenticationService implements IAuthenticationService {
   }
 
   /** Método que permite el registro del usuario */
-  public SignUp = async (args: ApplicationArgs<SignUpDTO.Type>): Promise<ApplicationResponse<void>> => {
+  public SignUp = async (args: ApplicationArgs<SignUpDTO.Type>): Promise<ApplicationResponse<boolean>> => {
     try{
       this._logger.Activity("SignUp");
 
       // Por implementar
 
+      return new ApplicationResponse<boolean>(
+        this._applicationContext.requestID,
+        HttpStatusMessage.Created,
+        true
+      );
     }
     catch(err:any){
       this._logger.Error(LoggerTypes.ERROR, "SignUp", err);
@@ -72,12 +77,16 @@ export default class AuthenticationService implements IAuthenticationService {
   }
 
   /** Método que permite el inicio de sesión del usuario */
-  public SignIn = async (args: ApplicationArgs<SignInDTO.Type>): Promise<ApplicationResponse<void>> => {
+  public SignIn = async (args: ApplicationArgs<SignInDTO.Type>): Promise<ApplicationResponse<boolean>> => {
     try{
       this._logger.Activity("SignIn");
 
       // Por implementar
-
+      return new ApplicationResponse(
+        this._applicationContext.requestID,
+        HttpStatusMessage.Accepted,
+        true
+      )
     }
     catch(err:any){
       this._logger.Error(LoggerTypes.ERROR, "SignIn", err);

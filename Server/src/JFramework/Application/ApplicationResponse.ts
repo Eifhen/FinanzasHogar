@@ -9,7 +9,7 @@ export class ApplicationResponse<T> implements IApplicationResponse<T> {
   public requestID: string;
 
   /** Data a devolver */
-  public data: T;
+  public data?: T;
 
   /** Mensaje de respuesta */
   public message: string;

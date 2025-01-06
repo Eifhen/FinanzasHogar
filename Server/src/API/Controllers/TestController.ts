@@ -1,4 +1,4 @@
-import { GET, route } from "awilix-express";
+import { GET, POST, route } from "awilix-express";
 import { ITestService } from "../../Application/Services/Interfaces/ITestService";
 import { NextFunction, Request, Response } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
@@ -10,6 +10,7 @@ import ApplicationContext from "../../JFramework/Application/ApplicationContext"
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 import { NO_REQUEST_ID } from "../../JFramework/Utils/const";
+import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
 
 
 
@@ -19,6 +20,7 @@ interface TestControllerDependencies {
   errorManager: IErrorManager;
  // context: ApplicationContext;
   usuariosRepository: IUsuariosSqlRepository;
+  imageDirector: ImageStrategyDirector;
 }
 
 @route("/test")
@@ -29,12 +31,14 @@ export default class TestController {
   private readonly _logger: ILoggerManager;
   private readonly _errorManager: IErrorManager;
   private readonly _usuariosRepository: IUsuariosSqlRepository;
+  private readonly _imageDirector: ImageStrategyDirector;
 
   constructor(deps: TestControllerDependencies) {
     this._testService = deps.testService;
   //  this._context = deps.context;
     this._errorManager = deps.errorManager;
-    this._usuariosRepository = deps.usuariosRepository;    
+    this._usuariosRepository = deps.usuariosRepository;  
+    this._imageDirector = deps.imageDirector;  
     this._logger = new LoggerManager({
     //  context: this._context,
       entityName: "TestController",
@@ -174,6 +178,34 @@ export default class TestController {
       }
 
       return res.status(HttpStatusCode.OK).send(data);
+    }
+    catch(err:any){
+      this._logger.Error("ERROR", "GetUsuarios");
+      
+      if(err instanceof ApplicationException) {
+        return next(err);
+      }
+
+      return next(this._errorManager.GetException(
+        HttpStatusName.InternalServerError,
+        HttpStatusCode.InternalServerError, 
+        HttpStatusMessage.InternalServerError, 
+        __filename, 
+        err
+      ));
+    }
+  }
+
+
+  @route("/images")
+  @POST()
+  public UploadImage = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      this._logger.Activity("UploadImages");
+
+      await this._imageDirector.Upload(req.body, "casa_1");
+
+      return res.status(HttpStatusCode.OK).send("hellow");
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetUsuarios");

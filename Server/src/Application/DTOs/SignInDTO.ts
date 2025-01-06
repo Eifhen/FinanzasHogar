@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createDTO } from "../../JFramework/DTOs/BaseDTO";
 
 
 
@@ -17,6 +18,9 @@ export namespace SignInDTO {
   
   /** Tipo LoginDTO */
   export type Type = z.infer<typeof Schema>;
+
+  /** Función que valida y obtiene los errores del DTO */
+  export const { Validate, GetError } = createDTO(Schema);
 }
 
 

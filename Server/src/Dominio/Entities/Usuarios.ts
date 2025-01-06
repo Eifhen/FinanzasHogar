@@ -45,8 +45,8 @@ export interface UsuariosTable {
   */
   estado: number;
 
-  /** Url de la foto del usuario */
-  avatar_url: string;
+  /** Id de la Url de la foto del usuario */
+  image_public_id: string;
 
   /** Fecha del último login del usuario */
   ultimo_login: Date;

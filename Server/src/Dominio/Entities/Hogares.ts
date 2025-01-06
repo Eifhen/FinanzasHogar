@@ -14,6 +14,9 @@ export interface HogaresTable {
   description: string;
   /** Fecha de creación del hogar */
   fecha_creacion: Date;
+
+  /** ID de la Url de imagen de hogar */
+  image_public_id: string;
 }
 
 /** Tipo para realizar consultas de seleccion */
