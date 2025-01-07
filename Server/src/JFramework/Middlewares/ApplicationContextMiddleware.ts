@@ -5,6 +5,7 @@ import ApplicationContext from "../Application/ApplicationContext";
 import IsNullOrEmpty from "../Utils/utils";
 import { NO_REQUEST_ID } from "../Utils/const";
 import ServiceManager from "../Managers/ServiceManager";
+import { ApplicationSQLDatabase } from "../../Infraestructure/DataBase";
 
 
 
@@ -22,7 +23,8 @@ export default class ApplicationContextMiddleware implements IApplicationMiddlew
   /**  Intercepta el request en curso y agrega funcionalidad */
   public Intercept: ApplicationRequestHandler = (req: ApplicationRequest, res: Response, next:NextFunction) : any => {
 
-    const context = new ApplicationContext();
+    const database = this.serviceManager.Resolve<ApplicationSQLDatabase>("database");
+    const context = new ApplicationContext(database);
 
     context.requestID = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
     context.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;

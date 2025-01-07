@@ -26,8 +26,6 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     });
 
     this.config = cloudinaryConfig;
-
-    console.log("cloudinary config =>", this.config);
   }
 
   /** Realiza la connección con cloudinary */

@@ -1,4 +1,4 @@
-import { Insertable, Selectable, Transaction, Updateable } from "kysely";
+import { Insertable, InsertResult, Selectable, Transaction, Updateable } from "kysely";
 import { IApplicationPromise } from "../../../../JFramework/Application/ApplicationPromise";
 import IPaginationArgs from "../../../../JFramework/Application/types/IPaginationArgs";
 import IPaginationResult from "../../../../JFramework/Application/types/IPaginationResult";
@@ -18,7 +18,7 @@ export default interface IMssSqlGenericRepository <
   findById(id: DataBase[TableName][PrimaryKey]): IApplicationPromise<Selectable<DataBase[TableName]>>;
 
   /** Inserta un nuevo registro en la tabla */
-  create(record: Insertable<DataBase[TableName]>): IApplicationPromise<number>;
+  create(record: Insertable<DataBase[TableName]>): IApplicationPromise<InsertResult>;
 
   /** Actualiza un registro basado en la clave primaria */
   update(id: DataBase[TableName][PrimaryKey], record: Updateable<DataBase[TableName]>): IApplicationPromise<number>;

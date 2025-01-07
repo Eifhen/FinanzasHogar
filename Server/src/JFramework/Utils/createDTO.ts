@@ -5,15 +5,19 @@ import { fromZodError, ValidationError } from "zod-validation-error";
 
 // Tipo base para los DTO
 interface IDTO<T extends ZodSchema> {
-  Schema: T;
+
+  /** Permite validar si un objeto cumple con el esquema
+   * @returns - true si el objeto es valido
+   */
   Validate(obj: z.infer<T>): boolean;
-  GetError(obj: unknown): string | null;
+
+  /** Retorna el mensaje de error apropiado si lo hay */
+  GetError(obj: z.infer<T>): ValidationError | null;
 }
 
 // Función genérica para crear DTOs
 export function createDTO<T extends ZodSchema>(schema: T): IDTO<T> {
   return {
-    Schema: schema,
 
      /** Permite validar si un objeto cumple con el esquema */
     Validate(obj: z.infer<T>): boolean {
@@ -22,9 +26,9 @@ export function createDTO<T extends ZodSchema>(schema: T): IDTO<T> {
     },
 
     /** Retorna el mensaje de error apropiado si lo hay */
-    GetError(obj: unknown): string | null {
+    GetError(obj: z.infer<T>): ValidationError | null {
       const result = schema.safeParse(obj);
-      return result.success ? null : result.error.message;
+      return result.success ? null : fromZodError(result.error);
     },
   };
 }

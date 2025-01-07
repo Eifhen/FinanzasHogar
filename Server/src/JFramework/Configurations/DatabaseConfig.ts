@@ -5,12 +5,11 @@ import { ConnectionConfiguration } from "tedious";
   que el Sql Agent esté corriendo
 */
 
-
 const dbConfig = JSON.parse(process.env.DATABASE ?? "");
 
 /** Archivo de configuración de la conección a sql */
 export const sqlDBConfig: ConnectionConfiguration = {
-  server: dbConfig.SERVER ?? "",
+  server: dbConfig?.SERVER ?? "",
   options: {
     database: dbConfig?.NAME ?? "",
     instanceName: dbConfig?.INSTANCE ?? "",
@@ -24,8 +23,8 @@ export const sqlDBConfig: ConnectionConfiguration = {
   authentication: {
     type: 'default',
     options: {
-      userName: dbConfig.USERNAME ?? "",
-      password: dbConfig.PASSWORD ?? "",
+      userName: dbConfig?.USERNAME ?? "",
+      password: dbConfig?.PASSWORD ?? "",
       //domain: process.env.DB_DOMAIN ?? "",
     },
   },

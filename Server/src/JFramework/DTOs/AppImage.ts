@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createDTO } from "./BaseDTO";
+import { createDTO } from "../Utils/createDTO";
 
 
 
@@ -25,7 +25,12 @@ export namespace AppImage {
     base64: z.string(),
 
     /** Fecha de carga del archivo */
-    fecha: z.date().default(new Date()),
+    fecha:  z.preprocess((arg) => {
+      if (typeof arg === "string" || arg instanceof Date) {
+        return new Date(arg);
+      }
+      return arg;
+    }, z.date()),
   });
 
   /** Tipo ApplicationImage */

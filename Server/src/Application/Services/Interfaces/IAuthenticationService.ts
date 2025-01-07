@@ -2,6 +2,7 @@ import { SignInDTO } from '../../DTOs/SignInDTO';
 import ApplicationArgs from "../../../JFramework/Application/ApplicationArgs";
 import { ApplicationResponse } from "../../../JFramework/Application/ApplicationResponse";
 import { SignUpDTO } from "../../DTOs/SignUpDTO";
+import { CreateUsuarios } from '../../../Dominio/Entities/Usuarios';
 
 
 
@@ -11,7 +12,7 @@ import { SignUpDTO } from "../../DTOs/SignUpDTO";
 export default interface IAuthenticationService {
 
   /** Método que permite el Registro de un usuario */
-  SignUp(args: ApplicationArgs<SignUpDTO.Type>) : Promise<ApplicationResponse<boolean>>;
+  SignUp(args: ApplicationArgs<SignUpDTO.Type>) : Promise<ApplicationResponse<CreateUsuarios>>;
 
 
   /** Método que permite el Inicio de sesión de un usuario */

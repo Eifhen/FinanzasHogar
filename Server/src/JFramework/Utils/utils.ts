@@ -1,13 +1,6 @@
 
 
 
-
-
-
-
-
-
-
 /** Verifica si un elemento es null/undefined o si está vacío */
 export default function IsNullOrEmpty(value:any){
     // Verifica si es null, undefined, un string vacío, o un objeto vacío

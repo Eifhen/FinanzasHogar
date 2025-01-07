@@ -1,4 +1,4 @@
-import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction, Updateable } from "kysely";
+import { Insertable, InsertResult, Kysely, ReferenceExpression, Selectable, Transaction, Updateable } from "kysely";
 import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
 import { ApplicationPromise, IApplicationPromise } from "../../../JFramework/Application/ApplicationPromise";
 import IPaginationArgs from "../../../JFramework/Application/types/IPaginationArgs";
@@ -65,12 +65,12 @@ export default class MssSqlGenericRepository<
   };
 
   /**  Permite agregar un nuevo elemento a la tabla  */
-  public create = async (record: Insertable<DataBase[TableName]>): IApplicationPromise<number> => {
+  public create = async (record: Insertable<DataBase[TableName]>): IApplicationPromise<InsertResult> => {
     const query = this._transaction ?
       this._transaction.insertInto(this._tableName).values(record).executeTakeFirst() :
       this._database.insertInto(this._tableName).values(record).executeTakeFirst();
 
-    return ApplicationPromise.Try(query as unknown as Promise<number>);
+    return ApplicationPromise.Try(query as unknown as Promise<InsertResult>);
   }
 
   /** Permite actualizar un elemento  */
@@ -181,6 +181,7 @@ export default class MssSqlGenericRepository<
 
   /** Setea una nueva transacción */
   public setTransaction = async (transaction:Transaction<DataBase>|null) => {
+    console.log("transaction =>", transaction);
     this._transaction = transaction;
   }
 

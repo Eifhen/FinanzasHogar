@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createDTO } from "../../JFramework/DTOs/BaseDTO";
+import { createDTO } from "../../JFramework/Utils/createDTO";
 
 
 

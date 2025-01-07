@@ -45,6 +45,13 @@ module.exports = {
           NAME: "FinanzasHogar",
           PORT: "1433",
           INSTANCE: "MSSQLSERVER"
+        }),
+        IMAGE_PROVIDER: JSON.stringify({
+          cloudinary: {
+            cloud_name: "deeho16gc",
+            api_key: "315486825267688",
+            api_secret: "fK6K-Tb05H7WuW0hvewaEM2TbxY",
+          }
         })
       },
       env_production: {

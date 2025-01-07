@@ -1,3 +1,4 @@
+import { ApplicationSQLDatabase } from "../../Infraestructure/DataBase";
 import { LogLevel, LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
 
@@ -34,8 +35,13 @@ export default class ApplicationContext {
 
   /** Indica el nivel de log definido en la aplicación, solo los logs mayor o igual a este nivel se podrán imprimir */
   public LogLevel: LogLevel;
+
+  public database: ApplicationSQLDatabase;
   
-  constructor(){
+  constructor(db: ApplicationSQLDatabase){
+
+    this.database = db;
+
     const envLogLevel = process.env.LOG_LEVEL;
     if (envLogLevel && Object.keys(LogLevels).includes(envLogLevel)) {
       this.LogLevel = LogLevels[envLogLevel as keyof typeof LogLevels];

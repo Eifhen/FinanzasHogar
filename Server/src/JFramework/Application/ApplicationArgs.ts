@@ -1,23 +1,24 @@
+import { Query } from "express-serve-static-core";
 import ApplicationRequest from "./ApplicationRequest";
 import IApplicationArgs from "./types/IApplicationArgs";
 
 
 /** Objeto para manejo de operaciones */
-export default class ApplicationArgs<T> implements IApplicationArgs<T> {
+export default class ApplicationArgs<TBody, TQuery extends Query = Query> implements IApplicationArgs<TBody, TQuery> {
 
   /** Id del request en curso */
   public requestID: string;
 
   /** Query Args del request en curso*/
-  public query?: any;
+  public query?: TQuery;
 
   /** Parámetros del request en curso */
   public params?: any;
 
   /** Data recibida en el body del request*/
-  public data: T;
+  public data: TBody;
 
-  constructor(request: ApplicationRequest){
+  constructor(request: ApplicationRequest<TBody, TQuery>){
     this.requestID = request.requestID;
     this.query = request.query;
     this.params = request.params;

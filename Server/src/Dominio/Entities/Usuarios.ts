@@ -1,4 +1,5 @@
 import { ColumnType, Generated, Insertable, JSONColumnType, Selectable, Updateable } from "kysely";
+import { EstadoUsuario } from "../../JFramework/Utils/estados";
 
 
 /** Esta interfaz represeta el esquema de la tabla de usuarios */
@@ -43,34 +44,34 @@ export interface UsuariosTable {
    * 3= BLOQUEADO, 
    * 4= ELIMINADO 
   */
-  estado: number;
+  estado: EstadoUsuario;
 
   /** Id de la Url de la foto del usuario */
-  image_public_id: string;
+  image_public_id?: string;
 
   /** Fecha del último login del usuario */
-  ultimo_login: Date;
+  ultimo_login?: Date;
 
   /** Dirección IP del último login del usuario */
-  ip_ultimo_login: string;
+  ip_ultimo_login?: string;
 
   /** Token de confirmación del usuario */
-  token_confirmacion: string;
+  token_confirmacion?: string;
 
   /** Token para resetear contraseña del usuario */
-  reset_password_token: string;
+  reset_password_token?: string;
 
   /** 
   * Controla el numero de intentos fallidos del usuario al 
   * intentar entrar a la plataforma 
   */
-  intentos_fallidos: number;
+  intentos_fallidos?: number;
 
   /** Fecha de fin de bloqueo del usuario */
-  bloqueado_hasta: Date;
+  bloqueado_hasta?: Date;
 
   /** País del usuario */
-  país: string;
+  pais: string;
 
   /** 
     #### Preferencias del usuario 
@@ -80,7 +81,7 @@ export interface UsuariosTable {
     and the insert and update types are always `string` since you're
     always stringifying insert/update values. 
   */
-  preferencias: JSONColumnType<{
+  preferencias?: JSONColumnType<{
     lan: "es-DO" | "en-US",
     theme: "dark" | "light"
   }>

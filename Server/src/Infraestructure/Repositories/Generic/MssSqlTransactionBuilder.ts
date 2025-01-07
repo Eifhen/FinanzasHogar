@@ -6,6 +6,8 @@ import { NO_REQUEST_ID } from "../../../JFramework/Utils/const";
 import { HttpStatusCode, HttpStatusName } from "../../../JFramework/Utils/HttpCodes";
 import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
 import IMssSqlGenericRepository from "./Interfaces/IMssSqlGenericRepository";
+import ApplicationContext from "../../../JFramework/Application/ApplicationContext";
+import IsNullOrEmpty from "../../../JFramework/Utils/utils";
 
 
 /** Clase para generar transacciones sql */
@@ -20,29 +22,34 @@ export default class MssSqlTransactionBuilder {
   /** Repositorios que usaran la transacción */
   private _repositorys: IMssSqlGenericRepository<any, any>[];
 
+  /** contexto de aplicación */
+  private _context: ApplicationContext;
 
-  constructor(database: ApplicationSQLDatabase, repositorys: IMssSqlGenericRepository<any, any>[]) {
-    this._database = database;
+
+  constructor(context:ApplicationContext, repositorys: IMssSqlGenericRepository<any, any>[]) {
     
     // Instanciamos el logger
     this._logger = new LoggerManager({
+      applicationContext: context,
       entityCategory: LoggEntityCategorys.BUILDER,
       entityName: "MssSqlTransactionBuilder"
     });
-
+    
+    this._context = context;
+    this._database = this._context.database;
     this._repositorys = repositorys;
-
   }
 
 
   /** Inicia una nueva transacción */
   public Start = async <T>(action: (trx: Transaction<DataBase>) => Promise<T>): Promise<T> => {
-    return await this._database.transaction().execute(async (transaction)=>{
+
+    this._database.transaction()
+    return await this._database.transaction().setIsolationLevel("serializable").execute(async (transaction)=>{
       try {
         this._logger.Activity("Start");
-
         // Setea la transacción a todos los repositorios ingresados
-        this.SetTransactions(transaction);
+        await this.SetTransactions(transaction);
 
         /** Ejecuta una acción y pasa la transacción para su manipulación en un nivel superior */
         return await action(transaction);
@@ -50,18 +57,23 @@ export default class MssSqlTransactionBuilder {
       catch(err:any){
         /** Lanza un ApplicationException en caso de error, esto realiza un rollback automatico */
         this._logger.Error("ERROR", "Start", err);
+
+        if(err instanceof ApplicationException ){
+          throw err;
+        }
+
         throw new ApplicationException(
           err.message,
-          HttpStatusName.InternalServerError,
+          "Start",
           HttpStatusCode.InternalServerError,
-          NO_REQUEST_ID,
+          IsNullOrEmpty(this._context.requestID) ? NO_REQUEST_ID : this._context.requestID,
           __filename,
           err
         );
       }
       finally {
         /** Cierra la instancia de la transacción en los repositorios */
-        this.SetTransactions(null);
+        await this.SetTransactions(null);
       }
     });
   }
@@ -71,19 +83,25 @@ export default class MssSqlTransactionBuilder {
     try {
       this._logger.Activity("SetTransactions");
 
-      if(this._repositorys && this._repositorys.length > 0){
-        this._repositorys.forEach(repository => {
-          repository.setTransaction(transaction);
-        })
+      console.log("SetTransactions =>", transaction);
+
+      if (this._repositorys && this._repositorys.length > 0) {
+        await Promise.all(this._repositorys.map(repository => repository.setTransaction(transaction)));
       }
+      
     }
     catch(err:any){
       this._logger.Error("ERROR", "SetTransactions", err);
+
+      if(err instanceof ApplicationException ){
+        throw err;
+      }
+      
       throw new ApplicationException(
         err.message,
-        HttpStatusName.InternalServerError,
+        "SetTransactions",
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        IsNullOrEmpty(this._context.requestID) ? NO_REQUEST_ID : this._context.requestID,
         __filename,
         err
       );

@@ -11,6 +11,8 @@ import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepos
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 import { NO_REQUEST_ID } from "../../JFramework/Utils/const";
 import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
+import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
+import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
 
 
 
@@ -202,13 +204,44 @@ export default class TestController {
   public UploadImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("UploadImages");
-
-      await this._imageDirector.Upload(req.body, "casa_1");
-
-      return res.status(HttpStatusCode.OK).send("hellow");
+      const result = await this._imageDirector.Upload(req.body, "casa_1");
+      return res.status(HttpStatusCode.OK).send(result);
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetUsuarios");
+      
+      if(err instanceof ApplicationException) {
+        return next(err);
+      }
+
+      return next(this._errorManager.GetException(
+        HttpStatusName.InternalServerError,
+        HttpStatusCode.InternalServerError, 
+        HttpStatusMessage.InternalServerError, 
+        __filename, 
+        err
+      ));
+    }
+  }
+
+  @route("/images")
+  @GET()
+  public GetImage = async (req: ApplicationRequest<any, { id: string}>, res: Response, next: NextFunction) => {
+    try {
+      this._logger.Activity("GetImage");
+      
+      const args = new ApplicationArgs<any, { id: string}>(req);
+      const id = args.query?.id ?? "";
+      const [error, result] = await this._imageDirector.Get(id);
+      
+      if(error){
+        throw new Error("No encontrado")
+      }
+
+      return res.status(HttpStatusCode.OK).send(result);
+    }
+    catch(err:any){
+      this._logger.Error("ERROR", "GetImage");
       
       if(err instanceof ApplicationException) {
         return next(err);
