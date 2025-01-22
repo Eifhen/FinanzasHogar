@@ -1,0 +1,9 @@
+
+
+
+
+
+# Archivos a ignorar
+./Server/node_modules
+./Server/src/API/Logs/*
+./Server/ecosystem.config.js
