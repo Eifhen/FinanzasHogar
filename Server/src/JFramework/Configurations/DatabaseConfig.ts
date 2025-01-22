@@ -18,7 +18,7 @@ export const sqlDBConfig: ConnectionConfiguration = {
     // Aborta cualquier transacción automaticamente si ocurre un error en sql.
     abortTransactionOnError: true,
     // The number of milliseconds before the attempt to connect is considered failed (default: 15000).
-    connectTimeout: 3000,
+    connectTimeout: dbConfig?.CONNECTION_TIMEOUT ?? 3000,
   },
   authentication: {
     type: 'default',

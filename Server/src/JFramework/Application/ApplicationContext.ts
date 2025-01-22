@@ -1,6 +1,7 @@
 import { ApplicationSQLDatabase } from "../../Infraestructure/DataBase";
 import { LogLevel, LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
+import { ApplicationLenguage, ApplicationLenguages } from "./types/types";
 
 
 
@@ -36,7 +37,12 @@ export default class ApplicationContext {
   /** Indica el nivel de log definido en la aplicación, solo los logs mayor o igual a este nivel se podrán imprimir */
   public LogLevel: LogLevel;
 
+  /** Instancia de la base de datos */
   public database: ApplicationSQLDatabase;
+
+  /** Contiene el lenguaje disponible en la aplicación */
+  public lang: ApplicationLenguage = ApplicationLenguages.en;
+
   
   constructor(db: ApplicationSQLDatabase){
 

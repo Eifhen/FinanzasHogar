@@ -178,10 +178,8 @@ export default class MssSqlGenericRepository<
     );
   }
 
-
   /** Setea una nueva transacción */
   public setTransaction = async (transaction:Transaction<DataBase>|null) => {
-    console.log("transaction =>", transaction);
     this._transaction = transaction;
   }
 

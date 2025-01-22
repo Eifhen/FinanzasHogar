@@ -8,6 +8,9 @@ export interface UsuariosTable {
   /** Id secuencial del usuario */
   id_usuario: Generated<number>;
 
+  /** Codigo de usuario */
+  codigo_usuario: Generated<string>;
+
   /**Nombre del usuario */
   nombre:string;
 
@@ -34,7 +37,7 @@ export interface UsuariosTable {
     can optionally be provided as a `string` in inserts and
     can never be updated:
   */
-  fecha_creacion: ColumnType<Date, string | undefined, never>
+  fecha_creacion: Date;
 
 
   /** 

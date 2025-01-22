@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{headTitle}}</title>
+</head>
+<body 
+  style="
+    padding: 0px !important; 
+    margin: 0px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ECF0F1;
+  "
+>
+  <div style="
+    padding: 0px !important;
+    margin: 0px !important;
+    height: 850px;
+    overflow: hidden;
+    width: 800px !important; 
+    display:flex !important; 
+    align-items: center !important; 
+    flex-direction: column !important;  
+    gap: 30px;
+    background-color: white !important;
+    position: relative;
+  ">
+    
+    <!-- Homer Budget Logo -->
+    <img 
+      alt="logo home_budget" 
+      src="{{homeBudgetLogo}}" 
+      style="
+        height: 150px !important;
+        width: 150px !important;
+        object-fit: cover;
+        object-position: center;
+        background-color: gray !important;
+        padding: 0px !important;
+        margin: 0px !important;
+      "
+    />
+
+    <!-- Card -->
+    <div
+      style="
+        min-height: 400px !important;
+        width: 600px !important;
+        box-shadow: 4px 5px 10px 10px #ECF0F1;
+        border-radius: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      "
+    >
+      <h1
+        style="
+         margin: 0px 0px 20px 0px !important;
+         font-weight: bold;
+         font-family: inter !important;
+         font-size: 20px;
+        "
+      >
+        {{subject}}
+      </h1>
+
+      <p style="
+        margin: 0px !important;
+        padding: 0px !important;
+        font-family: inter !important;
+        font-size: 16px;
+        width: 90%;
+        word-wrap: break-word;
+        "
+      >
+        {{paragraph.greating1}} <span style="color: #FF9538;">{{paragraph.recipientName}}</span>,
+        {{paragraph.greating2}} <span style="color: #FF9538;">{{paragraph.bussinessName}}</span>.
+        {{paragraph.argument}}
+      </p>
+
+      <a 
+        href="{{button.link}}"
+        style="
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-family: inter !important;
+         font-weight: bold;
+         font-size: 20px;
+         background-color: #FF9538;
+         color: white;
+         text-decoration: none;
+         padding: 14px;
+         border-radius: 25px;
+         margin: 50px 0px 0px 0px !important;
+         width: 250px;
+        "
+      >
+        {{button.text}}
+      </a>
+
+    </div>
+    
+    <!--Spacer-->
+    <div 
+      style="
+        height: 200px;
+        width: 200px;
+        background-color: white;
+      "
+    ></div>
+
+    <!--Firma-->
+    <div style="
+      background-color: black;
+      width: 1400px;
+      height: 1400px;
+      display: flex;
+      justify-content: center;
+      border-radius: 100%;
+      position: absolute;
+      bottom: -1200px;
+    ">
+      <img 
+        alt="gjimenez_logo"
+        src="{{portfolioLogo}}" 
+        style="
+          height: 120px;
+          width: 120px;
+          object-fit: cover;
+          object-position: center;
+          background-color: white;
+          margin-top: 50px;
+        "
+      />
+    </div>
+  </div>
+</body>
+</html>

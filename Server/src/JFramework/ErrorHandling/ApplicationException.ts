@@ -1,4 +1,5 @@
 import { NO_REQUEST_ID } from "../Utils/const";
+import { EnvironmentStatus } from "../Utils/Environment";
 import { HttpStatusCode, HttpStatusCodes, HttpStatusMessage, HttpStatusName, HttpStatusNames } from "../Utils/HttpCodes";
 import IsNullOrEmpty from "../Utils/utils";
 
@@ -24,7 +25,8 @@ export default class ApplicationException extends Error {
   public requestID?: string;
 
   /** Descripción completa del error */
-  public innerException?: string;
+  public stack?: string;
+
 
   constructor(message:string, name: HttpStatusNames|string, status: HttpStatusCodes, requestID?:string, path?:string, innerException?:Error){
     super(message);
@@ -36,7 +38,7 @@ export default class ApplicationException extends Error {
     this.requestID = IsNullOrEmpty(requestID) ? NO_REQUEST_ID : requestID;
 
     if(innerException){
-      this.innerException = innerException?.stack;
+      this.stack = innerException?.stack;
     }
 
     /** 
@@ -56,13 +58,20 @@ export default class ApplicationException extends Error {
     /** Sobrescribe el método toJSON para asegurar 
     que todas las propiedades sean serializables */
     toJSON() {
-      return {
+      const error:any = {
         name: this.name,
         status: this.status,
         message: this.message,
         path: this.path,
         requestID: this.requestID,
-        innerException: this.innerException,
+        // innerException: this.stack,
       };
+
+      // solo agregamos el stack en desarrollo
+      if(process.env.NODE_ENV?.toUpperCase() === EnvironmentStatus.DEVELOPMENT){
+        error.innerException = this.stack;
+      }
+
+      return error; 
     }
 }

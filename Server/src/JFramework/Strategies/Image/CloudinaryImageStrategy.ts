@@ -75,9 +75,12 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     try {
       this._logger.Activity("Upload");
       return ApplicationPromise.Try(new Promise<AppImage.Type>((resolve, reject) => { 
-        cloudinary.uploader.upload(img.base64, { 
+        cloudinary.uploader.upload(
+          img.base64, 
+          { 
             folder: folderId 
-          }, (error, result) => { 
+          }, 
+          (error, result) => { 
             return error ? reject(error) : resolve({
               id: result?.public_id ?? "",
               url: result?.secure_url ?? "",
@@ -85,7 +88,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
               extension: img.extension,
               base64: "",
               fecha: img.fecha
-            });
+            } as AppImage.Type);
           } 
         ); 
       }));
@@ -123,7 +126,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
               extension: result?.format,
               base64: "",
               fecha: new Date(result.created_at)
-            });
+            } as AppImage.Type);
           }
         )
       }));

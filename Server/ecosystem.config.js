@@ -16,8 +16,8 @@ module.exports = {
       script: './src/API/index.ts',
       watch: true,
 
-      ignore_watch:["./src/API/Logs"],
-      instances: 1, // 0 all available clusters
+      ignore_watch:["./src/API/Logs", "./src/JFramework/Templates"],
+      instances: 1, // 0 = all available clusters
       /**
         PM2 will see that i want to increment the PORT variable for each instance The first instance 
         will have process.env.PORT = 3000 and the second process.env.PORT = 3001 
@@ -27,6 +27,8 @@ module.exports = {
       interpreter: 'ts-node',
       args: '',
       env: {
+        AppName: "HomeBudget",
+        PrettyAppName: "Home Budget",
         PORT: 5000,
         NODE_ENV: "development",
         TOKEN_KEY: "KSJDAKSDQW##1235DSAKDAJDAQWIE23ZZ_AKFJOA",
@@ -44,7 +46,8 @@ module.exports = {
           SERVER: "JIMENEZG",
           NAME: "FinanzasHogar",
           PORT: "1433",
-          INSTANCE: "MSSQLSERVER"
+          INSTANCE: "MSSQLSERVER",
+          CONNECTION_TIMEOUT: 3000,
         }),
         IMAGE_PROVIDER: JSON.stringify({
           cloudinary: {
@@ -52,9 +55,23 @@ module.exports = {
             api_key: "315486825267688",
             api_secret: "fK6K-Tb05H7WuW0hvewaEM2TbxY",
           }
+        }),
+        EMAIL_CONFIG: JSON.stringify({
+          currentProvider: "gmail",
+          providers: [
+            {
+              service: "gmail",
+              auth: {
+                user: "jimenezg905@gmail.com",
+                pass: "viyb zuah ajvz dxum"
+              }
+            }
+          ]
         })
       },
       env_production: {
+        AppName: "HomeBudget",
+        PrettyAppName: "Home Budget",
         PORT: 5000,
         NODE_ENV: "production",
         TOKEN_KEY: "KSJDAKSDQW##1235DSAKDAJDAQWIE23ZZ_AKFJOA",
@@ -72,7 +89,8 @@ module.exports = {
           SERVER: "JIMENEZG",
           NAME: "FinanzasHogar",
           PORT: "1433",
-          INSTANCE: "MSSQLSERVER"
+          INSTANCE: "MSSQLSERVER",
+          CONNECTION_TIMEOUT: 3000,
         }),
         IMAGE_PROVIDER: JSON.stringify({
           CLOUDINARY: {

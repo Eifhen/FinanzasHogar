@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createDTO } from "../../JFramework/Utils/createDTO";
+import { schemaValidator } from "../../JFramework/Utils/schemaValidator";
 
 
 
@@ -20,7 +20,7 @@ export namespace SignInDTO {
   export type Type = z.infer<typeof Schema>;
 
   /** Función que valida y obtiene los errores del DTO */
-  export const { Validate, GetError } = createDTO(Schema);
+  export const { Validate } = schemaValidator(Schema);
 }
 
 

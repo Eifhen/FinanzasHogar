@@ -18,11 +18,11 @@ create table usuarios (
   apellidos char(50) not null,
   fecha_nacimiento date not null,
   sexo smallint not null, -- 1 M, 0 F
-  email nvarchar(max) not null,
-  password char(12) not null,
+  email nvarchar(255) not null UNIQUE,
+  password char(100) not null,
   fecha_creacion datetime not null,
   estado smallint not null,
-  avatar_url nvarchar(max),
+  image_public_id nvarchar(max),
   ultimo_login datetime,
   ip_ultimo_login nvarchar(max),
   token_confirmacion nvarchar(max),
@@ -44,6 +44,7 @@ create table hogares (
 	nombre char(30) not null,
 	descripcion char(100),
 	fecha_creacion datetime,
+	image_public_id nvarchar(max),
 	foreign key (id_usuario) references usuarios(id_usuario)
 );
 
@@ -244,7 +245,7 @@ create table metas (
 	monto_objetivo decimal(10, 2) not null,
 	monto_ahorrado decimal(10, 2) not null,
 	fecha_limite datetime,
-
+	image_public_id nvarchar(max),
 	foreign key (id_hogar) references hogares(id_hogar)
 );
 

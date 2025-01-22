@@ -8,8 +8,6 @@ import IApplicationStart from "../../JFramework/Application/types/IApplicationSt
 import ErrorHandlerMiddleware from "../../JFramework/ErrorHandling/ErrorHandlerMiddleware";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import UsuariosSqlRepository from "../../Infraestructure/Repositories/UsuariosSqlRepository";
-import IErrorManager from "../../JFramework/ErrorHandling/Interfaces/IErrorManager";
-import ErrorManager from "../../JFramework/ErrorHandling/ErrorManager";
 import IAhorrosSqlRepository from "../../Dominio/Repositories/IAhorrosSqlRepository";
 import ICategoriasSqlRepository from "../../Dominio/Repositories/ICategoriasSqlRepository";
 import ICuentasSqlRepository from "../../Dominio/Repositories/ICuentasSqlRepository";
@@ -50,6 +48,13 @@ import IAuthenticationService from "../../Application/Services/Interfaces/IAuthe
 import AuthenticationService from "../../Application/Services/AuthenticationService";
 import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
 import { CloudinaryImageStrategy } from "../../JFramework/Strategies/Image/CloudinaryImageStrategy";
+import EmailManager from "../../JFramework/Managers/EmailManager";
+import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
+import { EmailProviderConfig } from "../../JFramework/Configurations/EmailProviderConfig";
+import { EmailDataManager } from "../../JFramework/Managers/EmailDataManager";
+import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
+import { FileManager } from "../../JFramework/Managers/FileManager";
+import IFileManager from "../../JFramework/Managers/Interfaces/IFileManager";
 
 
 
@@ -87,9 +92,14 @@ export default class Startup implements IApplicationStart {
     services.AddStrategy("imageDirector", ImageStrategyDirector, CloudinaryImageStrategy);
 
     // Managers
-    services.AddService<IErrorManager, ErrorManager>("errorManager", ErrorManager);
     services.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);
     services.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
+    services.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
+    services.AddService<IEmailDataManager, EmailDataManager>("emailDataManager", EmailDataManager);
+    services.AddService<IFileManager, FileManager>("fileManager", FileManager);
+
+    // Singletons
+    services.AddInstance<EmailProviderConfig>("emailProviderConfig", new EmailProviderConfig());
 
     // Servicios
     services.AddService<ITestService, TestService>("testService", TestService);

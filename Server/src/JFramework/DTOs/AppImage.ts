@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createDTO } from "../Utils/createDTO";
+import { schemaValidator } from "../Utils/schemaValidator";
 
 
 
@@ -37,5 +37,5 @@ export namespace AppImage {
   export type Type = z.infer<typeof Schema>;
 
   /** Función que valida y obtiene los errores del DTO */
-  export const { Validate, GetError } = createDTO(Schema);
+  export const { Validate } = schemaValidator(Schema);
 }

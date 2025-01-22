@@ -37,7 +37,7 @@ export default class ErrorHandlerMiddleware implements IApplicationMiddleware {
       error.message,
       HttpStatusName.InternalServerError,
       status,
-      IsNullOrEmpty(req.requestID)  ? NO_REQUEST_ID : req.requestID,
+      req.requestID,
       "",
       error
     ));

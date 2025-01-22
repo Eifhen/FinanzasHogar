@@ -1,5 +1,6 @@
 
 
+use master
 use FinanzasHogar;
 
 
@@ -14,7 +15,7 @@ INSERT INTO usuarios (
     password,
     fecha_creacion,
     estado,
-    avatar_url,
+    image_public_id,
     ultimo_login,
     ip_ultimo_login,
     token_confirmacion,
