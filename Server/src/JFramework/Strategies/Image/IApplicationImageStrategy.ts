@@ -1,3 +1,4 @@
+import { ImageFolders } from './../../Configurations/ImageProviderConfig';
 import { IApplicationPromise } from "../../Application/ApplicationPromise";
 import { AppImage } from "../../DTOs/AppImage";
 

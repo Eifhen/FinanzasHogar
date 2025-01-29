@@ -1,5 +1,4 @@
 import ApplicationContext from "../Application/ApplicationContext";
-import { ImageStaticBucket } from "../Assets/ImageStaticBucket";
 import { IEmailDataManager } from "./Interfaces/IEmailDataManager";
 import ILoggerManager, { LoggEntityCategorys } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";
@@ -44,8 +43,9 @@ export class EmailDataManager implements IEmailDataManager {
         name: "verification_email.html",
         data: {
           headTitle: "Activate Account",
-          homeBudgetLogo: ImageStaticBucket.HomeBudget,
-          portfolioLogo: ImageStaticBucket.Portafolio,
+          homeBudgetLogo: this._applicationContext.applicationData.images.APP_LOGO,
+          portfolioLogo: this._applicationContext.applicationData.images.PORTFOLIO_LOGO,
+          blackWave: this._applicationContext.applicationData.images.BLACK_WAVE,
           subject: "Activate Account",
           paragraph: {
             greating1: "Hello ",

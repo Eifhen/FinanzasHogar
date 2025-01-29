@@ -1,6 +1,9 @@
 import { ApplicationSQLDatabase } from "../../Infraestructure/DataBase";
+import { APPLICATION_IMAGES } from "../Configurations/AppImagesConfig";
+import { EmailProviderConfig } from "../Configurations/EmailProviderConfig";
 import { LogLevel, LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
+import { IApplicationData } from "./types/IApplicationData";
 import { ApplicationLenguage, ApplicationLenguages } from "./types/types";
 
 
@@ -42,11 +45,18 @@ export default class ApplicationContext {
 
   /** Contiene el lenguaje disponible en la aplicación */
   public lang: ApplicationLenguage = ApplicationLenguages.en;
-
+  
+  /** Datos de aplicación */
+  public applicationData: IApplicationData;
   
   constructor(db: ApplicationSQLDatabase){
 
     this.database = db;
+    this.applicationData = {
+      lang: ApplicationLenguages.en,
+      images: APPLICATION_IMAGES,
+      emailProvider: new EmailProviderConfig().currentProvider,
+    }
 
     const envLogLevel = process.env.LOG_LEVEL;
     if (envLogLevel && Object.keys(LogLevels).includes(envLogLevel)) {

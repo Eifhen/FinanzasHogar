@@ -12,6 +12,9 @@ export interface EmailVerificationData {
   /** Logo del portafolio */
   portfolioLogo: string;
 
+  /** Imagen black wave que va al fondo del template */
+  blackWave: string;
+
   /** Título que se presenta en el card  */
   subject: string;
 

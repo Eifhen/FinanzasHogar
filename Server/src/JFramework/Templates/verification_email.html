@@ -4,140 +4,142 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{headTitle}}</title>
+  <style>
+    body, table, td, a {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+    }
+    table {
+      border-collapse: collapse !important;
+    }
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background-color: #ECF0F1;
+    }
+
+    a:hover {
+      opacity: 0.8;
+      cursor: pointer;
+    }
+  </style>
 </head>
-<body 
-  style="
-    padding: 0px !important; 
-    margin: 0px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #ECF0F1;
-  "
->
-  <div style="
-    padding: 0px !important;
-    margin: 0px !important;
-    height: 850px;
-    overflow: hidden;
-    width: 800px !important; 
-    display:flex !important; 
-    align-items: center !important; 
-    flex-direction: column !important;  
-    gap: 30px;
-    background-color: white !important;
-    position: relative;
-  ">
-    
-    <!-- Homer Budget Logo -->
-    <img 
-      alt="logo home_budget" 
-      src="{{homeBudgetLogo}}" 
-      style="
-        height: 150px !important;
-        width: 150px !important;
-        object-fit: cover;
-        object-position: center;
-        background-color: gray !important;
-        padding: 0px !important;
-        margin: 0px !important;
-      "
-    />
+<body style="margin: 0; padding: 0; background-color: #ECF0F1;">
 
-    <!-- Card -->
-    <div
-      style="
-        min-height: 400px !important;
-        width: 600px !important;
-        box-shadow: 4px 5px 10px 10px #ECF0F1;
-        border-radius: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-      "
-    >
-      <h1
-        style="
-         margin: 0px 0px 20px 0px !important;
-         font-weight: bold;
-         font-family: inter !important;
-         font-size: 20px;
-        "
-      >
-        {{subject}}
-      </h1>
+  <!-- Contenedor principal -->
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="800" style="background-color: white;">
+          
+          <!-- Homer Budget Logo -->
+          <tr>
+            <td align="center" style="padding: 20px 0;">
+              <img src="{{homeBudgetLogo}}" 
+                alt="logo home_budget" 
+                style="
+                  display: block; 
+                  width: 120px; 
+                  height: auto; 
+                  object-fit: cover; 
+                  object-position: center; 
+                "
+                >
+            </td>
+          </tr>
 
-      <p style="
-        margin: 0px !important;
-        padding: 0px !important;
-        font-family: inter !important;
-        font-size: 16px;
-        width: 90%;
-        word-wrap: break-word;
-        "
-      >
-        {{paragraph.greating1}} <span style="color: #FF9538;">{{paragraph.recipientName}}</span>,
-        {{paragraph.greating2}} <span style="color: #FF9538;">{{paragraph.bussinessName}}</span>.
-        {{paragraph.argument}}
-      </p>
+          <!-- Divider -->
+          <tr><td height="40px"></td></tr>
 
-      <a 
-        href="{{button.link}}"
-        style="
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         font-family: inter !important;
-         font-weight: bold;
-         font-size: 20px;
-         background-color: #FF9538;
-         color: white;
-         text-decoration: none;
-         padding: 14px;
-         border-radius: 25px;
-         margin: 50px 0px 0px 0px !important;
-         width: 250px;
-        "
-      >
-        {{button.text}}
-      </a>
+          <!-- Card -->
+          <tr>
+            <td align="center" style="padding: 40px 20px 40px 20px;">
+              <div   
+                style="
+                  border: 1px solid #ccc; 
+                  border-radius: 25px;
+                  width: 600px;
+                  height: 300px;
+                ">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" height="300">
+                  <tr>
+                    <td align="center" style="padding: 20px;">
+                      <h1 style="color:black; margin: 0 0 20px 0; font-weight: bold; font-family: Arial, sans-serif; font-size: 20px;">{{subject}}</h1>
+                      <p style="color: black; margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 16px; width: 90%; word-wrap: break-word;">
+                        {{paragraph.greating1}} <span style="color: #FF9538 !important;">{{paragraph.recipientName}}</span>,
+                        {{paragraph.greating2}} <span style="color: #FF9538 !important;">{{paragraph.bussinessName}}</span>.
+                        {{paragraph.argument}}
+                      </p>
+                      <a 
+                        href="{{button.link}}" 
+                        style="
+                          display: inline-block; 
+                          font-family: Arial, sans-serif; 
+                          font-weight: bold; 
+                          font-size: 18px; 
+                          background-color: #FF9538; 
+                          color: white; 
+                          text-decoration: none; 
+                          padding: 10px; 
+                          border-radius: 25px; 
+                          margin-top: 20px; 
+                          width: 220px; 
+                          text-align: center;">
+                          {{button.text}}
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </td>
+          </tr>
 
-    </div>
-    
-    <!--Spacer-->
-    <div 
-      style="
-        height: 200px;
-        width: 200px;
-        background-color: white;
-      "
-    ></div>
-
-    <!--Firma-->
-    <div style="
-      background-color: black;
-      width: 1400px;
-      height: 1400px;
-      display: flex;
-      justify-content: center;
-      border-radius: 100%;
-      position: absolute;
-      bottom: -1200px;
-    ">
-      <img 
-        alt="gjimenez_logo"
-        src="{{portfolioLogo}}" 
-        style="
-          height: 120px;
-          width: 120px;
-          object-fit: cover;
-          object-position: center;
-          background-color: white;
-          margin-top: 50px;
-        "
-      /> 
-    </div>
-  </div>
+          <!-- Divider -->
+           <tr><td height="40px"></td></tr>
+        
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding: 0;">
+             
+              <div style="
+                position: relative; 
+                width: 100%; 
+                height: 300px; 
+                overflow: hidden;
+                background-image: url({{blackWave}});
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: cover;
+                "
+              >
+                <img 
+                  src="{{portfolioLogo}}" 
+                  alt="gjimenez_logo" 
+                  style="
+                    width: 140px; 
+                    height: 140px; 
+                    object-fit: cover; 
+                    object-position: center; 
+                    background-color: white;
+                    display: inline-block;
+                    margin: 14% 0 0 0;
+                  "
+                />
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

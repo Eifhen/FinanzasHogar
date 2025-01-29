@@ -78,7 +78,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
         cloudinary.uploader.upload(
           img.base64, 
           { 
-            folder: folderId 
+            folder: `${this.config.mainFolder}/${folderId}` 
           }, 
           (error, result) => { 
             return error ? reject(error) : resolve({

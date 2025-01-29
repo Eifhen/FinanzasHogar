@@ -29,7 +29,5 @@ export default class ServerConfig {
       ...options
     }));
   }
-
-
   
 }

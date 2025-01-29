@@ -34,14 +34,14 @@ export class EmailProviderConfig {
   /** Obtiene el proveedor de email actual */
   private GetCurrentProvider = () : IEmailProvider => {
     const find = this.providers.find(m => m.service === this.currentProviderName);
-    
-    return find ? find : {
+    const empty:IEmailProvider = {
       service: "",
       auth: {
         user: "",
         pass: ""
       }
     }
+    return find ? find : empty;
   }
 
 }
