@@ -50,11 +50,12 @@ import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrate
 import { CloudinaryImageStrategy } from "../../JFramework/Strategies/Image/CloudinaryImageStrategy";
 import EmailManager from "../../JFramework/Managers/EmailManager";
 import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
-import { EmailProviderConfig } from "../../JFramework/Configurations/EmailProviderConfig";
 import { EmailDataManager } from "../../JFramework/Managers/EmailDataManager";
 import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
 import { FileManager } from "../../JFramework/Managers/FileManager";
 import IFileManager from "../../JFramework/Managers/Interfaces/IFileManager";
+import IConfigurationSettings from "../../JFramework/Configurations/types/IConfigurationSettings";
+import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
 
 
 
@@ -73,8 +74,11 @@ export default class Startup implements IApplicationStart {
   // Configura los servicios de la aplicación
   ConfigurationServices = async (services: ServiceManager) : Promise<void> => {
     
+    // Configuration Settings
+    services.AddInstance<IConfigurationSettings>("configSettings", new ConfigurationSettings());
+
     /** DatabaseManager | Se establece la conección con la BD */
-    services.AddDataBaseConnection(this._databaseManager, new SqlConnectionStrategy());
+    services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);
     
     /** API Validation */
     services.AddApiValidation(new ApiValidationMiddleware());
@@ -99,7 +103,7 @@ export default class Startup implements IApplicationStart {
     services.AddService<IFileManager, FileManager>("fileManager", FileManager);
 
     // Singletons
-    services.AddInstance<EmailProviderConfig>("emailProviderConfig", new EmailProviderConfig());
+  
 
     // Servicios
     services.AddService<ITestService, TestService>("testService", TestService);

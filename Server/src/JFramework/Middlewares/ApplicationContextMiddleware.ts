@@ -6,6 +6,7 @@ import IsNullOrEmpty from "../Utils/utils";
 import { NO_REQUEST_ID } from "../Utils/const";
 import ServiceManager from "../Managers/ServiceManager";
 import { ApplicationSQLDatabase } from "../../Infraestructure/DataBase";
+import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 
 
 
@@ -24,7 +25,8 @@ export default class ApplicationContextMiddleware implements IApplicationMiddlew
   public Intercept: ApplicationRequestHandler = (req: ApplicationRequest, res: Response, next:NextFunction) : any => {
 
     const database = this.serviceManager.Resolve<ApplicationSQLDatabase>("database");
-    const context = new ApplicationContext(database);
+    const configurationSettings = this.serviceManager.Resolve<ConfigurationSettings>("configurationSettings");
+    const context = new ApplicationContext({ database, configurationSettings});
 
     context.requestID = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
     context.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;

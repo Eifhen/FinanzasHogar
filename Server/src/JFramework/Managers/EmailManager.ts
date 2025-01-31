@@ -4,7 +4,6 @@ import IEmailManager from "./Interfaces/IEmailManager";
 import ILoggerManager, { LoggEntityCategorys } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";
 import { InternalServerException } from "../ErrorHandling/Exceptions";
-import { EmailProviderConfig } from "../Configurations/EmailProviderConfig";
 import { EmailData } from "./Types/EmailManagerTypes";
 import IFileManager from "./Interfaces/IFileManager";
 import path from "path";
@@ -14,7 +13,6 @@ import Mail from "nodemailer/lib/mailer";
 
 interface IEmailManagerDependencies {
   applicationContext: ApplicationContext;
-  emailProviderConfig: EmailProviderConfig;
   fileManager: IFileManager;
 }
 
@@ -26,8 +24,6 @@ export default class EmailManager implements IEmailManager {
   /** Contexto de aplicación */
   private readonly _applicationContext: ApplicationContext;
 
-  /** Configuraciones de email */
-  private readonly _emailProviderConfig: EmailProviderConfig;
 
   /** Manejador de archivos */
   private readonly _fileManager: IFileManager;
@@ -35,7 +31,6 @@ export default class EmailManager implements IEmailManager {
   constructor(deps:IEmailManagerDependencies){
 
     this._applicationContext = deps.applicationContext;
-    this._emailProviderConfig = deps.emailProviderConfig;
     this._fileManager = deps.fileManager;
 
     this._logger = new LoggerManager({
@@ -52,7 +47,7 @@ export default class EmailManager implements IEmailManager {
       return ApplicationPromise.Try((async ()=> {
         try {
           /** Email provider */
-          const provider = this._emailProviderConfig.currentProvider;
+          const provider = this._applicationContext.settings.emailProviderConfig.currentProvider;
 
           /** Obtenemos el archivo html */
           const filePath = path.join(__dirname, "../", "templates", data.template.name);

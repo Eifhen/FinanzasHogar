@@ -34,6 +34,9 @@ export interface EmailVerificationData {
     
     /** Predicado */
     argument: string;
+
+    /** Color de asento */
+    accentColor: string;
   }
 
   /** Datos del botón */
@@ -43,6 +46,9 @@ export interface EmailVerificationData {
 
     /** Texto a mostrar en el botón */
     text: string;
+
+    /** Color del botón */
+    color: string;
   }
 }
 

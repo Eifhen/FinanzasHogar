@@ -12,6 +12,7 @@ import ApplicationException from "../ErrorHandling/ApplicationException";
 import { ErrorRequestHandler } from "express-serve-static-core";
 import ImageStrategyDirector from "../Strategies/Image/ImageStrategyDirector";
 import IApplicationImageStrategy from "../Strategies/Image/IApplicationImageStrategy";
+import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 
 
 export default class ServiceManager {
@@ -173,10 +174,15 @@ export default class ServiceManager {
   */
   public AddDataBaseConnection = async <ConnectionType, InstanceType>(
     dbManager: DatabaseStrategyDirector<any, any>|null = null,
-    strategy: IDBConnectionStrategy<ConnectionType, InstanceType>
+    strategyType: new (deps:any) => IDBConnectionStrategy<ConnectionType, InstanceType>
   ) : Promise<DatabaseStrategyDirector<ConnectionType, InstanceType>> => {
     try {
       this._logger.Activity(`AddDataBaseConnection`);
+
+      const configurationSettings = this.Resolve<ConfigurationSettings>("configSettings");
+
+      // Crear una instancia de la estrategia con el parámetro resuelto
+      const strategy = new strategyType({ configurationSettings });
 
       // se inserta la estrategia al DatabaseManager
       const databaseManager = new DatabaseStrategyDirector({ strategy });

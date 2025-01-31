@@ -99,7 +99,6 @@ export default class ApplicationServer {
     }
   }
 
-
   /** Está función da inicio al servidor */
   public Start = async () => {
     try {

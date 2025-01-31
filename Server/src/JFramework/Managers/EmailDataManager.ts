@@ -43,21 +43,23 @@ export class EmailDataManager implements IEmailDataManager {
         name: "verification_email.html",
         data: {
           headTitle: "Activate Account",
-          homeBudgetLogo: this._applicationContext.applicationData.images.APP_LOGO,
-          portfolioLogo: this._applicationContext.applicationData.images.PORTFOLIO_LOGO,
-          blackWave: this._applicationContext.applicationData.images.BLACK_WAVE,
+          homeBudgetLogo: this._applicationContext.settings.apiData.defaultImages.APP_LOGO,
+          portfolioLogo: this._applicationContext.settings.apiData.defaultImages.PORTFOLIO_LOGO,
+          blackWave: this._applicationContext.settings.apiData.defaultImages.BLACK_WAVE,
           subject: "Activate Account",
           paragraph: {
+            accentColor: this._applicationContext.settings.apiData.styleConfig.primaryColor,
             greating1: "Hello ",
             recipientName: recipientName,
             greating2: "welcome to ",
-            bussinessName: process?.env?.PrettyAppName ?? "",
+            bussinessName: this._applicationContext.settings.appPrettyName ?? "",
             argument: `Your account has been successfully created. 
               Click the link below to activate your account`,
           },
           button: {
             link: btnLink,
-            text: "Activate"
+            text: "Activate",
+            color: this._applicationContext.settings.apiData.styleConfig.primaryColor
           }
         }
       },

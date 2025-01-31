@@ -8,13 +8,19 @@ import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
-import { sqlDBConfig } from "../../Configurations/DatabaseConfig";
+import ConfigurationSettings from "../../Configurations/ConfigurationSettings";
+
 
 
 /** 
   Si la connección no funciona revisar las credenciales de acceso y 
   que el Sql Agent esté corriendo
 */
+
+
+interface ISqlStrategyDependencies {
+  configSettings: ConfigurationSettings;
+}
 
 /** Estrategia de conección a SQL usandoy Kysely */
 export default class SqlConnectionStrategy implements IDBConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
@@ -27,8 +33,11 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
 
   private _dialect: MssqlDialect | null = null;
   private _instance: ApplicationSQLDatabase | null = null;
+  private _config: ConfigurationSettings;
 
-  constructor() { }
+  constructor(deps: ISqlStrategyDependencies) { 
+    this._config = deps.configSettings;
+  }
 
   /** Método que permite realizar la conección a SQL Server */
   public Connect = async () => {
@@ -46,7 +55,7 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
           ...tedious,
           connectionFactory: () => {
             this._loggerManager.Register("INFO", "connectionFactory");
-            const connection = new tedious.Connection(sqlDBConfig);
+            const connection = new tedious.Connection(this._config.databaseConnectionConfig.sqlConnectionConfig);
 
             // Manejador de conexión exitosa
             connection.on("connect", (err) => {
