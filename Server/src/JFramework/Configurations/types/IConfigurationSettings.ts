@@ -33,7 +33,7 @@ export default interface IConfigurationSettings {
   databaseConnectionConfig: DatabaseConnectionConfig;
 
   /** Proveedores para almacenamiento de archivos */
-  fileProviders: IFileProviderConfig
+  fileProvider: IFileProviderConfig
 
   /** Objeto de configuración de proveedores de email */
   emailProviderConfig: IEmailProviderConfig;
@@ -118,12 +118,27 @@ export interface DatabaseConnectionConfig {
 /** Objeto de configuración de proveedores de archivos */
 export interface IFileProviderConfig {
 
-  /** Proveedor cloudinary */
-  cloudinary: CloudinaryProviderData;
+  /** Nombre del actual proveedor */
+  currentProviderName: string;
+
+  /** Proveedor actual */
+  currentProvider: FileProvider;
+
+  /** Proveedores */
+  providers: FileProvider[];
+}
+
+/** Representa un FileProvider */
+export type FileProvider = {
+  /** Nombre del proveedor */
+  name: string;
+
+  /** Datos del proveedor */
+  data: FileProviderData;
 }
 
 /** Objeto con datos relevantes para acceder al proveedr de cloudinary */
-export interface CloudinaryProviderData {
+export type FileProviderData = {
   
   /** Nombre de usuario */
   cloud_name: string;
@@ -151,12 +166,12 @@ export interface CloudinaryProviderData {
 }
 
 export interface IEmailProviderConfig {
-  currentProvider: IEmailProvider;
+  currentProvider: EmailProvider;
   currentProviderName: string;
-  providers:IEmailProvider[];
+  providers:EmailProvider[];
 }
 
-export interface IEmailProvider {
+export type EmailProvider = {
   service: string;
   auth: {
     user: string,

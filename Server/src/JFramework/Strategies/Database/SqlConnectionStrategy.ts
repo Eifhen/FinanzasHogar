@@ -9,6 +9,7 @@ import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
 import ConfigurationSettings from "../../Configurations/ConfigurationSettings";
+import ApplicationContext from "../../Application/ApplicationContext";
 
 
 
@@ -19,7 +20,7 @@ import ConfigurationSettings from "../../Configurations/ConfigurationSettings";
 
 
 interface ISqlStrategyDependencies {
-  configSettings: ConfigurationSettings;
+  configurationSettings: ConfigurationSettings;
 }
 
 /** Estrategia de conección a SQL usandoy Kysely */
@@ -36,7 +37,7 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
   private _config: ConfigurationSettings;
 
   constructor(deps: ISqlStrategyDependencies) { 
-    this._config = deps.configSettings;
+    this._config = deps.configurationSettings;
   }
 
   /** Método que permite realizar la conección a SQL Server */

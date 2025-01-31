@@ -1,6 +1,6 @@
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
-import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, IEmailProviderConfig, IFileProviderConfig, IEmailProvider, ApplicationStyleConfig } from "./types/IConfigurationSettings";
+import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, IEmailProviderConfig, IFileProviderConfig, EmailProvider, ApplicationStyleConfig, FileProvider } from "./types/IConfigurationSettings";
 
 
 
@@ -23,7 +23,6 @@ export default class ConfigurationSettings implements IConfigurationSettings {
   /** Data relevante al api */
   apiData: ApiData;
 
-
   /** Datos de connección a la base de datos */
   databaseConnectionData: DatabaseConnectionData;
 
@@ -34,7 +33,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
   emailProviderConfig: IEmailProviderConfig;
 
   /** Proveedores de almacenamiento de archivos */
-  fileProviders: IFileProviderConfig
+  fileProvider: IFileProviderConfig
 
   constructor() {
     this.appName = process.env.APP_NAME ?? "";
@@ -43,7 +42,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
     this.environment = process.env.NODE_ENV?.toUpperCase() as Environment ?? EnvironmentStatus.DEVELOPMENT;
     this.apiData = this.GetApiData();
     this.emailProviderConfig = this.GetEmailProviders();
-    this.fileProviders = this.GetFileProviders();
+    this.fileProvider = this.GetFileProviders();
     this.databaseConnectionData = this.GetDataBaseConnectionData();
     this.databaseConnectionConfig = this.GetDatabaseConnectionConfig();
   }
@@ -110,13 +109,13 @@ export default class ConfigurationSettings implements IConfigurationSettings {
   /** Obtiene el listado de proveedores de Email */
   private GetEmailProviders = (): IEmailProviderConfig => {
 
-    const emailProvidersData = JSON.parse(process.env.EMAIL_CONFIG ?? "");
-    const providers = emailProvidersData.providers as IEmailProvider[];
+    const emailProvidersData = JSON.parse(process.env.EMAIL_PROVIDERS ?? "");
+    const providers = emailProvidersData.providers as EmailProvider[];
 
     /** Obtiene el proveedor actual de la lista de proveedores */
-    const getCurrentProvider = (): IEmailProvider => {
+    const getCurrentProvider = (): EmailProvider => {
       const find = providers.find(m => m.service === emailProvidersData.currentProvider);
-      const empty: IEmailProvider = {
+      const empty: EmailProvider = {
         service: "",
         auth: {
           user: "",
@@ -135,8 +134,33 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 
   /** Obtiene los proveedores de manejo de archivo */
   private GetFileProviders = (): IFileProviderConfig => {
-    const providers = JSON.parse(process.env.IMAGE_PROVIDER ?? "") as IFileProviderConfig;
-    return providers;
+    const fileProvidersData = JSON.parse(process.env.FILE_PROVIDERS ?? "");
+    const currentProviderName = fileProvidersData.currentProvider;
+    const providers = fileProvidersData.providers as FileProvider[];
+
+    const getCurrentProvider = (): FileProvider => {
+      const find = providers.find(m => m.name === currentProviderName);
+      const empty: FileProvider = {
+        name: "",
+        data: {
+          cloud_name: "",
+          api_key: "",
+          api_secret: "",
+          mainFolder: "",
+          usersFolder: "",
+          assetsFolder: "",
+          maxVideoSize: "",
+          maxFileSize: ""
+        }
+      }
+      return find ? find : empty;
+    }
+
+    return {
+      currentProvider: getCurrentProvider(),
+      currentProviderName,
+      providers
+    } as IFileProviderConfig;
   }
 
   /** Obtiene los datos de connección a la base de datos */

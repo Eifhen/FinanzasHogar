@@ -31,7 +31,7 @@ export default class ApplicationContextMiddleware implements IApplicationMiddlew
     context.requestID = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
     context.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
 
-    this.serviceManager.AddInstance<ApplicationContext>("applicationContext", context);
+    this.serviceManager.AddAplicationContext(context);
     return next();
   }
 

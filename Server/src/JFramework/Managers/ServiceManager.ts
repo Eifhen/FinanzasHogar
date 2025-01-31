@@ -13,6 +13,7 @@ import { ErrorRequestHandler } from "express-serve-static-core";
 import ImageStrategyDirector from "../Strategies/Image/ImageStrategyDirector";
 import IApplicationImageStrategy from "../Strategies/Image/IApplicationImageStrategy";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
+import ApplicationContext from "../Application/ApplicationContext";
 
 
 export default class ServiceManager {
@@ -49,6 +50,24 @@ export default class ServiceManager {
       strict: true,
     });
 
+  }
+
+   /** Método que permite resolver servicios */
+  public Resolve<T>(serviceName: string): T {
+    try {
+      this._logger.Message(LoggerTypes.INFO,`Resolviendo servicio: ${serviceName}`);
+      return this._container?.resolve<T>(serviceName) as T;
+    } catch (err: any) {
+      this._logger.Error(LoggerTypes.FATAL, `No se pudo resolver el servicio: ${serviceName}`, err);
+      throw new ApplicationException(
+        err.message,
+        HttpStatusName.InternalServerError,
+        HttpStatusCode.InternalServerError,
+        NO_REQUEST_ID,
+        __filename,
+        err
+      );
+    }
   }
 
   /** Agrega los controladores a la aplicación de express */
@@ -108,13 +127,9 @@ export default class ServiceManager {
     <K, T extends K>(name: string, implementation: T): void; // sobrecarga 2
   } = <K, T extends K>(name: string, implementation: K | T): void => {
     try {
-     // this._logger.Activity(`AddInstance`);
-      
+    
       // Registrar la implementación asociada a la interfaz
-      this._container?.register(
-        name, 
-        asValue(implementation)
-      );
+      this._container?.register(name, asValue(implementation));
   
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "AddService", err);
@@ -129,13 +144,26 @@ export default class ServiceManager {
     }
   }
 
-  /** Método que permite resolver servicios */
-  public Resolve<T>(serviceName: string): T {
+  /** Permite agregar un singleton en base a una clase */
+  public AddSingleton: {
+    <K>(name: string, implementation: new (params?: any) => K): void; // sobrecarga 1
+    <K, T extends K>(name: string, implementation: new (params?: any) => T): void; // sobrecarga 2
+  } = <K, T extends K>(name: string, implementation: new (params?: any) => K | T): void => {
     try {
-      this._logger.Message(LoggerTypes.INFO,`Resolviendo servicio: ${serviceName}`);
-      return this._container?.resolve<T>(serviceName) as T;
+      // this._logger.Activity(`AddInstance`);
+      let instance;
+      const contextExists = this._container.hasRegistration("applicationContext");
+      if (contextExists) {
+        // Inyectamos el context
+        const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
+        instance = new implementation({ applicationContext });
+      } else {
+        instance = new implementation();
+      }
+      // Registrar la implementación asociada a la interfaz
+      this._container?.register(name, asValue(instance));
     } catch (err: any) {
-      this._logger.Error(LoggerTypes.FATAL, `No se pudo resolver el servicio: ${serviceName}`, err);
+      this._logger.Error(LoggerTypes.FATAL, "AddService", err);
       throw new ApplicationException(
         err.message,
         HttpStatusName.InternalServerError,
@@ -146,6 +174,9 @@ export default class ServiceManager {
       );
     }
   }
+  
+
+ 
 
   /** Agrega un middleware a la aplicación */
   public AddMiddleware = (middleware:IApplicationMiddleware) => {
@@ -161,9 +192,11 @@ export default class ServiceManager {
   }
 
   /** Permite configurar el contexto de la aplicación */
-  public AddAplicationContext = (middleware: IApplicationMiddleware) => {
+  public AddAplicationContext = (context: ApplicationContext) => {
     this._logger.Activity(`AddAplicationContext`);
-    this.AddMiddleware(middleware);
+
+    /** Agrega singleton */
+    this._container?.register("applicationContext", asValue(context));
   }
 
   /** 
@@ -179,7 +212,7 @@ export default class ServiceManager {
     try {
       this._logger.Activity(`AddDataBaseConnection`);
 
-      const configurationSettings = this.Resolve<ConfigurationSettings>("configSettings");
+      const configurationSettings = this.Resolve<ConfigurationSettings>("configurationSettings");
 
       // Crear una instancia de la estrategia con el parámetro resuelto
       const strategy = new strategyType({ configurationSettings });
@@ -219,7 +252,9 @@ export default class ServiceManager {
   ) => {
     try {
       this._logger.Activity(`AddStrategy`);
-      const implementation = new director(new strategy());
+
+      const configurationSettings = this.Resolve<ConfigurationSettings>("configurationSettings");
+      const implementation = new director(new strategy({ configurationSettings }));
       this.AddInstance(name, implementation);
     }
     catch(err:any){

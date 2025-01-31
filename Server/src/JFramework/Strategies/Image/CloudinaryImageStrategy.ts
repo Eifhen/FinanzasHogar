@@ -1,5 +1,5 @@
 import { ApplicationPromise, IApplicationPromise } from "../../Application/ApplicationPromise";
-import { cloudinaryConfig, ICloudinaryConfig } from "../../Configurations/ImageProviderConfig";
+import IConfigurationSettings, { IFileProviderConfig } from "../../Configurations/types/IConfigurationSettings";
 import { AppImage } from "../../DTOs/AppImage";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
@@ -9,6 +9,11 @@ import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
 import IApplicationImageStrategy from "./IApplicationImageStrategy";
 import {v2 as cloudinary} from 'cloudinary';
 
+
+interface CloudinaryImageStrategyDependencies {
+  configurationSettings: IConfigurationSettings;
+}
+
 export class CloudinaryImageStrategy implements IApplicationImageStrategy {
 
 
@@ -16,23 +21,23 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
   private _logger: ILoggerManager;
 
   /** Representa el objeto de configuración de cloudinary */
-  private config: ICloudinaryConfig;
+  private settings: IConfigurationSettings;
 
-  constructor() {
+  constructor(deps: CloudinaryImageStrategyDependencies) {
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.STRATEGY,
       entityName: "CloudinaryImageStrategy"
     });
 
-    this.config = cloudinaryConfig;
+    this.settings = deps.configurationSettings;
   }
 
   /** Realiza la connección con cloudinary */
   public Connect = async (): Promise<void> => {
     try {
       this._logger.Activity("Connect");
-      cloudinary.config(this.config);
+      cloudinary.config(this.settings.fileProvider.currentProvider.data);
     }
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Connect");
@@ -78,7 +83,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
         cloudinary.uploader.upload(
           img.base64, 
           { 
-            folder: `${this.config.mainFolder}/${folderId}` 
+            folder: `${this.settings.fileProvider.currentProvider.data.mainFolder}/${folderId}` 
           }, 
           (error, result) => { 
             return error ? reject(error) : resolve({

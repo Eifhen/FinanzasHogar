@@ -21,7 +21,7 @@ export default class ApplicationServer {
 
   /** Puerto de ejecución */
   private _PORT: number = Number(process.env.PORT ?? 0);
-  
+
   /** Instancia del startup */
   private _startup: IApplicationStart;
 
@@ -51,7 +51,7 @@ export default class ApplicationServer {
 
     // Instanciamos el manejador de servicios
     this._serviceManager = new ServiceManager(this._app);
-    
+
     // Instanciamos la configuración del server
     this._serverConfig = new ServerConfig(this._app);
   }
@@ -75,7 +75,24 @@ export default class ApplicationServer {
   /** Este evento se ejecuta si alguna promesa es rechazada y no fue manejada con un catch */
   private OnUnhandledRejection = () => {
     process.on('unhandledRejection', (reason: any, promise: any) => {
-      const data = { reason, promise };
+      // Obtener más detalles de la razón del rechazo
+      let reasonDetails;
+      if (reason instanceof Error) {
+        reasonDetails = {
+          ...reason,
+          message: reason.message,
+          stack: reason.stack,
+        };
+      } else {
+        reasonDetails = reason;
+      }
+
+      // Loggear la razón y la promesa
+      const data = {
+        reason: reasonDetails,
+        promise: promise
+      };
+
       this._logger.Error(LoggerTypes.FATAL, "OnUnhandledRejection", data);
       this._startup.OnApplicationCriticalException(data);
       this.CloseServer();
@@ -103,24 +120,24 @@ export default class ApplicationServer {
   public Start = async () => {
     try {
       this._logger.Activity("START");
-  
+
       // Eliminar listeners existentes para evitar duplicados
       process.removeAllListeners("uncaughtException");
       process.removeAllListeners("unhandledRejection");
-  
+
       // Registrar eventos nuevamente
       this.OnUncaughtException();
       this.OnUnhandledRejection();
-      
+
       // Se ejecuta el Startup
       await this._startup.Configuration(this._serverConfig);
       await this._startup.ConfigurationServices(this._serviceManager);
-  
+
       this._server = this._app.listen(this._PORT, () => {
         this._logger.Message(LoggerTypes.INFO, `El servidor está corriendo en el puerto ${this._PORT}`);
       });
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Start");
       throw err;
     }

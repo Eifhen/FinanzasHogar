@@ -22,7 +22,6 @@ import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
 import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
 import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
 import { EmailVerificationData } from "../../JFramework/Managers/Types/EmailDataManagerTypes";
-import { ImageFolders } from "../../JFramework/Configurations/ImageProviderConfig";
 
 
 
@@ -122,7 +121,11 @@ export default class AuthenticationService implements IAuthenticationService {
         /** Se guarda imagen en el proveedor */
         if (AppImage.Validate(args.data.foto).isValid) {
 
-          const [err, data] = await this._imageDirector.Upload(args.data.foto, ImageFolders.usersFolder);
+          const [err, data] = await this._imageDirector.Upload(
+            args.data.foto, 
+            this._applicationContext.settings.fileProvider.currentProvider.data.usersFolder
+          );
+          
           if(err) throw err;  
 
           /** Agregamos la imagen */

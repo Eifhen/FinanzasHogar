@@ -75,7 +75,7 @@ export default class Startup implements IApplicationStart {
   ConfigurationServices = async (services: ServiceManager) : Promise<void> => {
     
     // Configuration Settings
-    services.AddInstance<IConfigurationSettings>("configSettings", new ConfigurationSettings());
+    services.AddInstance<IConfigurationSettings>("configurationSettings", new ConfigurationSettings());
 
     /** DatabaseManager | Se establece la conección con la BD */
     services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);
@@ -84,7 +84,7 @@ export default class Startup implements IApplicationStart {
     services.AddApiValidation(new ApiValidationMiddleware());
 
     /** ApplicationContext */
-    services.AddAplicationContext(new ApplicationContextMiddleware(services));
+    services.AddMiddleware(new ApplicationContextMiddleware(services));
       
     // Instancia los controladores
     services.AddControllers();
