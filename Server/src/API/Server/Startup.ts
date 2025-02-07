@@ -56,6 +56,10 @@ import { FileManager } from "../../JFramework/Managers/FileManager";
 import IFileManager from "../../JFramework/Managers/Interfaces/IFileManager";
 import IConfigurationSettings from "../../JFramework/Configurations/types/IConfigurationSettings";
 import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
+import EmailTemplateManager from "../../JFramework/Managers/EmailTemplateManager";
+import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEmailTemplateManager";
+import { ITranslatorHandler } from "../../JFramework/Translations/Interfaces/ITranslatorHandler";
+import TranslatorHandler from "../../JFramework/Translations/TranslatorHandler";
 
 
 
@@ -79,13 +83,15 @@ export default class Startup implements IApplicationStart {
 
     /** DatabaseManager | Se establece la conección con la BD */
     services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);
-    
+
     /** API Validation */
-    services.AddApiValidation(new ApiValidationMiddleware());
+    services.AddApiValidation(new ApiValidationMiddleware(services));
 
     /** ApplicationContext */
-    services.AddMiddleware(new ApplicationContextMiddleware(services));
-      
+    services.AddAplicationContext((applicationContext:ApplicationContext) => {
+      services.AddInstance<ITranslatorHandler>("translatorHandler", new TranslatorHandler({ applicationContext }));
+    });
+
     // Instancia los controladores
     services.AddControllers();
  
@@ -100,10 +106,8 @@ export default class Startup implements IApplicationStart {
     services.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
     services.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
     services.AddService<IEmailDataManager, EmailDataManager>("emailDataManager", EmailDataManager);
+    services.AddService<IEmailTemplateManager, EmailTemplateManager>("emailTemplateManager", EmailTemplateManager);
     services.AddService<IFileManager, FileManager>("fileManager", FileManager);
-
-    // Singletons
-  
 
     // Servicios
     services.AddService<ITestService, TestService>("testService", TestService);

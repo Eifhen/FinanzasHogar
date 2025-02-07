@@ -5,8 +5,8 @@
 
 /** Lenguajes disponibles en la aplicacion */
 export const ApplicationLenguages = {
-  es: "es-do",
-  en: "en-us",
+  es: "es-DO",
+  en: "en-US",
 } as const;
 
 

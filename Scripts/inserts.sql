@@ -6,6 +6,8 @@ use FinanzasHogar;
 
 select * from usuarios;
 
+delete from usuarios
+
 INSERT INTO usuarios (
     nombre,
     apellidos,

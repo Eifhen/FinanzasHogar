@@ -4,8 +4,7 @@ import { SignInDTO } from "../DTOs/SignInDTO";
 import { SignUpDTO } from "../DTOs/SignUpDTO";
 import IAuthenticationService from "./Interfaces/IAuthenticationService";
 import IUsuariosSqlRepository from '../../Dominio/Repositories/IUsuariosSqlRepository';
-import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
-import { HttpStatusCode, HttpStatusMessage, HttpStatusName } from "../../JFramework/Utils/HttpCodes";
+import { HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
 import IsNullOrEmpty from '../../JFramework/Utils/utils';
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
@@ -17,7 +16,7 @@ import { EstadosUsuario } from "../../JFramework/Utils/estados";
 import MssSqlTransactionBuilder from "../../Infraestructure/Repositories/Generic/MssSqlTransactionBuilder";
 import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
 import { AppImage } from "../../JFramework/DTOs/AppImage";
-import { BadRequestException, BaseException } from "../../JFramework/ErrorHandling/Exceptions";
+import { BadRequestException, BaseException, InternalServerException, RecordAlreadyExistsException } from "../../JFramework/ErrorHandling/Exceptions";
 import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
 import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
 import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
@@ -91,7 +90,7 @@ export default class AuthenticationService implements IAuthenticationService {
   }
 
   /** Método que permite el registro del usuario */
-  public SignUp = async (args: ApplicationArgs<SignUpDTO.Type>): Promise<ApplicationResponse<CreateUsuarios>> => {
+  public SignUp = async (args: ApplicationArgs<SignUpDTO.Type>): Promise<ApplicationResponse<void>> => {
     try {
       this._logger.Activity("SignUp");
 
@@ -102,7 +101,19 @@ export default class AuthenticationService implements IAuthenticationService {
         throw new BadRequestException(signupValidation.error, this._applicationContext, __filename);
       }
 
-      const result = await this._transaction.Start<CreateUsuarios>(async () => {
+      await this._transaction.Start(async () => {
+
+        // Validar que no exista un usuario con ese email
+        const [findUserError, findUser] = await this._usuariosRepository.find("email", "=", args.data.email);
+        
+        if(findUserError){
+          throw new InternalServerException(findUserError.message, this._applicationContext, __filename);
+        }
+
+        if(findUser){
+          throw new RecordAlreadyExistsException(["email", findUser.email], this._applicationContext, __filename);
+        }
+      
         /** Se crea usuario  */
         const user: CreateUsuarios = {
           nombre: args.data.nombre,
@@ -114,41 +125,38 @@ export default class AuthenticationService implements IAuthenticationService {
           fecha_creacion: new Date(),
           estado: EstadosUsuario.INACTIVO, // El usuario se crea inicialmente en estado inactivo
           image_public_id: "",
-          token_confirmacion: "",
+          token_confirmacion: await this._tokenManager.GenerateToken(),
           pais: args.data.pais,
         };
 
         /** Se guarda imagen en el proveedor */
         if (AppImage.Validate(args.data.foto).isValid) {
 
-          const [err, data] = await this._imageDirector.Upload(
+          const [imageErr, imageData] = await this._imageDirector.Upload(
             args.data.foto, 
             this._applicationContext.settings.fileProvider.currentProvider.data.usersFolder
           );
           
-          if(err) throw err;  
+          if(imageErr) throw imageErr;  
 
           /** Agregamos la imagen */
-          user.image_public_id = !IsNullOrEmpty(data?.url) ? data?.url : "" ;
+          user.image_public_id = !IsNullOrEmpty(imageData?.url) ? imageData?.url : "" ;
         }
 
         /** Se guarda el usuario en la BD */
-        const [createErr, createdUser] = await this._usuariosRepository.create(user);
+        const [createErr] = await this._usuariosRepository.create(user);
         if(createErr) throw createErr; 
         
         /** Se envía email de confirmación. */
         const data:EmailData<EmailVerificationData> = this._emailDataManager.GetVerificationEmailData(user.nombre, user.email, "#");
         const [emailErr] = await this._emailManager.SendEmail(data);
         if(emailErr) throw emailErr;
-
-        return user;
         
       });
 
-      return new ApplicationResponse<CreateUsuarios>(
-        this._applicationContext.requestID,
+      return new ApplicationResponse(
+        this._applicationContext,
         HttpStatusMessage.Created,
-        result
       );
     }
     catch (err: any) {
@@ -172,7 +180,7 @@ export default class AuthenticationService implements IAuthenticationService {
 
       // Por implementar
       return new ApplicationResponse(
-        this._applicationContext.requestID,
+        this._applicationContext,
         HttpStatusMessage.Accepted,
         true
       )

@@ -1,5 +1,6 @@
 import { ApplicationSQLDatabase } from "../../Infraestructure/DataBase";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
+import TranslatorHandler from "../Translations/TranslatorHandler";
 import { ApplicationLenguage, ApplicationLenguages } from "./types/types";
 
 
@@ -23,18 +24,21 @@ export default class ApplicationContext {
   /** Ip del request en curso */
   public ipAddress: string = "";
   
-
   /** Instancia de la base de datos */
   public database: ApplicationSQLDatabase;
 
-  /** Contiene el lenguaje disponible en la aplicación */
+  /** Contiene el lenguaje disponible en la aplicación  (esto nos llega en la request)*/
   public lang: ApplicationLenguage = ApplicationLenguages.en;
 
   /** Objeto de configuración de la aplicación */
   public settings: ConfigurationSettings;
+
+  /** Tranductor */
+  public translator: TranslatorHandler;
   
   constructor(deps: ApplicationContextDependencies){
     this.database = deps.database;
     this.settings = deps.configurationSettings;
+    this.translator = new TranslatorHandler({ applicationContext: this })
   }
 }

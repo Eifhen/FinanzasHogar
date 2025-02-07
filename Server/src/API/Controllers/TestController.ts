@@ -4,7 +4,6 @@ import { NextFunction, Request, Response } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 
-import IErrorManager from "../../JFramework/ErrorHandling/Interfaces/IErrorManager";
 import { HttpStatusCode, HttpStatusMessage, HttpStatusName } from "../../JFramework/Utils/HttpCodes";
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
@@ -13,16 +12,17 @@ import { NO_REQUEST_ID } from "../../JFramework/Utils/const";
 import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
 import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
 import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
+import { ITranslatorHandler } from "../../JFramework/Translations/Interfaces/ITranslatorHandler";
 
 
 
 
 interface TestControllerDependencies {
   testService: ITestService;
-  errorManager: IErrorManager;
  // context: ApplicationContext;
   usuariosRepository: IUsuariosSqlRepository;
   imageDirector: ImageStrategyDirector;
+  applicationContext: ApplicationContext;
 }
 
 @route("/test")
@@ -31,16 +31,16 @@ export default class TestController {
   private readonly _testService: ITestService;
  // private readonly _context: ApplicationContext;
   private readonly _logger: ILoggerManager;
-  private readonly _errorManager: IErrorManager;
   private readonly _usuariosRepository: IUsuariosSqlRepository;
   private readonly _imageDirector: ImageStrategyDirector;
+  private readonly _applicationContext: ApplicationContext;
 
   constructor(deps: TestControllerDependencies) {
     this._testService = deps.testService;
   //  this._context = deps.context;
-    this._errorManager = deps.errorManager;
     this._usuariosRepository = deps.usuariosRepository;  
     this._imageDirector = deps.imageDirector;  
+    this._applicationContext = deps.applicationContext;
     this._logger = new LoggerManager({
     //  context: this._context,
       entityName: "TestController",
@@ -74,13 +74,7 @@ export default class TestController {
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetError");
-      next(this._errorManager.GetException(
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError, 
-        "Error Prueba", 
-        __filename, 
-        err
-      ));
+      next(err);
     }
   }
 
@@ -99,13 +93,7 @@ export default class TestController {
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetPromiseError");
-      throw this._errorManager.GetException(
-        HttpStatusName.BadRequest,
-        HttpStatusCode.BadRequest,
-        "Error Prueba", 
-        __dirname, 
-        err
-      );
+      throw err;
     }
   }
 
@@ -188,10 +176,11 @@ export default class TestController {
         return next(err);
       }
 
-      return next(this._errorManager.GetException(
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError, 
-        HttpStatusMessage.InternalServerError, 
+      return next(new ApplicationException(
+        err.message, 
+        HttpStatusName.NotFound, 
+        HttpStatusCode.NotFound,
+        NO_REQUEST_ID,
         __filename, 
         err
       ));
@@ -214,10 +203,11 @@ export default class TestController {
         return next(err);
       }
 
-      return next(this._errorManager.GetException(
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError, 
-        HttpStatusMessage.InternalServerError, 
+      return next(new ApplicationException(
+        err.message, 
+        HttpStatusName.NotFound, 
+        HttpStatusCode.NotFound,
+        NO_REQUEST_ID,
         __filename, 
         err
       ));
@@ -247,14 +237,45 @@ export default class TestController {
         return next(err);
       }
 
-      return next(this._errorManager.GetException(
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError, 
-        HttpStatusMessage.InternalServerError, 
+      return next(new ApplicationException(
+        err.message, 
+        HttpStatusName.NotFound, 
+        HttpStatusCode.NotFound,
+        NO_REQUEST_ID,
         __filename, 
         err
       ));
     }
   }
+
+
+  @route("/translations")
+  @GET()
+  public GetTranslations = async (req: ApplicationRequest<any, { id: string}>, res: Response, next: NextFunction) => {
+    try {
+      this._logger.Activity("GetTranslations");
+
+      const result = this._applicationContext.translator.Translate("activar")
+
+      res.status(HttpStatusCode.OK).send(result);
+
+    }
+    catch(err:any){
+      this._logger.Error("ERROR", "GetTranslations");
+      
+      if(err instanceof ApplicationException) {
+        return next(err);
+      }
+
+      return next(new ApplicationException(
+        err.message, 
+        HttpStatusName.NotFound, 
+        HttpStatusCode.NotFound,
+        NO_REQUEST_ID,
+        __filename, 
+        err
+      ));
+    }
+  } 
 
 }

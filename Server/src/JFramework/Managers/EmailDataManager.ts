@@ -13,7 +13,10 @@ interface IEmailDataManagerDependencies {
 }
 
 
-/** Clase que permite generar objetos EmailData para ser utilizados por el EmailManager */
+/** Clase que permite generar objetos `EmailData` 
+ * para ser utilizados por el `EmailManager` estos objetos son pasados
+ * al `EmailTemplateManager` para ser utilizados en el template que se enviará
+ * por correo */
 export class EmailDataManager implements IEmailDataManager {
 
   /** Instancia del logger */
@@ -37,28 +40,27 @@ export class EmailDataManager implements IEmailDataManager {
     this._logger.Activity("GetValidationEmailData");
 
     return {
-      title: "Activate Account",
+      title: this._applicationContext.translator.Translate("activar-cuenta"),
       recipientEmail: recipientEmail,
       template: {
-        name: "verification_email.html",
+        name: "verification_email",
         data: {
-          headTitle: "Activate Account",
+          headTitle: this._applicationContext.translator.Translate("activar-cuenta"),
           homeBudgetLogo: this._applicationContext.settings.apiData.defaultImages.APP_LOGO,
           portfolioLogo: this._applicationContext.settings.apiData.defaultImages.PORTFOLIO_LOGO,
           blackWave: this._applicationContext.settings.apiData.defaultImages.BLACK_WAVE,
-          subject: "Activate Account",
+          subject: this._applicationContext.translator.Translate("activar-cuenta"),
           paragraph: {
             accentColor: this._applicationContext.settings.apiData.styleConfig.primaryColor,
-            greating1: "Hello ",
+            greating1: this._applicationContext.translator.Translate("hola"),
             recipientName: recipientName,
-            greating2: "welcome to ",
+            greating2: this._applicationContext.translator.Translate("bienvenido-a").toLowerCase(),
             bussinessName: this._applicationContext.settings.appPrettyName ?? "",
-            argument: `Your account has been successfully created. 
-              Click the link below to activate your account`,
+            argument: this._applicationContext.translator.Translate("cuenta-creada-exitosamente"),
           },
           button: {
             link: btnLink,
-            text: "Activate",
+            text: this._applicationContext.translator.Translate("activar"),
             color: this._applicationContext.settings.apiData.styleConfig.primaryColor
           }
         }
@@ -66,7 +68,5 @@ export class EmailDataManager implements IEmailDataManager {
       attatchments: undefined
     }
   };
-
-
 
 }

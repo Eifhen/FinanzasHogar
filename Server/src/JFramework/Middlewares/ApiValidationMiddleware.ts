@@ -7,7 +7,14 @@ import IsNullOrEmpty from '../Utils/utils';
 import ApplicationException from '../ErrorHandling/ApplicationException';
 import { HttpStatusCode, HttpStatusName } from '../Utils/HttpCodes';
 import { v4 as uuidv4 } from 'uuid';
+import ApplicationContext from '../Application/ApplicationContext';
+import ServiceManager from '../Managers/ServiceManager';
+import ConfigurationSettings from '../Configurations/ConfigurationSettings';
 
+
+interface ApiValidationMiddlewareDependencies {
+  applicationContext : ApplicationContext
+}
 
 /** Middleware para manejo de la validación del api */
 export default class ApiValidationMiddleware implements IApplicationMiddleware {
@@ -15,12 +22,13 @@ export default class ApiValidationMiddleware implements IApplicationMiddleware {
   /** Instancia del logger */
   private _logger: ILoggerManager;
 
-  /** Contiene el nombre del header que contiene el api key en el request en curso */
-  private readonly headerName = process.env.API_KEY_HEADER ?? "";
+  /** Manejador de servicios */
+  private serviceManager: ServiceManager;
 
-  private readonly apiKey = process.env.API_KEY ?? "";
+  constructor(services: ServiceManager){
 
-  constructor(){
+    this.serviceManager = services;
+
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MIDDLEWARE,
@@ -32,11 +40,13 @@ export default class ApiValidationMiddleware implements IApplicationMiddleware {
   public Intercept:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) : Promise<any> => {
     try {
       this._logger.Activity("Intercept");
-      
-      const key = req.headers[this.headerName];
+       const configurationSettings = this.serviceManager.Resolve<ConfigurationSettings>("configurationSettings");
+
+      const apiData = configurationSettings.apiData;
+      const key = req.headers[apiData.headers.apiKeyHeader];
       const request_id = uuidv4().slice(0, 8);
 
-      if(IsNullOrEmpty(this.apiKey) || IsNullOrEmpty(key)){
+      if(IsNullOrEmpty(apiData.apiKey) || IsNullOrEmpty(key)){
         throw new ApplicationException(
           "ApiKey no definido",
           HttpStatusName.InternalServerError,
@@ -46,7 +56,7 @@ export default class ApiValidationMiddleware implements IApplicationMiddleware {
         );
       }
 
-      if(this.apiKey !== key){
+      if(apiData.apiKey !== key){
         throw new ApplicationException(
           "ApiKey invalido",
           HttpStatusName.BadRequest,

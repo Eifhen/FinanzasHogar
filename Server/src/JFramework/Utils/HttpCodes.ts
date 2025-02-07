@@ -26,26 +26,26 @@ export const HttpStatusCode = {
 
 export const HttpStatusMessage = {
   // Información
-  OK : 'Petición exitosa',
-  Created : 'Recurso creado exitosamente',
-  Accepted : 'Petición aceptada',
-  Updated : 'Recurso actualizado exitosamente',
-  Deleted : 'Recurso eliminado exitosamente',
-  NoContent : 'Sin Contenido',
+  OK : "ok-result",
+  Created : "created",
+  Accepted : "accepted",
+  Updated : "updated",
+  Deleted : "deleted",
+  NoContent : "no-content",
 
   // Errores de cliente
-  BadRequest : 'Solicitud incorrecta',
-  Unauthorized : 'No autorizado',
-  Forbidden : 'Acceso prohibido',
-  NotFound : 'Recurso no encontrado',
-  MethodNotAllowed : 'Método no permitido',
-  UnprocessableEntity : 'Entidad no procesable',
+  BadRequest : "bad-request",
+  Unauthorized : "unauthorized",
+  Forbidden : "forbidden",
+  NotFound : "not-found",
+  MethodNotAllowed : "method-not-allowed",
+  UnprocessableEntity : "unprocessable-entity",
 
   // Errores de servidor
-  InternalServerError : 'Error interno del servidor',
-  NotImplemented : 'Funcionalidad no implementada',
-  BadGateway : 'Puerta de enlace incorrecta',
-  ServiceUnavailable : 'Servicio no disponible',
+  InternalServerError : "internal-error",
+  NotImplemented :  "not-implemented",
+  BadGateway : "bad-gateway",
+  ServiceUnavailable : "service-unavailable",
 } as const;
 
 
@@ -56,21 +56,24 @@ export const HttpStatusName = {
   Accepted : 'Accepted',
   Updated : 'Updated',
   Deleted : 'Deleted',
-  NoContent : 'No Content',
+  NoContent : 'NoContent',
 
   // Errores de cliente
-  BadRequest : 'Bad Request',
+  BadRequest : 'BadRequest',
   Unauthorized : 'Unauthorized',
   Forbidden : 'Forbidden',
-  NotFound : 'Not Found',
-  MethodNotAllowed : 'Method Not Allowed',
-  UnprocessableEntity : 'Unprocessable Entity',
+  NotFound : 'NotFound',
+  MethodNotAllowed : 'MethodNotAllowed',
+  UnprocessableEntity : 'UnprocessableEntity',
+  RecordAlreadyExists: "RecordAlreadyExists",
 
   // Errores de servidor
-  InternalServerError : 'Internal Server Error',
-  NotImplemented : 'Not Implemented',
-  BadGateway : 'Bad Gateway',
-  ServiceUnavailable : 'Service Unavailable',
+  InternalServerError : 'InternalServerError',
+  NotImplemented : 'NotImplemented',
+  BadGateway : 'BadGateway',
+  ServiceUnavailable : 'ServiceUnavailable',
+  NullParameterException:  "NullParameterException"
+
 } as const
 
 

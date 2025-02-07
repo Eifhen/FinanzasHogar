@@ -7,6 +7,9 @@ import { NO_REQUEST_ID } from "../Utils/const";
 import ServiceManager from "../Managers/ServiceManager";
 import { ApplicationSQLDatabase } from "../../Infraestructure/DataBase";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
+import { ApplicationLenguage, ApplicationLenguages } from "../Application/types/types";
+import { ITranslatorHandler } from "../Translations/Interfaces/ITranslatorHandler";
+import TranslatorHandler from "../Translations/TranslatorHandler";
 
 
 
@@ -16,9 +19,23 @@ export default class ApplicationContextMiddleware implements IApplicationMiddlew
   
   /** Instancia del serviceManager */
   private serviceManager: ServiceManager;
+  private _callback?: (context:ApplicationContext) => void;
 
-  constructor (services: ServiceManager) {
+  constructor (services: ServiceManager, callback?:(context:ApplicationContext)=> void) {
     this.serviceManager = services;
+    if(callback){
+      this._callback = callback;
+    }
+  }
+
+  /** Obtiene la configuración de idioma de la requeste en curso */
+  private GetLenguageConfig = (req: ApplicationRequest, settings: ConfigurationSettings) => {
+    if(IsNullOrEmpty(req.headers[settings.apiData.headers.langHeader])){
+      return ApplicationLenguages.en
+    }
+    else {
+      return req.headers[settings.apiData.headers.langHeader] as ApplicationLenguage ;
+    }
   }
 
   /**  Intercepta el request en curso y agrega funcionalidad */
@@ -26,12 +43,24 @@ export default class ApplicationContextMiddleware implements IApplicationMiddlew
 
     const database = this.serviceManager.Resolve<ApplicationSQLDatabase>("database");
     const configurationSettings = this.serviceManager.Resolve<ConfigurationSettings>("configurationSettings");
-    const context = new ApplicationContext({ database, configurationSettings});
+    const applicationContext = new ApplicationContext({ database, configurationSettings});
 
-    context.requestID = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
-    context.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
+    /** Seteamos la configuración de idioma al contexto */
+    applicationContext.lang = this.GetLenguageConfig(req, configurationSettings);
 
-    this.serviceManager.AddAplicationContext(context);
+    /** Agregamos el request Id */
+    applicationContext.requestID = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
+    
+    /** Agregamos la ip actual */
+    applicationContext.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
+
+    this.serviceManager.AddInstance<ApplicationContext>("applicationContext", applicationContext);
+    
+    if(this._callback){
+      this._callback(applicationContext);
+    }
+
+
     return next();
   }
 

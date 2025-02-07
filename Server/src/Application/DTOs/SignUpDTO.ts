@@ -48,3 +48,4 @@ export namespace SignUpDTO {
   /** Función que valida y obtiene los errores del DTO */
   export const { Validate } = schemaValidator(Schema);
 }
+

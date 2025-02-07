@@ -1,3 +1,4 @@
+import { EmailTemplateType } from "../../Utils/EmailTemplates";
 
 
 /** Representa un objeto que contiene todo lo necesario para enviar un email */
@@ -19,7 +20,7 @@ export interface EmailData<TemplateData> {
 /** Representa el template que se va a enviar por email */
 export interface EmailTemplate<TemplateData> {
   /** Nombre del template */
-  name: string;
+  name: EmailTemplateType;
 
   /** Data que se va a inyectar en el template */
   data: TemplateData;

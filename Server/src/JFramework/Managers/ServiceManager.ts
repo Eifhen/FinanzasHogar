@@ -14,6 +14,7 @@ import ImageStrategyDirector from "../Strategies/Image/ImageStrategyDirector";
 import IApplicationImageStrategy from "../Strategies/Image/IApplicationImageStrategy";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContextMiddleware from "../Middlewares/ApplicationContextMiddleware";
 
 
 export default class ServiceManager {
@@ -153,6 +154,7 @@ export default class ServiceManager {
       // this._logger.Activity(`AddInstance`);
       let instance;
       const contextExists = this._container.hasRegistration("applicationContext");
+     
       if (contextExists) {
         // Inyectamos el context
         const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
@@ -174,16 +176,12 @@ export default class ServiceManager {
       );
     }
   }
-  
-
- 
 
   /** Agrega un middleware a la aplicación */
   public AddMiddleware = (middleware:IApplicationMiddleware) => {
     this._logger.Activity(`AddMiddleware`);
     this._app.use(middleware.Init() as RequestHandler | ErrorRequestHandler);
   }
-
 
   /** Agrega middleware para validación del api */
   public AddApiValidation = (middleware: IApplicationMiddleware) => {
@@ -192,11 +190,10 @@ export default class ServiceManager {
   }
 
   /** Permite configurar el contexto de la aplicación */
-  public AddAplicationContext = (context: ApplicationContext) => {
+  public AddAplicationContext = (callback:(context:ApplicationContext)=> void) => {
     this._logger.Activity(`AddAplicationContext`);
 
-    /** Agrega singleton */
-    this._container?.register("applicationContext", asValue(context));
+    this.AddMiddleware(new ApplicationContextMiddleware(this, callback));
   }
 
   /** 

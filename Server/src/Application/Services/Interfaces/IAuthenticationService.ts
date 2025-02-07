@@ -12,7 +12,7 @@ import { CreateUsuarios } from '../../../Dominio/Entities/Usuarios';
 export default interface IAuthenticationService {
 
   /** Método que permite el Registro de un usuario */
-  SignUp(args: ApplicationArgs<SignUpDTO.Type>) : Promise<ApplicationResponse<CreateUsuarios>>;
+  SignUp(args: ApplicationArgs<SignUpDTO.Type>) : Promise<ApplicationResponse<void>>;
 
 
   /** Método que permite el Inicio de sesión de un usuario */

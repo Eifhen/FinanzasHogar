@@ -1,4 +1,6 @@
 import IApplicationResponse from "./types/IApplicationResponse";
+import ApplicationContext from './ApplicationContext';
+import { HttpStatusMessage, HttpStatusMessages } from "../Utils/HttpCodes";
 
 
 
@@ -17,9 +19,9 @@ export class ApplicationResponse<T> implements IApplicationResponse<T> {
   /** Ruta de redirección si la hay */
   public redirectionRoute?: string;
 
-  constructor(_requestID: string, _message: string, _data: T, _redirectionRoute?:string){
-    this.requestID = _requestID;
-    this.message = _message;
+  constructor(applicationContext:ApplicationContext, _message: HttpStatusMessages, _data?: T, _redirectionRoute?:string){
+    this.requestID = applicationContext.requestID;
+    this.message = applicationContext.translator.Translate(_message);
     this.data = _data;
     this.redirectionRoute = _redirectionRoute;
   }

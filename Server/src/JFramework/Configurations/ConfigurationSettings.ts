@@ -1,6 +1,6 @@
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
-import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, IEmailProviderConfig, IFileProviderConfig, EmailProvider, ApplicationStyleConfig, FileProvider } from "./types/IConfigurationSettings";
+import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, IEmailProviderConfig, IFileProviderConfig, EmailProvider, ApplicationStyleConfig, FileProvider, ApplicationHeaders } from "./types/IConfigurationSettings";
 
 
 
@@ -79,8 +79,8 @@ export default class ConfigurationSettings implements IConfigurationSettings {
       /** Clave de aplicación */
       apiKey: process.env.API_KEY ?? "",
 
-      /** Nombre del header en la request, que contiene el apiKey */
-      apiKeyHeader: process.env.API_KEY_HEADER ?? "",
+      /** Headers que se utilizan en la app */
+      headers: this.GetHeaders(),
 
       /** Token de aplicación */
       tokenKey: process.env.TOKEN_KEY ?? "",
@@ -104,6 +104,20 @@ export default class ConfigurationSettings implements IConfigurationSettings {
       styleConfig: this.GetApplicationStyleConfig()
 
     } as ApiData;
+  }
+
+  /** Obtiene los headers que se utilizan en la aplicación */
+  private GetHeaders = () : ApplicationHeaders => {
+    const data = JSON.parse(process.env.APPLICATION_HEADERS ?? "");
+
+    return {
+      /** Nombre del header en la request, que contiene el apiKey */
+      apiKeyHeader: data.API_KEY_HEADER,
+      
+      /** Nombre del header en la request, que contiene el idioma */
+      langHeader: data.LANG,
+
+    } as ApplicationHeaders;
   }
 
   /** Obtiene el listado de proveedores de Email */

@@ -1,32 +1,39 @@
-import ApplicationException from "../ErrorHandling/ApplicationException";
-import { NO_REQUEST_ID } from "../Utils/const";
-import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/ILoggerManager";
 import ITokenManager from "./Interfaces/ITokenManager";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import LoggerManager from "./LoggerManager";
-import IsNullOrEmpty from "../Utils/utils";
+import ApplicationContext from '../Application/ApplicationContext';
+import { BaseException } from "../ErrorHandling/Exceptions";
+import bcrypt from 'bcrypt';
 
 
+interface TokenManagerDependencies {
+  applicationContext: ApplicationContext;
+}
 export default class TokenManager implements ITokenManager {
 
   /** Instancia del logger */
-  private _logger: ILoggerManager;
-  
+  private readonly _logger: ILoggerManager;
+
   /** Hash o secret para el token  */
   private readonly secret: string;
 
-  constructor(){
+  /** Contexto de aplicación */
+  private readonly _applicationContext: ApplicationContext;
+
+  constructor(deps: TokenManagerDependencies) {
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MANAGER,
       entityName: "TokenManager"
     });
 
-    this.secret = IsNullOrEmpty(process.env.TOKEN_KEY) ? "" : process.env.TOKEN_KEY!;
+    this._applicationContext = deps.applicationContext;
+    this.secret = this._applicationContext.settings.apiData.tokenKey;
   }
 
-  public Generate = async <T>(payload: T) : Promise<string> => {
+  /** Permite generar un token jwt con un payload del tipo ingresado */
+  public GeneratePayloadToken = async <T>(payload: T): Promise<string> => {
     try {
       this._logger.Activity("Generate");
       const data = { data: payload };
@@ -34,32 +41,63 @@ export default class TokenManager implements ITokenManager {
         algorithm: "HS256"
       });
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error(LoggerTypes.ERROR, "Generate", err);
-      throw new ApplicationException(
-        "Generate",
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+      throw new BaseException(
+        "GeneratePayloadToken",
+        err.message,
+        this._applicationContext,
         __filename
       );
     }
   }
-
-  public Decode = async (token: string) : Promise<string | JwtPayload> => {
+  /** Permite decodificar un token jwt ingresado */
+  public Decode = async (token: string): Promise<string | JwtPayload> => {
     try {
       this._logger.Activity("Decode");
       const tk = token.split(" ")[1];  // quitamos el Bearer
       const decoded = jwt.verify(tk, this.secret);
       return decoded;
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error(LoggerTypes.ERROR, "Decode", err);
-      throw new ApplicationException(
+      throw new BaseException(
         "Decode",
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        err.message,
+        this._applicationContext,
+        __filename
+      );
+    }
+  }
+
+  /**
+ * Genera un token aleatorio y seguro (No JWT), y lo hashea usando bcrypt
+ * @returns {Promise<string>} - El token hasheado generado
+ */
+  public GenerateToken = async (): Promise<string> => {
+    try {
+      this._logger.Activity("GenerateToken");
+      
+      const LENGTH = 32;
+      const SALT_ROUNDS = 10;
+
+      // Generar una cadena aleatoria
+      const token = [...Array(LENGTH)].map(() => Math.random().toString(36)[2]).join('');
+
+      // Hashear la cadena usando bcrypt
+      const salt = await bcrypt.genSalt(SALT_ROUNDS);
+      const result = await bcrypt.hash(token, salt);
+
+      // Devolvemos el token
+      return result;
+
+    }
+    catch (err: any) {
+      this._logger.Error(LoggerTypes.ERROR, "GenerateToken", err);
+      throw new BaseException(
+        "GenerateToken",
+        err.message,
+        this._applicationContext,
         __filename
       );
     }

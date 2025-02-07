@@ -44,8 +44,8 @@ export interface ApiData {
   /** Clave de aplicación */
   apiKey: string;
 
-  /** Nombre del header en la request, que contiene el apiKey */
-  apiKeyHeader: string;
+  /** Contiene los headers custom de la aplicación */
+  headers: ApplicationHeaders;
 
   /** Token de aplicación */
   tokenKey: string;
@@ -73,6 +73,15 @@ export interface ApiData {
 export interface ApplicationStyleConfig {
   /** Color primario de la aplicación */
   primaryColor: string;
+}
+
+/** Contiene los headers custom que se utilizan en los request de la aplicación */
+export interface ApplicationHeaders {
+  /** Nombre del header en la request, que contiene el apiKey */
+  apiKeyHeader: string; 
+
+  /** Nombre del header que maneja el idioma de la aplicación */
+  langHeader: string;
 }
 
 /** Imagenes por defecto de la aplicación */
