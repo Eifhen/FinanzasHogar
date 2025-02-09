@@ -1,11 +1,8 @@
 
 import ApplicationContext from "../Application/ApplicationContext";
-import { NO_REQUEST_ID } from "../Utils/const";
-import ApplicationException from "../ErrorHandling/ApplicationException";
-import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
-import ILoggerManager, { LoggEntityCategorys, LoggEntityCategory, LoggErrorType, LoggerType, LoggerTypes, LogLevels } from "./Interfaces/ILoggerManager";
+import ILoggerManager, { LoggEntityCategory, LoggErrorType, LoggerType, LoggerTypes, LogLevels } from "./Interfaces/ILoggerManager";
 import Line from "./LinePrinterManager";
-import IsNullOrEmpty from "../Utils/utils";
+import { InternalServerException } from "../ErrorHandling/Exceptions";
 
 
 interface LoggManagerDependencies {
@@ -81,14 +78,14 @@ export default class LoggerManager implements ILoggerManager {
     }
     catch (err:any) {
       Line.Print("FATAL", "Ha ocurrido un error al ejecutar el método [Message] del LoggerManager", err);
-      throw new ApplicationException(
-        err.message, 
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError, 
-        IsNullOrEmpty(this._applicationContext?.requestID) ? NO_REQUEST_ID : this._applicationContext?.requestID, 
-        __filename, 
+
+      throw new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
-      );
+      )
+
     }
   }
 
@@ -121,14 +118,12 @@ export default class LoggerManager implements ILoggerManager {
     }
     catch (err:any) {
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Activity] del LoggerManager", err);
-      throw new ApplicationException(
-        err.message, 
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError, 
-        IsNullOrEmpty(this._applicationContext?.requestID) ? NO_REQUEST_ID : this._applicationContext?.requestID, 
-        __filename, 
+      throw new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
-      );
+      )
     }
   }
 
@@ -147,14 +142,12 @@ export default class LoggerManager implements ILoggerManager {
     }
     catch(err:any){
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Register] del LoggerManager", err);
-      throw new ApplicationException(
-        err.message, 
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError, 
-        IsNullOrEmpty(this._applicationContext?.requestID) ? NO_REQUEST_ID : this._applicationContext?.requestID, 
-        __filename, 
+      throw new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
-      );
+      )
     }
   }
 
@@ -182,14 +175,12 @@ export default class LoggerManager implements ILoggerManager {
     }
     catch (err:any) {
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Error] del LoggerManager", err);
-      throw new ApplicationException(
-        err.message, 
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError, 
-        IsNullOrEmpty(this._applicationContext?.requestID) ? NO_REQUEST_ID : this._applicationContext?.requestID, 
-        __filename, 
+      throw new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
-      );
+      )
     }
   }
 }

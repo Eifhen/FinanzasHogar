@@ -8,6 +8,8 @@ import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
 import IMssSqlGenericRepository from "./Interfaces/IMssSqlGenericRepository";
 import ApplicationContext from "../../../JFramework/Application/ApplicationContext";
 import IsNullOrEmpty from "../../../JFramework/Utils/utils";
+import { BaseException } from "../../../JFramework/ErrorHandling/Exceptions";
+import { ApplicationPromise, IApplicationPromise } from "../../../JFramework/Application/ApplicationPromise";
 
 
 /** Clase para generar transacciones sql */
@@ -20,21 +22,21 @@ export default class MssSqlTransactionBuilder {
   private _logger: ILoggerManager;
 
   /** Repositorios que usaran la transacción */
-  private _repositorys: IMssSqlGenericRepository<any, any>[];
+  private _repositorys?: IMssSqlGenericRepository<any, any>[];
 
   /** contexto de aplicación */
   private _context: ApplicationContext;
 
 
-  constructor(context:ApplicationContext, repositorys: IMssSqlGenericRepository<any, any>[]) {
-    
+  constructor(context: ApplicationContext, repositorys?: IMssSqlGenericRepository<any, any>[]) {
+
     // Instanciamos el logger
     this._logger = new LoggerManager({
       applicationContext: context,
       entityCategory: LoggEntityCategorys.BUILDER,
       entityName: "MssSqlTransactionBuilder"
     });
-    
+
     this._context = context;
     this._database = this._context.database;
     this._repositorys = repositorys;
@@ -42,75 +44,69 @@ export default class MssSqlTransactionBuilder {
 
 
   /** Inicia una nueva transacción */
-  public Start = async <T>(action: (trx: Transaction<DataBase>) => Promise<T>): Promise<T> => {
+  public Start = async <T>(action: (trx: Transaction<DataBase>) => Promise<T>): IApplicationPromise<T> => {
     this._logger.Activity("Start");
-    return new Promise<T>((resolve, reject) => {
+
+    return ApplicationPromise.Try<T>(new Promise<T>((resolve, reject) => {
       this._database.transaction().setIsolationLevel("serializable").execute(async (transaction) => {
-        try {
+
+        /** Validamos si es necesario setear las transacciones en los repositorios */
+        if (this._repositorys && this._repositorys.length > 0) {
           this._logger.Message("INFO", "Configurando transacciones en los repositorios");
-          await this.SetTransactions(transaction);
-  
-          this._logger.Message("INFO", "Ejecutando acción con transacción");
-          const result = await action(transaction);
-  
-          this._logger.Message("INFO", "Transacción ejecutada exitosamente");
-          resolve(result);
-        } catch (err: any) {
-          this._logger.Error("ERROR", "Start", err);
-          if (err instanceof ApplicationException) {
-            reject(err);
-          } else {
-            reject(new ApplicationException(
-              err.message,
-              "Start",
-              HttpStatusCode.InternalServerError,
-              IsNullOrEmpty(this._context.requestID) ? NO_REQUEST_ID : this._context.requestID,
-              __filename,
-              err
-            ));
-          }
-        } finally {
-          this._logger.Message("INFO", "Limpiando transacciones de los repostorios");
-          await this.SetTransactions(null).catch(cleanupErr => {
-            this._logger.Error("ERROR", "SetTransactions | Cleanup", cleanupErr);
-            reject(cleanupErr);
-          });
+          await this.SetRepositoryTransactions(transaction);
         }
+
+        /** Ejecutamos la acción y pasamos la transacción al callback */
+        this._logger.Message("INFO", "Ejecutando acción con transacción");
+        const result = await action(transaction);
+
+        /** Resolvemos la promesa con el resultado de la acción */
+        this._logger.Message("INFO", "Transacción ejecutada exitosamente");
+        resolve(result);
+
       }).catch(transactionErr => {
         /** Cuando ocurre un error en la transacción este catch se ejecuta siempre y se ejecuta de
          * forma asyncrona ya que transaction.execute es una IO operation */
         this._logger.Error("ERROR", "Transaction Execution Error", transactionErr);
         reject(transactionErr);
+
+      }).finally(() => {
+        if (this._repositorys && this._repositorys.length > 0) {
+          this._logger.Message("INFO", "Limpiando transacciones de los repostorios");
+          this.SetRepositoryTransactions(null).catch(cleanupErr => {
+            // si ocurre un error al limpiar las transacciones
+            this._logger.Error("ERROR", "SetTransactions | Cleanup", cleanupErr);
+            reject(cleanupErr);
+          });
+        }
       });
-    });
+    }));
   }
-  
 
   /** Setea las transacciones en los repositorios */
-  private SetTransactions = async (transaction: Transaction<DataBase>|null) => {
+  private SetRepositoryTransactions = async (transaction: Transaction<DataBase> | null) => {
     try {
       this._logger.Activity("SetTransactions");
 
       if (this._repositorys && this._repositorys.length > 0) {
         await Promise.all(this._repositorys.map(repository => repository.setTransaction(transaction)));
       }
-      
+
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error("ERROR", "SetTransactions", err);
 
-      if(err instanceof ApplicationException ){
+      if (err instanceof ApplicationException) {
         throw err;
       }
-      
-      throw new ApplicationException(
-        err.message,
+
+      throw new BaseException(
         "SetTransactions",
-        HttpStatusCode.InternalServerError,
-        IsNullOrEmpty(this._context.requestID) ? NO_REQUEST_ID : this._context.requestID,
+        err.message,
+        this._context,
         __filename,
         err
-      );
+      )
     }
   }
 }

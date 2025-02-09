@@ -1,6 +1,6 @@
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
-import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, IEmailProviderConfig, IFileProviderConfig, EmailProvider, ApplicationStyleConfig, FileProvider, ApplicationHeaders } from "./types/IConfigurationSettings";
+import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, IEmailProviderConfig, IFileProviderConfig, EmailProvider, ApplicationStyleConfig, FileProvider, ApplicationHeaders, ApplicationLinks } from "./types/IConfigurationSettings";
 
 
 
@@ -101,11 +101,26 @@ export default class ConfigurationSettings implements IConfigurationSettings {
       defaultImages: this.GetDefaultImages(),
 
       /** Configuración de estilos de la aplicación */
-      styleConfig: this.GetApplicationStyleConfig()
+      styleConfig: this.GetApplicationStyleConfig(),
+
+      /** Objeto que contiene las rutas para realizar distintas operaciones en el sistema */
+      appLinks: this.GetApplicationLinks(),
 
     } as ApiData;
   }
 
+  private GetApplicationLinks = () : ApplicationLinks => {
+    const data = JSON.parse(process.env.APPLICATION_LINKS ?? "");
+    return {
+
+      /** Ruta base  */
+      baseRoute: data.BASE_ROUTE,
+
+      /** Ruta para activación de cuentas */
+      accountActivation: data.ACCOUNT_ACTIVATION
+    } as ApplicationLinks
+  }
+ 
   /** Obtiene los headers que se utilizan en la aplicación */
   private GetHeaders = () : ApplicationHeaders => {
     const data = JSON.parse(process.env.APPLICATION_HEADERS ?? "");

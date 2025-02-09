@@ -7,7 +7,7 @@ import LoggerManager from "../../Managers/LoggerManager";
 import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
 import IApplicationImageStrategy from "./IApplicationImageStrategy";
-import {v2 as cloudinary} from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
 
 interface CloudinaryImageStrategyDependencies {
@@ -76,16 +76,16 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
    @param folderId {string} - la carpeta donde se debe guardar la imagen
    @returns - Retorna la imagen que fue cargada exitosamente 
   */
-  public Upload = async (img: AppImage.Type, folderId:string): IApplicationPromise<AppImage.Type> => {
+  public Upload = async (img: AppImage.Type, folderId: string): IApplicationPromise<AppImage.Type> => {
     try {
       this._logger.Activity("Upload");
-      return ApplicationPromise.Try(new Promise<AppImage.Type>((resolve, reject) => { 
+      return ApplicationPromise.Try(new Promise<AppImage.Type>((resolve, reject) => {
         cloudinary.uploader.upload(
-          img.base64, 
-          { 
-            folder: `${this.settings.fileProvider.currentProvider.data.mainFolder}/${folderId}` 
-          }, 
-          (error, result) => { 
+          img.base64,
+          {
+            folder: `${this.settings.fileProvider.currentProvider.data.mainFolder}/${folderId}`
+          },
+          (error, result) => {
             return error ? reject(error) : resolve({
               id: result?.public_id ?? "",
               url: result?.secure_url ?? "",
@@ -94,8 +94,8 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
               base64: "",
               fecha: img.fecha
             } as AppImage.Type);
-          } 
-        ); 
+          }
+        );
       }));
     }
     catch (err: any) {
@@ -120,7 +120,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     try {
       this._logger.Activity("Get");
 
-      return ApplicationPromise.Try(new Promise<AppImage.Type>((resolve, reject) => { 
+      return ApplicationPromise.Try(new Promise<AppImage.Type>((resolve, reject) => {
         cloudinary.api.resource(
           publicId,
           (error, result) => {
@@ -149,21 +149,27 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     }
   };
 
-  /** Método para eliminar una determinada imagen 
-   * @param publicId {string} - El ID público de la imagen 
-   * @returns - true si la imagen fue eliminada exitosamente 
-  */
+  /** Método para eliminar una determinada imagen
+ * @param publicId {string} - El ID público de la imagen
+ * @returns - true si la imagen fue eliminada exitosamente
+ */
   public Delete = async (publicId: string): IApplicationPromise<boolean> => {
     try {
       this._logger.Activity("Delete");
 
-      return ApplicationPromise.Try(new Promise((resolve, reject)=> {
+      return ApplicationPromise.Try(new Promise((resolve, reject) => {
         cloudinary.uploader.destroy(
-          publicId, 
+          publicId,
           (error, result) => {
-            return error ? reject(error) : result(result.result === "ok");
+            if (error) {
+              return reject(error);
+            } else if (result.result === "ok") {
+              return resolve(true);
+            } else {
+              return reject(result);
+            }
           }
-        )
+        );
       }));
     }
     catch (err: any) {
@@ -178,4 +184,5 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
       );
     }
   };
+
 }

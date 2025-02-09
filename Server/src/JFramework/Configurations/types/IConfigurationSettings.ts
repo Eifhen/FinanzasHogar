@@ -67,6 +67,9 @@ export interface ApiData {
 
   /** Configuración de estilos de aplicación */
   styleConfig: ApplicationStyleConfig;
+
+  /** Objeto que contiene las rutas para realizar distintas operaciones en el sistema */
+  appLinks: ApplicationLinks;
 }
 
 /** Contiene la configuración de estilos de la aplicación */
@@ -82,6 +85,16 @@ export interface ApplicationHeaders {
 
   /** Nombre del header que maneja el idioma de la aplicación */
   langHeader: string;
+}
+
+/** Objeto que contiene las rutas para realizar distintas operaciones en el sistema */
+export interface ApplicationLinks {
+
+  /** Ruta base */
+  baseRoute: string;
+
+  /** Ruta para activación de cuentas */
+  accountActivation: string;
 }
 
 /** Imagenes por defecto de la aplicación */

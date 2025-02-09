@@ -3,12 +3,6 @@ import ApplicationRequest from "../Application/ApplicationRequest";
 import { ApplicationRequestHandler, IApplicationMiddleware, MiddleWareFunction } from "../Configurations/types/ServerTypes";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
-import ApplicationContext from "../Application/ApplicationContext";
-import IsNullOrEmpty from "../Utils/utils";
-import { NO_REQUEST_ID } from "../Utils/const";
-import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
-import ApplicationException from "../ErrorHandling/ApplicationException";
-import { ApplicationPromise } from "../Application/ApplicationPromise";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ServiceManager from "../Managers/ServiceManager";
 import ITokenManager from "../Managers/Interfaces/ITokenManager";
@@ -47,10 +41,6 @@ export default class ApiAuthenticationMiddleware implements IApplicationMiddlewa
       const userRepository = this._serviceManager.Resolve<IUsuariosSqlRepository>("usuariosRepository");
       
       const [err, data] = await userRepository.getAll();
-
-
-
-      console.log("Data =>", data);
 
       
       /**

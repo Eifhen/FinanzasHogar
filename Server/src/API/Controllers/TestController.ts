@@ -13,6 +13,7 @@ import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrate
 import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
 import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
 import { ITranslatorHandler } from "../../JFramework/Translations/Interfaces/ITranslatorHandler";
+import { InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
 
 
 
@@ -157,12 +158,10 @@ export default class TestController {
       });
 
       if(err){
-        throw new ApplicationException(
-          err.message, 
-          HttpStatusName.NotFound, 
-          HttpStatusCode.NotFound,
-          NO_REQUEST_ID,
-          __filename, 
+        throw new InternalServerException(
+          err.message,
+          this._applicationContext,
+          __filename,
           err
         )
       }
@@ -176,12 +175,10 @@ export default class TestController {
         return next(err);
       }
 
-      return next(new ApplicationException(
-        err.message, 
-        HttpStatusName.NotFound, 
-        HttpStatusCode.NotFound,
-        NO_REQUEST_ID,
-        __filename, 
+      return next(new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
       ));
     }
@@ -203,12 +200,10 @@ export default class TestController {
         return next(err);
       }
 
-      return next(new ApplicationException(
-        err.message, 
-        HttpStatusName.NotFound, 
-        HttpStatusCode.NotFound,
-        NO_REQUEST_ID,
-        __filename, 
+      return next(new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
       ));
     }
@@ -237,12 +232,10 @@ export default class TestController {
         return next(err);
       }
 
-      return next(new ApplicationException(
-        err.message, 
-        HttpStatusName.NotFound, 
-        HttpStatusCode.NotFound,
-        NO_REQUEST_ID,
-        __filename, 
+      return next(new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
       ));
     }
@@ -267,15 +260,32 @@ export default class TestController {
         return next(err);
       }
 
-      return next(new ApplicationException(
-        err.message, 
-        HttpStatusName.NotFound, 
-        HttpStatusCode.NotFound,
-        NO_REQUEST_ID,
-        __filename, 
+      return next(new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
       ));
     }
   } 
+
+
+  @route("/activate-account/:token")
+  @GET()
+  public ActivateAccount = async (req: ApplicationRequest<any>, res: Response, next:NextFunction) => {
+    try {
+      this._logger.Activity("ActivateAccount");
+      const param = req.params.token;
+      res.status(HttpStatusCode.OK).send(param);
+    }
+    catch(err:any){
+      next(new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
+        err
+      ));
+    }
+  }
 
 }

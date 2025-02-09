@@ -4,7 +4,7 @@ import { SignInDTO } from "../DTOs/SignInDTO";
 import { SignUpDTO } from "../DTOs/SignUpDTO";
 import IAuthenticationService from "./Interfaces/IAuthenticationService";
 import IUsuariosSqlRepository from '../../Dominio/Repositories/IUsuariosSqlRepository';
-import { HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
+import { HttpStatusMessage } from '../../JFramework/Utils/HttpCodes';
 import IsNullOrEmpty from '../../JFramework/Utils/utils';
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
@@ -16,11 +16,12 @@ import { EstadosUsuario } from "../../JFramework/Utils/estados";
 import MssSqlTransactionBuilder from "../../Infraestructure/Repositories/Generic/MssSqlTransactionBuilder";
 import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
 import { AppImage } from "../../JFramework/DTOs/AppImage";
-import { BadRequestException, BaseException, InternalServerException, RecordAlreadyExistsException } from "../../JFramework/ErrorHandling/Exceptions";
+import { BadRequestException, BaseException, InternalServerException, RecordAlreadyExistsException } from '../../JFramework/ErrorHandling/Exceptions';
 import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
 import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
 import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
 import { EmailVerificationData } from "../../JFramework/Managers/Types/EmailDataManagerTypes";
+import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 
 
 
@@ -82,9 +83,9 @@ export default class AuthenticationService implements IAuthenticationService {
     });
 
     this._transaction = new MssSqlTransactionBuilder(
-      this._applicationContext, 
-      [ 
-        this._usuariosRepository 
+      this._applicationContext,
+      [
+        this._usuariosRepository
       ]
     );
   }
@@ -94,65 +95,39 @@ export default class AuthenticationService implements IAuthenticationService {
     try {
       this._logger.Activity("SignUp");
 
+      // Validamos datos de entrada
       const signupValidation = SignUpDTO.Validate(args.data);
-
-      // si el objeto ingresado es invalido
       if (!signupValidation.isValid) {
         throw new BadRequestException(signupValidation.error, this._applicationContext, __filename);
       }
 
-      await this._transaction.Start(async () => {
+      let uploadedImageId = "";
 
-        // Validar que no exista un usuario con ese email
-        const [findUserError, findUser] = await this._usuariosRepository.find("email", "=", args.data.email);
-        
-        if(findUserError){
-          throw new InternalServerException(findUserError.message, this._applicationContext, __filename);
-        }
+      /** Se inicia la transacción */
+      const [transError] = await this._transaction.Start(async () => {
 
-        if(findUser){
-          throw new RecordAlreadyExistsException(["email", findUser.email], this._applicationContext, __filename);
-        }
-      
-        /** Se crea usuario  */
-        const user: CreateUsuarios = {
-          nombre: args.data.nombre,
-          apellidos: args.data.apellidos,
-          fecha_nacimiento: args.data.fechaNacimiento,
-          sexo: args.data.sexo,
-          email: args.data.email,
-          password: await this._encrypterManager.Encrypt(args.data.password),
-          fecha_creacion: new Date(),
-          estado: EstadosUsuario.INACTIVO, // El usuario se crea inicialmente en estado inactivo
-          image_public_id: "",
-          token_confirmacion: await this._tokenManager.GenerateToken(),
-          pais: args.data.pais,
-        };
+        /** Validamos y devolvemos los datos del usuario recibido */
+        const user = await this.ValidateUserData(args.data);
 
-        /** Se guarda imagen en el proveedor */
-        if (AppImage.Validate(args.data.foto).isValid) {
-
-          const [imageErr, imageData] = await this._imageDirector.Upload(
-            args.data.foto, 
-            this._applicationContext.settings.fileProvider.currentProvider.data.usersFolder
-          );
-          
-          if(imageErr) throw imageErr;  
-
-          /** Agregamos la imagen */
-          user.image_public_id = !IsNullOrEmpty(imageData?.url) ? imageData?.url : "" ;
-        }
+        /** Valida y carga la imagen de usuario y retornamos el id de la imagen */
+        uploadedImageId = await this.ValidateAndUploadImage(args.data, user);
 
         /** Se guarda el usuario en la BD */
         const [createErr] = await this._usuariosRepository.create(user);
-        if(createErr) throw createErr; 
-        
-        /** Se envía email de confirmación. */
-        const data:EmailData<EmailVerificationData> = this._emailDataManager.GetVerificationEmailData(user.nombre, user.email, "#");
-        const [emailErr] = await this._emailManager.SendEmail(data);
-        if(emailErr) throw emailErr;
-        
+        if (createErr) throw createErr;
+
+        /** Envia el email al usuario */
+        await this.SendUserEmail(user);
+
       });
+
+      /** Si ocurre un error en la transacción eliminamos la imagen */
+      if (transError) {
+        await this.DeleteUploadedImage(uploadedImageId);
+
+        /** Relanzamos el error */
+        throw transError;
+      }
 
       return new ApplicationResponse(
         this._applicationContext,
@@ -161,15 +136,95 @@ export default class AuthenticationService implements IAuthenticationService {
     }
     catch (err: any) {
       this._logger.Error(LoggerTypes.ERROR, "SignUp", err);
+      if (err instanceof ApplicationException) {
+        throw err;
+      }
 
-      throw new BaseException(
-        "SignUp", 
-        err.message, 
-        this._applicationContext, 
-        __filename, 
+      throw new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
       );
     }
+  }
+
+  /** Valida la data del objeto recibido y devuelve un objeto `CreateUsuarios` */
+  private ValidateUserData = async (data: SignUpDTO.Type): Promise<CreateUsuarios> => {
+    // Validar que no exista un usuario con ese email
+    const [findUserError, findUser] = await this._usuariosRepository.find("email", "=", data.email);
+
+    if (findUserError) {
+      throw new InternalServerException(findUserError.message, this._applicationContext, __filename);
+    }
+
+    if (findUser) {
+      throw new RecordAlreadyExistsException(["email", findUser.email], this._applicationContext, __filename);
+    }
+
+    /** Se crea usuario  */
+    const user: CreateUsuarios = {
+      nombre: data.nombre,
+      apellidos: data.apellidos,
+      fecha_nacimiento: data.fechaNacimiento,
+      sexo: data.sexo,
+      email: data.email,
+      password: await this._encrypterManager.Encrypt(data.password),
+      fecha_creacion: new Date(),
+      estado: EstadosUsuario.INACTIVO, // El usuario se crea inicialmente en estado inactivo
+      image_public_id: "",
+      token_confirmacion: await this._tokenManager.GenerateToken(),
+      pais: data.pais,
+    };
+
+    return user;
+  }
+
+  /** Valida la data de la imagen recibida, si la misma es valida, 
+   * entonces se sube la imagen, retorna el id de la imagen guardada */
+  private ValidateAndUploadImage = async (data: SignUpDTO.Type, user: CreateUsuarios): Promise<string> => {
+    /** Se guarda imagen en el proveedor */
+    if (AppImage.Validate(data.foto).isValid) {
+
+      /** Cargamos la imagen al proveedor */
+      const [imageErr, imageData] = await this._imageDirector.Upload(
+        data.foto,
+        this._applicationContext.settings.fileProvider.currentProvider.data.usersFolder
+      );
+
+      if (imageErr) throw imageErr;
+
+      /** Agregamos la imagen */
+      user.image_public_id = imageData!.url;
+      return imageData!.id!;
+    }
+
+    return "";
+  }
+
+  /** Elimina la imagen cargada */
+  private DeleteUploadedImage = async (imageId: string): Promise<void> => {
+    // Si ocurre un error en la transacción eliminamos la imagen
+    if (!IsNullOrEmpty(imageId)) {
+      const [deleteErr] = await this._imageDirector.Delete(imageId);
+
+      if (deleteErr) {
+        throw deleteErr;
+      }
+    }
+  }
+
+  /** Envia el email al usuario */
+  private SendUserEmail = async (user: CreateUsuarios) => {
+    /** Se envía email de confirmación. */
+    const data: EmailData<EmailVerificationData> = this._emailDataManager.GetVerificationEmailData(
+      user.nombre,
+      user.email,
+      user.token_confirmacion ?? ""
+    );
+
+    const [emailErr] = await this._emailManager.SendEmail(data);
+    if (emailErr) throw emailErr;
   }
 
 
@@ -188,11 +243,14 @@ export default class AuthenticationService implements IAuthenticationService {
     catch (err: any) {
       this._logger.Error(LoggerTypes.ERROR, "SignIn", err);
 
-      throw new BaseException(
-        "SignIn", 
-        err.message, 
-        this._applicationContext, 
-        __filename, 
+      if (err instanceof ApplicationException) {
+        throw err;
+      }
+
+      throw new InternalServerException(
+        err.message,
+        this._applicationContext,
+        __filename,
         err
       );
     }

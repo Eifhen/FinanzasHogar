@@ -35,8 +35,12 @@ export class EmailDataManager implements IEmailDataManager {
     });
   }
 
-  /** Obtiene un objeto de verificacion de email */
-  public GetVerificationEmailData = (recipientName: string, recipientEmail:string, btnLink: string) : EmailData<EmailVerificationData> => {
+   /** Obtiene un objeto de verificacion de email
+  *  @param {string} recipientName - Indica el nombre de la persona a la que se le enviará el email
+  *  @param {string} recipientEmail - Indica el email de la persona a la que se le enviará el email
+  *  @param {string} token - Indica el token de activación 
+  */
+  public GetVerificationEmailData = (recipientName: string, recipientEmail:string, token: string) : EmailData<EmailVerificationData> => {
     this._logger.Activity("GetValidationEmailData");
 
     return {
@@ -59,7 +63,7 @@ export class EmailDataManager implements IEmailDataManager {
             argument: this._applicationContext.translator.Translate("cuenta-creada-exitosamente"),
           },
           button: {
-            link: btnLink,
+            link: `${this._applicationContext.settings.apiData.appLinks.accountActivation}/${token}`,
             text: this._applicationContext.translator.Translate("activar"),
             color: this._applicationContext.settings.apiData.styleConfig.primaryColor
           }

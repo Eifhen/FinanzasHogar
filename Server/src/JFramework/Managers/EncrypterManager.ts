@@ -1,13 +1,14 @@
-import ApplicationException from "../ErrorHandling/ApplicationException";
-import { NO_REQUEST_ID } from "../Utils/const";
-import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
+import ApplicationContext from "../Application/ApplicationContext";
+import { BaseException } from "../ErrorHandling/Exceptions";
 import IEncrypterManager from "./Interfaces/IEncrypterManager";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";
 import bcrypt from 'bcrypt';
 
 
-
+interface EncrypterManagerDependencies {
+  applicationContext: ApplicationContext;
+}
 export default class EncrypterManager implements IEncrypterManager {
   
   /** Instancia del logger */
@@ -15,12 +16,16 @@ export default class EncrypterManager implements IEncrypterManager {
 
   private readonly saltRounds:number = 10;
 
-  constructor(){
+  private readonly _applicationContext: ApplicationContext;
+
+  constructor(deps: EncrypterManagerDependencies){
    // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MANAGER,
       entityName: "EncrypterManager"
     });
+
+    this._applicationContext = deps.applicationContext;
   }
 
   /** Método que permite encryptar un valor string */
@@ -33,12 +38,13 @@ export default class EncrypterManager implements IEncrypterManager {
     }
     catch(err:any){
      this._logger.Error(LoggerTypes.ERROR, "Encrypt", err);
-     throw new ApplicationException(
+
+     throw new BaseException(
         "Encrypt",
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
-        __filename
+        err.message,
+        this._applicationContext,
+        __filename,
+        err
       );
     }
   }
@@ -51,12 +57,12 @@ export default class EncrypterManager implements IEncrypterManager {
     }
     catch(err:any){
       this._logger.Error(LoggerTypes.ERROR, "Compare", err);
-      throw new ApplicationException(
+      throw new BaseException(
         "Compare",
-        HttpStatusName.InternalServerError,
-        HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
-        __filename
+        err.message,
+        this._applicationContext,
+        __filename,
+        err
       );
     }
   }
