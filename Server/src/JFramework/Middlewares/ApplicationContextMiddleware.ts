@@ -41,25 +41,26 @@ export default class ApplicationContextMiddleware implements IApplicationMiddlew
   /**  Intercepta el request en curso y agrega funcionalidad */
   public Intercept: ApplicationRequestHandler = (req: ApplicationRequest, res: Response, next:NextFunction) : any => {
 
-    const database = this.serviceManager.Resolve<ApplicationSQLDatabase>("database");
+    // const database = this.serviceManager.Resolve<ApplicationSQLDatabase>("database");
     const configurationSettings = this.serviceManager.Resolve<ConfigurationSettings>("configurationSettings");
-    const applicationContext = new ApplicationContext({ database, configurationSettings});
+    const applicationContext = this.serviceManager.Resolve<ApplicationContext>("applicationContext");
+
+    applicationContext.settings = configurationSettings;
 
     /** Seteamos la configuración de idioma al contexto */
     applicationContext.lang = this.GetLenguageConfig(req, configurationSettings);
-
-    /** Agregamos el request Id */
-    applicationContext.requestID = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
     
     /** Agregamos la ip actual */
     applicationContext.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
+
+    /** Agregamos el request Id */
+    // applicationContext.requestID = IsNullOrEmpty(req.requestID) ? NO_REQUEST_ID : req.requestID;
 
     this.serviceManager.AddInstance<ApplicationContext>("applicationContext", applicationContext);
     
     if(this._callback){
       this._callback(applicationContext);
     }
-
 
     return next();
   }

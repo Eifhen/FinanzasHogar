@@ -80,6 +80,7 @@ export default class LoggerManager implements ILoggerManager {
       Line.Print("FATAL", "Ha ocurrido un error al ejecutar el método [Message] del LoggerManager", err);
 
       throw new InternalServerException(
+        "Message",
         err.message,
         this._applicationContext,
         __filename,
@@ -119,6 +120,7 @@ export default class LoggerManager implements ILoggerManager {
     catch (err:any) {
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Activity] del LoggerManager", err);
       throw new InternalServerException(
+        "Activity",
         err.message,
         this._applicationContext,
         __filename,
@@ -143,6 +145,7 @@ export default class LoggerManager implements ILoggerManager {
     catch(err:any){
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Register] del LoggerManager", err);
       throw new InternalServerException(
+        "Register",
         err.message,
         this._applicationContext,
         __filename,
@@ -176,6 +179,7 @@ export default class LoggerManager implements ILoggerManager {
     catch (err:any) {
       this.Message("FATAL", "Ha ocurrido un error al ejecutar el método [Error] del LoggerManager", err);
       throw new InternalServerException(
+        "Error",
         err.message,
         this._applicationContext,
         __filename,

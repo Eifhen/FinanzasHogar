@@ -7,6 +7,8 @@ export const ES = {
 
   "activar": "Activar",
   "activar-cuenta": "Activar Cuenta",
+  "apikey-invalido" : "El API Key {0} ingresado es invalido",
+  "apikey-no-definido": "API key faltante. Por favor, proporcione una API key válida para acceder a este recurso.",
   "bienvenido-a": "Bienvenido a",
   "cuenta-creada-exitosamente": "Tu cuenta ha sido creada exitosamente. Pulsa el link para activar tu cuenta.",
   "hola": "Hola",
@@ -31,6 +33,7 @@ export const ES = {
   
   /** Errores custom */
   "record-exists": "Ya existe un registro con el {0} igual a {1}",
+  "record-not-found": "No se encontró un registro con el identificador {0}",
   "null-parameter-exception": "El parámetro {0} no puede ser nulo",
 
 } as const;

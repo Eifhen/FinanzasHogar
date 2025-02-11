@@ -1,5 +1,6 @@
 import ApplicationContext from "../Application/ApplicationContext";
-import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusName, HttpStatusNames } from "../Utils/HttpCodes";
+import IsNullOrEmpty from "../Utils/utils";
 import ApplicationException from "./ApplicationException";
 
 
@@ -13,10 +14,18 @@ import ApplicationException from "./ApplicationException";
  * @param {Error} error - Error ocurrido
  * */
 export class BaseException extends ApplicationException {
-  constructor(name: string, message: string, applicationContext: ApplicationContext, path?: string, error?: any) {
+  constructor(
+    methodName: string, 
+    errorName:HttpStatusNames, 
+    message: string, 
+    applicationContext: ApplicationContext, 
+    path?: string, 
+    error?: any
+  ) {
     super(
+      methodName,
+      errorName,
       message,
-      name,
       HttpStatusCode.InternalServerError,
       applicationContext.requestID,
       path,
@@ -27,11 +36,18 @@ export class BaseException extends ApplicationException {
 
 /** Cuando ocurre un error interno  */
 export class InternalServerException extends ApplicationException {
-  constructor(message?: string, applicationContext?: ApplicationContext, path?: string, innerException?: Error) {
-    const msg = message ? message : applicationContext ? applicationContext.translator.Translate("internal-error") : "";
+  constructor(
+    methodName: string, 
+    message?: string, 
+    applicationContext?: ApplicationContext, 
+    path?: string, 
+    innerException?: Error
+  ) {
+    const errMsg = message ? message : applicationContext ? applicationContext.translator.Translate("internal-error") : "";
     super(
-      msg,
+      methodName,
       HttpStatusName.InternalServerError,
+      errMsg,
       HttpStatusCode.InternalServerError,
       applicationContext?.requestID,
       path,
@@ -42,10 +58,17 @@ export class InternalServerException extends ApplicationException {
 
 /** Error a ejecutar cuando un registro no es encontrado, devuelve un objeto ApplicationException */
 export class NotFoundException extends ApplicationException {
-  constructor(applicationContext: ApplicationContext, path?: string, innerException?: Error) {
+  constructor(
+    methodName:string, 
+    value:string[], 
+    applicationContext: ApplicationContext, 
+    path?: string, 
+    innerException?: Error
+  ) {
     super(
-      applicationContext.translator.Translate("not-found"),
+      methodName,
       HttpStatusName.NotFound,
+      applicationContext.translator.Translate("record-not-found", value),
       HttpStatusCode.NotFound,
       applicationContext.requestID,
       path,
@@ -56,10 +79,17 @@ export class NotFoundException extends ApplicationException {
 
 /** Cuando se envia un parámetro que es requerido de forma nula */
 export class NullParameterException extends ApplicationException {
-  constructor(message: string, applicationContext: ApplicationContext, path?: string, innerException?: Error) {
+  constructor(
+    methodName:string, 
+    message: string, 
+    applicationContext: ApplicationContext, 
+    path?: string, 
+    innerException?: Error
+  ) {
     super(
-      applicationContext.translator.Translate("null-parameter-exception", [message]),
+      methodName,
       HttpStatusName.NullParameterException,
+      applicationContext.translator.Translate("null-parameter-exception", [message]),
       HttpStatusCode.BadRequest,
       applicationContext.requestID,
       path,
@@ -70,11 +100,18 @@ export class NullParameterException extends ApplicationException {
 
 /** Cuando la request tiene algún error */
 export class BadRequestException extends ApplicationException {
-  constructor(message?: string, applicationContext?: ApplicationContext, path?: string, innerException?: Error) {
-    const msg = message ? message : applicationContext ? applicationContext.translator.Translate("bad-request") : "";
+  constructor(
+    methodName:string, 
+    message?: string, 
+    applicationContext?: ApplicationContext, 
+    path?: string, 
+    innerException?: Error
+  ) {
+    const msg = !IsNullOrEmpty(message) ? message! : applicationContext ? applicationContext.translator.Translate("bad-request") : "";
     super(
-      msg,
+      methodName,
       HttpStatusName.BadRequest,
+      msg,
       HttpStatusCode.BadRequest,
       applicationContext?.requestID,
       path,
@@ -84,16 +121,24 @@ export class BadRequestException extends ApplicationException {
 }
 
 /** Cuando un registro ya existe 
+ * @param {string}  methodName - Nombre del método
  * @param {Array} message - Recibe un array de dos posiciones strings
  * @param {ApplicationContext} applicationContext - Contexto de la aplicación
  * @param {string} path - Path desde donde ocurre el error
  * @param {Error} innerException - Error ocurrido ( si lo hay )
 */
 export class RecordAlreadyExistsException extends ApplicationException {
-  constructor(message: [string, string], applicationContext: ApplicationContext, path?: string, innerException?: Error) {
+  constructor(
+    methodName:string, 
+    message: [string, string], 
+    applicationContext: ApplicationContext, 
+    path?: string, 
+    innerException?: Error
+  ) {
     super(
-      applicationContext.translator.Translate("record-exists", [message[0], message[1]]),
+      methodName,
       HttpStatusName.RecordAlreadyExists,
+      applicationContext.translator.Translate("record-exists", [message[0], message[1]]),
       HttpStatusCode.BadRequest,
       applicationContext.requestID,
       path,

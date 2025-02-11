@@ -20,14 +20,19 @@ interface ApiValidationMiddlewareDependencies {
 export default class ApiValidationMiddleware implements IApplicationMiddleware {
 
   /** Instancia del logger */
-  private _logger: ILoggerManager;
+  private readonly _logger: ILoggerManager;
 
   /** Manejador de servicios */
-  private serviceManager: ServiceManager;
+  private readonly _serviceManager: ServiceManager;
 
-  constructor(services: ServiceManager){
+  /** Contexto de applicación */
+  private readonly _applicationContext: ApplicationContext;
 
-    this.serviceManager = services;
+
+  constructor(services: ServiceManager, applicationContext: ApplicationContext){
+
+    this._serviceManager = services;
+    this._applicationContext = applicationContext;
 
     // Instanciamos el logger
     this._logger = new LoggerManager({
@@ -40,32 +45,48 @@ export default class ApiValidationMiddleware implements IApplicationMiddleware {
   public Intercept:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) : Promise<any> => {
     try {
       this._logger.Activity("Intercept");
-       const configurationSettings = this.serviceManager.Resolve<ConfigurationSettings>("configurationSettings");
-
+      const configurationSettings = this._applicationContext.settings;
+      
+      /** Data de aplicación */
       const apiData = configurationSettings.apiData;
-      const key = req.headers[apiData.headers.apiKeyHeader];
+      
+      /** ApiKey recibida en la request */
+      const incomingApiKey = req.headers[apiData.headers.apiKeyHeader];
+     
+      /** Creamos un nuevo RequestID */
       const request_id = uuidv4().slice(0, 8);
 
-      if(IsNullOrEmpty(apiData.apiKey) || IsNullOrEmpty(key)){
+      /** Validamos si el ApiKey está definido en el contexto o 
+       * si el ApiKey no fue ingresado en la request */
+      if(IsNullOrEmpty(apiData.apiKey) || IsNullOrEmpty(incomingApiKey)){
         throw new ApplicationException(
-          "ApiKey no definido",
+          "ApiValidationMiddleware",
           HttpStatusName.InternalServerError,
+          this._applicationContext.translator.Translate("apikey-no-definido"),
           HttpStatusCode.InternalServerError,
           request_id,
           __filename
         );
       }
 
-      if(apiData.apiKey !== key){
+      /** Validamos que el ApiKey definido en el context y 
+       * el ApiKey ingresado en la request concuerden */
+      if(apiData.apiKey !== incomingApiKey){
+        const invalidKey = Array.isArray(incomingApiKey) ? incomingApiKey : [incomingApiKey ? incomingApiKey : ""] ;
         throw new ApplicationException(
-          "ApiKey invalido",
+          "ApiValidationMiddleware",
           HttpStatusName.BadRequest,
+          this._applicationContext.translator.Translate("apikey-invalido", invalidKey),
           HttpStatusCode.BadRequest,
           request_id,
           __filename
         );
       }
 
+      /** Agregamos el ApiKey al contexto */
+      this._applicationContext.requestID = request_id;
+
+      /** Agregamos el ApiKey a la request */
       req.requestID = request_id;
 
       return next();

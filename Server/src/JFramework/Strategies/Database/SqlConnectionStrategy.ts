@@ -1,14 +1,12 @@
-import { Kysely, MssqlDialect, SqliteDriver } from "kysely";
+import { Kysely, MssqlDialect } from "kysely";
 import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
-import IDBConnectionStrategy from "./IDBConnectionStrategy";
+import IDataBaseConnectionStrategy from "./IDataBaseConnectionStrategy";
 import * as tarn from 'tarn';
 import * as tedious from 'tedious';
-import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
-import ConfigurationSettings from "../../Configurations/ConfigurationSettings";
 import ApplicationContext from "../../Application/ApplicationContext";
 
 
@@ -17,14 +15,12 @@ import ApplicationContext from "../../Application/ApplicationContext";
   Si la connección no funciona revisar las credenciales de acceso y 
   que el Sql Agent esté corriendo
 */
-
-
 interface ISqlStrategyDependencies {
-  configurationSettings: ConfigurationSettings;
+  applicationContext: ApplicationContext;
 }
 
 /** Estrategia de conección a SQL usandoy Kysely */
-export default class SqlConnectionStrategy implements IDBConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
+export default class SqlConnectionStrategy implements IDataBaseConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
 
   /** Logger Manager Instance */
   private _loggerManager: ILoggerManager = new LoggerManager({
@@ -32,12 +28,17 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
     entityName: "SqlConnectionStrategy"
   });
 
+  /** Dialecto sql */
   private _dialect: MssqlDialect | null = null;
+
+  /** Instancia de sql */
   private _instance: ApplicationSQLDatabase | null = null;
-  private _config: ConfigurationSettings;
+
+  /** Contexto de applicación */
+  private _applicationContext: ApplicationContext;
 
   constructor(deps: ISqlStrategyDependencies) { 
-    this._config = deps.configurationSettings;
+    this._applicationContext = deps.applicationContext;
   }
 
   /** Método que permite realizar la conección a SQL Server */
@@ -56,7 +57,7 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
           ...tedious,
           connectionFactory: () => {
             this._loggerManager.Register("INFO", "connectionFactory");
-            const connection = new tedious.Connection(this._config.databaseConnectionConfig.sqlConnectionConfig);
+            const connection = new tedious.Connection(this._applicationContext.settings.databaseConnectionConfig.sqlConnectionConfig);
 
             // Manejador de conexión exitosa
             connection.on("connect", (err) => {
@@ -80,10 +81,11 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
     catch (err: any) {
       this._loggerManager.Error("FATAL", "Connect", err);
       throw new ApplicationException(
-        err.message,
+        "Connect",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -108,10 +110,11 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
     catch (err: any) {
       this._loggerManager.Error("FATAL", "GetInstance", err);
       throw new ApplicationException(
-        err.message,
+        "GetInstance",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -133,10 +136,11 @@ export default class SqlConnectionStrategy implements IDBConnectionStrategy<Mssq
     catch (err: any) {
       this._loggerManager.Error("FATAL", "CloseConnection", err);
       throw new ApplicationException(
-        err.message,
+        "CloseConnection",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );

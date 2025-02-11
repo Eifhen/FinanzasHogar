@@ -4,7 +4,7 @@
 
 
 
-export default interface IDBConnectionStrategy<ConnectionType, InstanceType> {
+export default interface IDataBaseConnectionStrategy<ConnectionType, InstanceType> {
   /** Método que ejecuta la connección con la base de datos */
   Connect: () => Promise<ConnectionType>;
 

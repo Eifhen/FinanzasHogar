@@ -6,10 +6,12 @@ export const EN = {
 
   "activar": "Activate",
   "activar-cuenta": "Activate Account",
+  "apikey-invalido" : "The API Key {0} entered is invalid",
+  "apikey-no-definido": "Missing API key. Please provide a valid API key to access this resource.",
   "bienvenido-a": "Welcome to",
   "cuenta-creada-exitosamente": "Your account has been successfully created. Click the link below to activate your account",
   "hola": "Hello",
-
+  
   /** Status Messages */
   "ok-result": "Successful Request",
   "created": "The resource was created successfully",
@@ -30,6 +32,7 @@ export const EN = {
 
   /** Errores custom */
   "record-exists": "There is already a record with {0} equal to {1}",
-  "null-parameter-exception": "The parameter {0} can't be null."
+  "record-not-found": "No record found with identifier {0}",
+  "null-parameter-exception": "The parameter {0} can't be null.",
   
 } as const;

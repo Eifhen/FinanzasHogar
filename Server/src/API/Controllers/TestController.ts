@@ -159,6 +159,7 @@ export default class TestController {
 
       if(err){
         throw new InternalServerException(
+          "GetUsuarios",
           err.message,
           this._applicationContext,
           __filename,
@@ -176,6 +177,7 @@ export default class TestController {
       }
 
       return next(new InternalServerException(
+        "GetUsuarios",
         err.message,
         this._applicationContext,
         __filename,
@@ -201,6 +203,7 @@ export default class TestController {
       }
 
       return next(new InternalServerException(
+        "UploadImage",
         err.message,
         this._applicationContext,
         __filename,
@@ -233,6 +236,7 @@ export default class TestController {
       }
 
       return next(new InternalServerException(
+        "GetImage",
         err.message,
         this._applicationContext,
         __filename,
@@ -261,6 +265,7 @@ export default class TestController {
       }
 
       return next(new InternalServerException(
+        "GetTranslations",
         err.message,
         this._applicationContext,
         __filename,
@@ -280,6 +285,7 @@ export default class TestController {
     }
     catch(err:any){
       next(new InternalServerException(
+        "ActivateAccount",
         err.message,
         this._applicationContext,
         __filename,

@@ -10,7 +10,10 @@ export default class ApplicationException extends Error {
 
 
   /** Nombre del error */
-  public name: HttpStatusNames|string;
+  public errorName: HttpStatusNames;
+
+  /** Nombre del método donde ocurrio el error */
+  public methodName: string;
 
   /** Código de la excepción */
   public status: HttpStatusCodes;
@@ -28,14 +31,23 @@ export default class ApplicationException extends Error {
   public stack?: string;
 
 
-  constructor(message:string, name: HttpStatusNames|string, status: HttpStatusCodes, requestID?:string, path?:string, innerException?:Error){
+  constructor(
+    methodName: string,
+    errorName: HttpStatusNames, 
+    message:string, 
+    status: HttpStatusCodes,
+    requestID?:string, 
+    path?:string, 
+    innerException?:Error
+  ){
     super(message);
     
-    this.name = IsNullOrEmpty(name) ? HttpStatusName.InternalServerError : name;
+    this.errorName = IsNullOrEmpty(errorName) ? HttpStatusName.InternalServerError : errorName;
     this.status = IsNullOrEmpty(status) ? HttpStatusCode.InternalServerError : status;
     this.message = IsNullOrEmpty(message) ? HttpStatusMessage.InternalServerError : message;
     this.path = IsNullOrEmpty(path) ? "" : path;
     this.requestID = IsNullOrEmpty(requestID) ? NO_REQUEST_ID : requestID;
+    this.methodName = methodName;
 
     if(innerException){
       this.stack = innerException?.stack;
@@ -59,7 +71,7 @@ export default class ApplicationException extends Error {
     que todas las propiedades sean serializables */
     toJSON() {
       const error:any = {
-        name: this.name,
+        errorName: this.errorName,
         status: this.status,
         message: this.message,
         path: this.path,
@@ -70,6 +82,7 @@ export default class ApplicationException extends Error {
       // solo agregamos el stack en desarrollo
       if(process.env.NODE_ENV?.toUpperCase() === EnvironmentStatus.DEVELOPMENT){
         error.innerException = this.stack;
+        error.methodName = this.methodName;        
       }
 
       return error; 

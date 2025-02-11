@@ -98,7 +98,7 @@ export default class AuthenticationService implements IAuthenticationService {
       // Validamos datos de entrada
       const signupValidation = SignUpDTO.Validate(args.data);
       if (!signupValidation.isValid) {
-        throw new BadRequestException(signupValidation.error, this._applicationContext, __filename);
+        throw new BadRequestException("SignUp", signupValidation.error, this._applicationContext, __filename);
       }
 
       let uploadedImageId = "";
@@ -141,6 +141,7 @@ export default class AuthenticationService implements IAuthenticationService {
       }
 
       throw new InternalServerException(
+        "SignUp",
         err.message,
         this._applicationContext,
         __filename,
@@ -155,11 +156,16 @@ export default class AuthenticationService implements IAuthenticationService {
     const [findUserError, findUser] = await this._usuariosRepository.find("email", "=", data.email);
 
     if (findUserError) {
-      throw new InternalServerException(findUserError.message, this._applicationContext, __filename);
+      throw new InternalServerException("ValidateUserData", findUserError.message, this._applicationContext, __filename);
     }
 
     if (findUser) {
-      throw new RecordAlreadyExistsException(["email", findUser.email], this._applicationContext, __filename);
+      throw new RecordAlreadyExistsException(
+        "ValidateUserData", 
+        ["email", findUser.email], 
+        this._applicationContext, 
+        __filename
+      );
     }
 
     /** Se crea usuario  */
@@ -248,6 +254,7 @@ export default class AuthenticationService implements IAuthenticationService {
       }
 
       throw new InternalServerException(
+        "SignIn",
         err.message,
         this._applicationContext,
         __filename,

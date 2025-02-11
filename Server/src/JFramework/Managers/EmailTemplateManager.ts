@@ -1,14 +1,24 @@
+import ApplicationContext from "../Application/ApplicationContext";
+import { NotFoundException } from "../ErrorHandling/Exceptions";
 import { EmailTemplateType, EmailTemplateTypes } from "../Utils/EmailTemplates";
 import { IEmailTemplateManager } from "./Interfaces/IEmailTemplateManager";
 import { EmailVerificationData } from "./Types/EmailDataManagerTypes";
 
 
 
+interface EmailTemplateManagerDependencies {
+  applicationContext: ApplicationContext;
+}
+
 /** Clase que permite manejar los templates que se van a enviar por correo */
 export default class EmailTemplateManager implements IEmailTemplateManager {
 
+  /** Contexto de aplicación */
+  private readonly _applicationContext: ApplicationContext;
 
-  constructor(){}
+  constructor(deps: EmailTemplateManagerDependencies){
+    this._applicationContext = deps.applicationContext;
+  }
 
   /** Permite obtener un determinado template */
   public GetTemplate = <TemplateData>(templateName:EmailTemplateType, templateData:TemplateData) : string  => {
@@ -17,7 +27,12 @@ export default class EmailTemplateManager implements IEmailTemplateManager {
         return this.VerificationEmail(templateData as EmailVerificationData);
     
       default:
-        throw new Error(`Template "${templateName}" no está definido.`);
+        throw new NotFoundException(
+          "GetTemplate",
+          [templateName],
+          this._applicationContext,
+          __filename
+        );
     }
   }
 

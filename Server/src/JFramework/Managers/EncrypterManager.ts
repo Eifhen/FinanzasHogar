@@ -1,5 +1,6 @@
 import ApplicationContext from "../Application/ApplicationContext";
 import { BaseException } from "../ErrorHandling/Exceptions";
+import { HttpStatusName } from "../Utils/HttpCodes";
 import IEncrypterManager from "./Interfaces/IEncrypterManager";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";
@@ -16,6 +17,7 @@ export default class EncrypterManager implements IEncrypterManager {
 
   private readonly saltRounds:number = 10;
 
+  /** Contexto de aplicación */
   private readonly _applicationContext: ApplicationContext;
 
   constructor(deps: EncrypterManagerDependencies){
@@ -41,6 +43,7 @@ export default class EncrypterManager implements IEncrypterManager {
 
      throw new BaseException(
         "Encrypt",
+        HttpStatusName.InternalServerError,
         err.message,
         this._applicationContext,
         __filename,
@@ -57,8 +60,10 @@ export default class EncrypterManager implements IEncrypterManager {
     }
     catch(err:any){
       this._logger.Error(LoggerTypes.ERROR, "Compare", err);
+      
       throw new BaseException(
         "Compare",
+        HttpStatusName.InternalServerError,
         err.message,
         this._applicationContext,
         __filename,

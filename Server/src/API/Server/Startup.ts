@@ -79,17 +79,24 @@ export default class Startup implements IApplicationStart {
   ConfigurationServices = async (services: ServiceManager) : Promise<void> => {
     
     // Configuration Settings
+
+    // OJO
     services.AddInstance<IConfigurationSettings>("configurationSettings", new ConfigurationSettings());
 
-    /** DatabaseManager | Se establece la conección con la BD */
-    services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);
-
-    /** API Validation */
-    services.AddApiValidation(new ApiValidationMiddleware(services));
-
+    // OJO
+    services.AddInstance<ApplicationContext>("applicationContext", new ApplicationContext());
+    
     /** ApplicationContext */
     services.AddAplicationContext((applicationContext:ApplicationContext) => {
+      
+      /** Agregamos archivo de traducción */
       services.AddInstance<ITranslatorHandler>("translatorHandler", new TranslatorHandler({ applicationContext }));
+      
+      /** API Validation */
+      services.AddApiValidation(new ApiValidationMiddleware(services, applicationContext));
+
+      /** DatabaseManager | Se establece la conección con la BD */
+      services.AddDataBaseConnection(applicationContext, this._databaseManager, SqlConnectionStrategy);
     });
 
     // Instancia los controladores

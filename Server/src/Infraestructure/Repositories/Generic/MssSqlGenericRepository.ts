@@ -1,4 +1,4 @@
-import { Insertable, InsertResult, Kysely, ReferenceExpression, Selectable, SelectQueryBuilder, Transaction, Updateable } from "kysely";
+import { Insertable, InsertResult, ReferenceExpression, Selectable, SelectQueryBuilder, Transaction, Updateable } from "kysely";
 import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
 import { ApplicationPromise, IApplicationPromise } from "../../../JFramework/Application/ApplicationPromise";
 import IPaginationArgs from "../../../JFramework/Application/types/IPaginationArgs";
@@ -6,7 +6,6 @@ import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
 import { UpdateObjectExpression } from "kysely/dist/cjs/parser/update-set-parser";
 import IPaginationResult from "../../../JFramework/Application/types/IPaginationResult";
 import IMssSqlGenericRepository, { QueryBuilderCallback } from "./Interfaces/IMssSqlGenericRepository";
-import SqlConnectionStrategy from "../../../JFramework/Strategies/Database/SqlConnectionStrategy";
 import { DrainOuterGeneric } from "kysely/dist/cjs/util/type-utils";
 
 

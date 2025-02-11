@@ -25,20 +25,18 @@ export default class ApplicationContext {
   public ipAddress: string = "";
   
   /** Instancia de la base de datos */
-  public database: ApplicationSQLDatabase;
+  public database: ApplicationSQLDatabase = {} as ApplicationSQLDatabase; // OJO
 
   /** Contiene el lenguaje disponible en la aplicación  (esto nos llega en la request)*/
   public lang: ApplicationLenguage = ApplicationLenguages.en;
 
   /** Objeto de configuración de la aplicación */
-  public settings: ConfigurationSettings;
+  public settings: ConfigurationSettings = {} as ConfigurationSettings; // OJO
 
   /** Tranductor */
   public translator: TranslatorHandler;
   
-  constructor(deps: ApplicationContextDependencies){
-    this.database = deps.database;
-    this.settings = deps.configurationSettings;
+  constructor(){
     this.translator = new TranslatorHandler({ applicationContext: this })
   }
 }

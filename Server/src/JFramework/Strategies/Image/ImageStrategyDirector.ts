@@ -1,29 +1,37 @@
+import ApplicationContext from "../../Application/ApplicationContext";
 import { IApplicationPromise } from "../../Application/ApplicationPromise";
 import { AppImage } from "../../DTOs/AppImage";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
-import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
 import IApplicationImageStrategy from "./IApplicationImageStrategy";
 
 
+interface ImageStrategyDirectorDependencies {
+  strategy: IApplicationImageStrategy;
+  applicationContext: ApplicationContext;
+}
 export default class ImageStrategyDirector {
 
   /** Representa la estrategia seleccionada */
-  private _imageStrategy: IApplicationImageStrategy;
+  private readonly _imageStrategy: IApplicationImageStrategy;
 
   /** Instancia del logger */
-  private _logger: ILoggerManager;
+  private readonly _logger: ILoggerManager;
 
-  constructor(strategy: IApplicationImageStrategy) {
+  /** Contexto de aplicación */
+  private readonly _applicationContext: ApplicationContext;
+
+  constructor(deps: ImageStrategyDirectorDependencies) {
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.DIRECTOR,
       entityName: "ImageStrategyDirector"
     });
 
-    this._imageStrategy = strategy;
+    this._imageStrategy = deps.strategy;
+    this._applicationContext = deps.applicationContext;
 
     /** Se connecta al proveedor de imágenes */
     this.Connect();
@@ -39,10 +47,11 @@ export default class ImageStrategyDirector {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Connect");
       throw new ApplicationException(
-        err.message,
+        "Connect",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -58,10 +67,11 @@ export default class ImageStrategyDirector {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "CloseConnection");
       throw new ApplicationException(
-        err.message,
+        "CloseConnection",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -80,10 +90,11 @@ export default class ImageStrategyDirector {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Upload");
       throw new ApplicationException(
-        err.message,
+        "Upload",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -103,10 +114,11 @@ export default class ImageStrategyDirector {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Get");
       throw new ApplicationException(
-        err.message,
+        "Get",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -125,10 +137,11 @@ export default class ImageStrategyDirector {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Delete");
       throw new ApplicationException(
-        err.message,
+        "Delete",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );

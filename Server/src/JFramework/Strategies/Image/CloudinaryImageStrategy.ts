@@ -1,27 +1,30 @@
+import ApplicationContext from "../../Application/ApplicationContext";
 import { ApplicationPromise, IApplicationPromise } from "../../Application/ApplicationPromise";
-import IConfigurationSettings, { IFileProviderConfig } from "../../Configurations/types/IConfigurationSettings";
+import IConfigurationSettings from "../../Configurations/types/IConfigurationSettings";
 import { AppImage } from "../../DTOs/AppImage";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
-import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
 import IApplicationImageStrategy from "./IApplicationImageStrategy";
 import { v2 as cloudinary } from 'cloudinary';
 
 
 interface CloudinaryImageStrategyDependencies {
-  configurationSettings: IConfigurationSettings;
+  applicationContext: ApplicationContext;
 }
 
 export class CloudinaryImageStrategy implements IApplicationImageStrategy {
 
 
   /** Instancia del logger */
-  private _logger: ILoggerManager;
+  private readonly _logger: ILoggerManager;
 
   /** Representa el objeto de configuración de cloudinary */
-  private settings: IConfigurationSettings;
+  private readonly settings: IConfigurationSettings;
+
+  /** Contexto de aplicación */
+  private readonly _applicationContext: ApplicationContext;
 
   constructor(deps: CloudinaryImageStrategyDependencies) {
     // Instanciamos el logger
@@ -30,7 +33,8 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
       entityName: "CloudinaryImageStrategy"
     });
 
-    this.settings = deps.configurationSettings;
+    this._applicationContext = deps.applicationContext;
+    this.settings = this._applicationContext.settings;
   }
 
   /** Realiza la connección con cloudinary */
@@ -42,10 +46,11 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Connect");
       throw new ApplicationException(
-        err.message,
+        "Connect",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -61,10 +66,11 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "CloseConnection");
       throw new ApplicationException(
-        err.message,
+        "CloseConnection",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -101,10 +107,11 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Upload");
       throw new ApplicationException(
-        err.message,
+        "Upload",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -139,10 +146,11 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Get");
       throw new ApplicationException(
-        err.message,
+        "Get",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -175,10 +183,11 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Delete");
       throw new ApplicationException(
-        err.message,
+        "Delete",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );

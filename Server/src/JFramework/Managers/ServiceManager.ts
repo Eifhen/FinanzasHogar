@@ -4,7 +4,7 @@ import LoggerManager from "./LoggerManager";
 import { loadControllers, scopePerRequest } from "awilix-express";
 import { asClass, asValue, AwilixContainer, createContainer, InjectionMode, Lifetime, LifetimeType } from "awilix";
 import { IApplicationMiddleware } from '../Configurations/types/ServerTypes';
-import IDBConnectionStrategy from "../Strategies/Database/IDBConnectionStrategy";
+import IDataBaseConnectionStrategy from "../Strategies/Database/IDataBaseConnectionStrategy";
 import DatabaseStrategyDirector from "../Strategies/Database/DatabaseStrategyDirector";
 import { NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
@@ -15,6 +15,7 @@ import IApplicationImageStrategy from "../Strategies/Image/IApplicationImageStra
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 import ApplicationContext from "../Application/ApplicationContext";
 import ApplicationContextMiddleware from "../Middlewares/ApplicationContextMiddleware";
+import { BaseException } from "../ErrorHandling/Exceptions";
 
 
 export default class ServiceManager {
@@ -61,8 +62,9 @@ export default class ServiceManager {
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, `No se pudo resolver el servicio: ${serviceName}`, err);
       throw new ApplicationException(
-        err.message,
+        "Resolve",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
         NO_REQUEST_ID,
         __filename,
@@ -84,8 +86,9 @@ export default class ServiceManager {
     catch(err:any){
       this._logger.Error(LoggerTypes.FATAL, "AddControllers", err);
       throw new ApplicationException(
-        err.message,
         "AddControllers",
+        HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
         NO_REQUEST_ID,
         __filename,
@@ -112,8 +115,9 @@ export default class ServiceManager {
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "AddService", err);
       throw new ApplicationException(
-        err.message,
+        "AddService",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
         NO_REQUEST_ID,
         __filename,
@@ -135,8 +139,9 @@ export default class ServiceManager {
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "AddService", err);
       throw new ApplicationException(
-        err.message,
+        "AddInstance",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
         NO_REQUEST_ID,
         __filename,
@@ -167,8 +172,9 @@ export default class ServiceManager {
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "AddService", err);
       throw new ApplicationException(
-        err.message,
+        "AddSingleton",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
         NO_REQUEST_ID,
         __filename,
@@ -192,36 +198,37 @@ export default class ServiceManager {
   /** Permite configurar el contexto de la aplicación */
   public AddAplicationContext = (callback:(context:ApplicationContext)=> void) => {
     this._logger.Activity(`AddAplicationContext`);
-
     this.AddMiddleware(new ApplicationContextMiddleware(this, callback));
   }
 
   /** 
    * @param {DatabaseStrategyDirector} dbManager - Manejador de base de datos
-   * @param {IDBConnectionStrategy} strategy - Estrategia de connección a base de datos
+   * @param {IDataBaseConnectionStrategy} strategy - Estrategia de connección a base de datos
    * @description - Reliza la connección a la base de datos en base a la estrategia 
    * definida y devuelve la instancia de la conección a la DB.
   */
   public AddDataBaseConnection = async <ConnectionType, InstanceType>(
+    applicationContext:ApplicationContext,
     dbManager: DatabaseStrategyDirector<any, any>|null = null,
-    strategyType: new (deps:any) => IDBConnectionStrategy<ConnectionType, InstanceType>
+    strategyType: new (deps:any) => IDataBaseConnectionStrategy<ConnectionType, InstanceType>
   ) : Promise<DatabaseStrategyDirector<ConnectionType, InstanceType>> => {
     try {
       this._logger.Activity(`AddDataBaseConnection`);
 
-      const configurationSettings = this.Resolve<ConfigurationSettings>("configurationSettings");
-
       // Crear una instancia de la estrategia con el parámetro resuelto
-      const strategy = new strategyType({ configurationSettings });
+      const strategy = new strategyType({ applicationContext });
 
       // se inserta la estrategia al DatabaseManager
-      const databaseManager = new DatabaseStrategyDirector({ strategy });
+      const databaseManager = new DatabaseStrategyDirector({ strategy, applicationContext });
       
       // Se inicia la conección a la base de datos
       await databaseManager.Connect();
-   
+      
+      const database = databaseManager.GetInstance();
+
+      // applicationContext.database = 
       // Agrega la instancia de la base de datos al contenedor de dependencias
-      this.AddInstance("database", databaseManager.GetInstance());
+      this.AddInstance("database", database);
 
       /** Se pasa por referencia el objeto databaseManager */
       dbManager = databaseManager;
@@ -231,8 +238,9 @@ export default class ServiceManager {
       this._logger.Error("FATAL", "AddDataBaseConnection", err);
 
       throw new ApplicationException(
-        err.message,
+        "AddDataBaseConnection",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
         NO_REQUEST_ID,
         __filename,
@@ -245,21 +253,22 @@ export default class ServiceManager {
   public AddStrategy = async<T, K>(
     name: string,
     director: new (...args: any[]) => T, 
-    strategy: new (...args: any[]) => K
+    strategyType: new (...args: any[]) => K
   ) => {
     try {
       this._logger.Activity(`AddStrategy`);
-
-      const configurationSettings = this.Resolve<ConfigurationSettings>("configurationSettings");
-      const implementation = new director(new strategy({ configurationSettings }));
+      const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
+      const strategy = new strategyType({ applicationContext })
+      const implementation = new director({ strategy, applicationContext });
       this.AddInstance(name, implementation);
     }
     catch(err:any){
       this._logger.Error("FATAL", "AddStrategy", err);
 
       throw new ApplicationException(
-        err.message,
+        "AddStrategy",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
         NO_REQUEST_ID,
         __filename,

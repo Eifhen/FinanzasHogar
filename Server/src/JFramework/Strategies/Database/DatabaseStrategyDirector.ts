@@ -1,23 +1,27 @@
-import { NO_REQUEST_ID } from '../../Utils/const';
-import IDBConnectionStrategy from './IDBConnectionStrategy';
+import IDataBaseConnectionStrategy from './IDataBaseConnectionStrategy';
 import ApplicationException from '../../ErrorHandling/ApplicationException';
 import { HttpStatusCode, HttpStatusName } from '../../Utils/HttpCodes';
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from '../../Managers/LoggerManager';
+import ApplicationContext from '../../Application/ApplicationContext';
 
 
 interface IDatabaseManagerDependencies<C, I> {
-  strategy: IDBConnectionStrategy<C,I>;
+  strategy: IDataBaseConnectionStrategy<C,I>;
+  applicationContext: ApplicationContext;
 }
 
 /** Implementa la estrategia de base de datos */
 export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   
   /** Instancia del logger */
-  private _logger: ILoggerManager;
+  private readonly _logger: ILoggerManager;
 
   /** Instancia de la estrategia de conección a utilizar */
-  private _strategy: IDBConnectionStrategy<ConnectionType, InstanceType>;
+  private readonly _strategy: IDataBaseConnectionStrategy<ConnectionType, InstanceType>;
+
+  /** Contexto de aplicación */
+  private readonly _applicationContext: ApplicationContext; 
 
   constructor(deps: IDatabaseManagerDependencies<ConnectionType, InstanceType>){
     // Instanciamos el logger
@@ -27,6 +31,7 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
     });
 
     this._strategy = deps.strategy;
+    this._applicationContext = deps.applicationContext;
   }
   
   /** Realiza la connección a la base de datos */
@@ -38,10 +43,11 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
     catch(err:any){
       this._logger.Error(LoggerTypes.FATAL, "Connect");
       throw new ApplicationException(
-        err.message,
+        "Connect",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -57,10 +63,11 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
     catch(err:any){
       this._logger.Error(LoggerTypes.FATAL, "GetInstance");
      throw new ApplicationException(
-        err.message,
+        "GetInstance",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );
@@ -76,10 +83,11 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
     catch(err:any){
       this._logger.Error(LoggerTypes.FATAL, "CloseConnection");
       throw new ApplicationException(
-        err.message,
+        "CloseConnection",
         HttpStatusName.InternalServerError,
+        err.message,
         HttpStatusCode.InternalServerError,
-        NO_REQUEST_ID,
+        this._applicationContext.requestID,
         __filename,
         err
       );

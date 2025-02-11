@@ -34,11 +34,12 @@ export default class ErrorHandlerMiddleware implements IApplicationMiddleware {
     }
     
     return res.status(status).send(new ApplicationException(
-      error.message,
       HttpStatusName.InternalServerError,
+      HttpStatusName.InternalServerError,
+      error.message,
       status,
       req.requestID,
-      "",
+      __filename,
       error
     ));
   }

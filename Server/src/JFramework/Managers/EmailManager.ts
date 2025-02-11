@@ -95,7 +95,13 @@ export default class EmailManager implements IEmailManager {
     }
     catch(err:any){
       this._logger.Error("ERROR", "SendMail", err);
-      throw new InternalServerException(err.message, this._applicationContext, __filename, err);
+      throw new InternalServerException(
+        "SendEmail",
+        err.message, 
+        this._applicationContext, 
+        __filename, 
+        err
+      );
     }
   }
 

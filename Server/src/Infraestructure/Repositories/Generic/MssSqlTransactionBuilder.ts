@@ -102,6 +102,7 @@ export default class MssSqlTransactionBuilder {
 
       throw new BaseException(
         "SetTransactions",
+        HttpStatusName.InternalServerError,
         err.message,
         this._context,
         __filename,

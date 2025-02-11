@@ -5,6 +5,7 @@ import LoggerManager from "./LoggerManager";
 import ApplicationContext from '../Application/ApplicationContext';
 import { BaseException } from "../ErrorHandling/Exceptions";
 import bcrypt from 'bcrypt';
+import { HttpStatusName } from "../Utils/HttpCodes";
 
 
 interface TokenManagerDependencies {
@@ -45,6 +46,7 @@ export default class TokenManager implements ITokenManager {
       this._logger.Error(LoggerTypes.ERROR, "Generate", err);
       throw new BaseException(
         "GeneratePayloadToken",
+        HttpStatusName.InternalServerError,
         err.message,
         this._applicationContext,
         __filename
@@ -63,6 +65,7 @@ export default class TokenManager implements ITokenManager {
       this._logger.Error(LoggerTypes.ERROR, "Decode", err);
       throw new BaseException(
         "Decode",
+        HttpStatusName.InternalServerError,
         err.message,
         this._applicationContext,
         __filename
@@ -96,6 +99,7 @@ export default class TokenManager implements ITokenManager {
       this._logger.Error(LoggerTypes.ERROR, "GenerateToken", err);
       throw new BaseException(
         "GenerateToken",
+        HttpStatusName.InternalServerError,
         err.message,
         this._applicationContext,
         __filename
