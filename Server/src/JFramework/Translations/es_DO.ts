@@ -35,5 +35,6 @@ export const ES = {
   "record-exists": "Ya existe un registro con el {0} igual a {1}",
   "record-not-found": "No se encontró un registro con el identificador {0}",
   "null-parameter-exception": "El parámetro {0} no puede ser nulo",
+  "database-connection-exception" : "Ha ocurrido un error al conectarse a la base de datos", 
 
 } as const;

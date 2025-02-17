@@ -144,5 +144,23 @@ export class RecordAlreadyExistsException extends ApplicationException {
       path,
       innerException
     );
+  }  
+}
+export class DatabaseConnectionException extends ApplicationException {
+  constructor(
+    methodName: string,
+    applicationContext:ApplicationContext,
+    path?: string,
+    innerException?: Error
+  ) {
+    super(
+      methodName,
+      HttpStatusName.DatabaseConnectionException,
+      applicationContext.translator.Translate("database-connection-exception"),
+      HttpStatusCode.InternalServerError,
+      applicationContext.requestID,
+      path,
+      innerException
+    )
   }
 }

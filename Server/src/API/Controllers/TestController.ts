@@ -94,7 +94,7 @@ export default class TestController {
     }
     catch(err:any){
       this._logger.Error("ERROR", "GetPromiseError");
-      throw err;
+      next(err);
     }
   }
 
@@ -137,12 +137,12 @@ export default class TestController {
           // Manejar al hacer throw propagamos el Error por fuera de Express
           throw new Error("Prueba Error GetFatalError");
         }
-      }, 0);
+      }, 2000);
 
       res.status(200).send("El servidor generará un uncaughtException");
     }
     catch (err: any) {
-      throw err;
+      next(err);
     }
   }
 

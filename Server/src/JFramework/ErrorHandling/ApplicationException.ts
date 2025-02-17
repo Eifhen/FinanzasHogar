@@ -4,6 +4,34 @@ import { HttpStatusCode, HttpStatusCodes, HttpStatusMessage, HttpStatusName, Htt
 import IsNullOrEmpty from "../Utils/utils";
 
 
+interface ApplicationError {
+  /** Id del request en curso */
+  requestID: string;
+
+  /** Nombre del error */
+  errorName: string;
+
+  /** Codigo del error */
+  status: number;
+
+  /** Mensaje de error */
+  message: string;
+
+  /** Detalle del error */
+  details?: ApplicationDetails;
+}
+
+interface ApplicationDetails {
+  /** Ubicación del error */
+  path?: string;
+
+  /** Stack del error */
+  innerException?: string;
+
+  /** Nombre del método que explotó */
+  methodName?: string;
+
+}
 
 /** Esta clase representa una excepción de la aplicación  */
 export default class ApplicationException extends Error {
@@ -33,15 +61,15 @@ export default class ApplicationException extends Error {
 
   constructor(
     methodName: string,
-    errorName: HttpStatusNames, 
-    message:string, 
+    errorName: HttpStatusNames,
+    message: string,
     status: HttpStatusCodes,
-    requestID?:string, 
-    path?:string, 
-    innerException?:Error
-  ){
+    requestID?: string,
+    path?: string,
+    innerException?: Error
+  ) {
     super(message);
-    
+
     this.errorName = IsNullOrEmpty(errorName) ? HttpStatusName.InternalServerError : errorName;
     this.status = IsNullOrEmpty(status) ? HttpStatusCode.InternalServerError : status;
     this.message = IsNullOrEmpty(message) ? HttpStatusMessage.InternalServerError : message;
@@ -49,7 +77,7 @@ export default class ApplicationException extends Error {
     this.requestID = IsNullOrEmpty(requestID) ? NO_REQUEST_ID : requestID;
     this.methodName = methodName;
 
-    if(innerException){
+    if (innerException) {
       this.stack = innerException?.stack;
     }
 
@@ -66,25 +94,30 @@ export default class ApplicationException extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 
+  /** Sobrescribe el método toJSON para asegurar 
+  que todas las propiedades sean serializables */
+  toJSON() {
+    const error: ApplicationError = {
+      requestID: IsNullOrEmpty(this.requestID) ? NO_REQUEST_ID : this.requestID!,
+      errorName: this.errorName,
+      status: this.status,
+      message: this.message,
+      // details : {
+      //   path: this.path ?? "",
+      //   innerException: this.stack,
+      //   methodName: this.methodName
+      // }
+    };
 
-    /** Sobrescribe el método toJSON para asegurar 
-    que todas las propiedades sean serializables */
-    toJSON() {
-      const error:any = {
-        errorName: this.errorName,
-        status: this.status,
-        message: this.message,
-        path: this.path,
-        requestID: this.requestID,
-        // innerException: this.stack,
-      };
-
-      // solo agregamos el stack en desarrollo
-      if(process.env.NODE_ENV?.toUpperCase() === EnvironmentStatus.DEVELOPMENT){
-        error.innerException = this.stack;
-        error.methodName = this.methodName;        
+    // solo agregamos el stack en desarrollo
+    if (process.env.NODE_ENV?.toUpperCase() === EnvironmentStatus.DEVELOPMENT) {
+      error.details = {
+        path: this.path ?? "",
+        innerException: this.stack,
+        methodName: this.methodName
       }
-
-      return error; 
     }
+
+    return error;
+  }
 }

@@ -65,14 +65,17 @@ export const HttpStatusName = {
   NotFound : 'NotFound',
   MethodNotAllowed : 'MethodNotAllowed',
   UnprocessableEntity : 'UnprocessableEntity',
-  RecordAlreadyExists: "RecordAlreadyExists",
 
   // Errores de servidor
   InternalServerError : 'InternalServerError',
   NotImplemented : 'NotImplemented',
   BadGateway : 'BadGateway',
   ServiceUnavailable : 'ServiceUnavailable',
-  NullParameterException:  "NullParameterException"
+
+  // Custom Errors
+  NullParameterException:  "NullParameterException",
+  DatabaseConnectionException: "DatabaseConnectionException",
+  RecordAlreadyExists: "RecordAlreadyExists",
 
 } as const
 

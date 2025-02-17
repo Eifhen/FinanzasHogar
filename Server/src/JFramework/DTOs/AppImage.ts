@@ -26,7 +26,7 @@ export default class AppImage extends EntitySchema {
 
   /** Tamaño del archivo en bytes */
   @SchemaProperty(z.number().refine(size => size <= 10 * 1024 * 1024, { // 10MB en bytes
-    message: 'El tamaño de la imagen no puede ser mayor a 10MB'
+    message: 'The Image size cannot be larger than 10MB'
   }))
   public size: number = 0;
 

@@ -34,5 +34,6 @@ export const EN = {
   "record-exists": "There is already a record with {0} equal to {1}",
   "record-not-found": "No record found with identifier {0}",
   "null-parameter-exception": "The parameter {0} can't be null.",
+  "database-connection-exception" : "An error occurred while connecting to the database", 
   
 } as const;

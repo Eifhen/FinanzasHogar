@@ -7,13 +7,13 @@ import ApplicationContext from '../../Application/ApplicationContext';
 
 
 interface IDatabaseManagerDependencies<C, I> {
-  strategy: IDataBaseConnectionStrategy<C,I>;
+  strategy: IDataBaseConnectionStrategy<C, I>;
   applicationContext: ApplicationContext;
 }
 
 /** Implementa la estrategia de base de datos */
 export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
-  
+
   /** Instancia del logger */
   private readonly _logger: ILoggerManager;
 
@@ -21,9 +21,9 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   private readonly _strategy: IDataBaseConnectionStrategy<ConnectionType, InstanceType>;
 
   /** Contexto de aplicación */
-  private readonly _applicationContext: ApplicationContext; 
+  private readonly _applicationContext: ApplicationContext;
 
-  constructor(deps: IDatabaseManagerDependencies<ConnectionType, InstanceType>){
+  constructor(deps: IDatabaseManagerDependencies<ConnectionType, InstanceType>) {
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.DIRECTOR,
@@ -34,15 +34,19 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
     this._strategy = deps.strategy;
     this._applicationContext = deps.applicationContext;
   }
-  
+
   /** Realiza la connección a la base de datos */
-  public Connect = async () : Promise<ConnectionType> => {
+  public Connect = async (): Promise<ConnectionType> => {
     try {
       this._logger.Activity("Connect");
       return await this._strategy.Connect();
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "Connect");
+      if (err instanceof ApplicationException) {
+        throw err;
+      }
+
       throw new ApplicationException(
         "Connect",
         HttpStatusName.InternalServerError,
@@ -56,14 +60,19 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   }
 
   /** Obtiene la instancia de la base de datos */
-  public GetInstance = () : InstanceType => {
+  public GetInstance = (): InstanceType => {
     try {
       this._logger.Activity("GetInstance");
       return this._strategy.GetInstance();
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "GetInstance");
-     throw new ApplicationException(
+
+      if (err instanceof ApplicationException) {
+        throw err;
+      }
+
+      throw new ApplicationException(
         "GetInstance",
         HttpStatusName.InternalServerError,
         err.message,
@@ -76,13 +85,18 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   }
 
   /** Método que permite cerrar la conección SQL */
-  public CloseConnection =  async () => {
+  public CloseConnection = async () => {
     try {
       this._logger.Activity("CloseConnection");
       await this._strategy.CloseConnection();
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "CloseConnection");
+
+      if (err instanceof ApplicationException) {
+        throw err;
+      }
+
       throw new ApplicationException(
         "CloseConnection",
         HttpStatusName.InternalServerError,

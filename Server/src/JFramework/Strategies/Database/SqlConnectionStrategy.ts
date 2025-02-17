@@ -1,4 +1,4 @@
-import { Kysely, MssqlDialect } from "kysely";
+import { Kysely, MssqlDialect, TediousConnection } from "kysely";
 import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
 import IDataBaseConnectionStrategy from "./IDataBaseConnectionStrategy";
@@ -8,6 +8,7 @@ import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
 import ApplicationContext from "../../Application/ApplicationContext";
+import { DatabaseConnectionException } from "../../ErrorHandling/Exceptions";
 
 
 
@@ -34,7 +35,7 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
   /** Contexto de applicación */
   private _applicationContext: ApplicationContext;
 
-  constructor(deps: ISqlStrategyDependencies) { 
+  constructor(deps: ISqlStrategyDependencies) {
     this._loggerManager = new LoggerManager({
       entityCategory: LoggEntityCategorys.STRATEGY,
       applicationContext: deps.applicationContext,
@@ -58,23 +59,7 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
         },
         tedious: {
           ...tedious,
-          connectionFactory: () => {
-            this._loggerManager.Register("INFO", "connectionFactory");
-            const connection = new tedious.Connection(this._applicationContext.settings.databaseConnectionConfig.sqlConnectionConfig);
-
-            // Manejador de conexión exitosa
-            connection.on("connect", (err) => {
-              if (err) {
-                // Si ocurre un error al conectar, se rechaza la promesa
-                this._loggerManager.Message("FATAL", "Database Connection failed", err);
-              } else {
-                // Si la conexión es exitosa, se resuelve la promesa
-                this._loggerManager.Message("INFO", "Database Connection established");
-              }
-            });
-             
-            return connection;
-          },
+          connectionFactory: this.CreateConnection,
         },
       });
 
@@ -83,18 +68,45 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
     }
     catch (err: any) {
       this._loggerManager.Error("FATAL", "Connect", err);
-      throw new ApplicationException(
+      throw new DatabaseConnectionException(
         "Connect",
-        HttpStatusName.InternalServerError,
-        err.message,
-        HttpStatusCode.InternalServerError,
-        this._applicationContext.requestID,
+        this._applicationContext,
         __filename,
         err
       );
     }
   };
 
+  /** Crea la connección a sqlserver */
+  private CreateConnection = (): TediousConnection => {
+
+    this._loggerManager.Register("INFO", "connectionFactory");
+    const connection = new tedious.Connection(this._applicationContext.settings.databaseConnectionConfig.sqlConnectionConfig);
+
+    // Manejador de conexión exitosa
+    connection.on("connect", (err) => {
+      this._loggerManager.Message("INFO", "Starting connection to the database");
+      if (err) {
+        // Si ocurre un error al conectar, se rechaza la promesa
+        this._loggerManager.Message("FATAL", "Database Connection failed", err);
+
+        // Emitimos el evento 'error' para que Kysely lo maneje
+        connection.emit("error", new DatabaseConnectionException(
+          "CreateConnection",
+          this._applicationContext,
+          __filename,
+          err
+        ))
+
+      } else {
+        // Si la conexión es exitosa, se resuelve la promesa
+        this._loggerManager.Message("INFO", "Database Connection established");
+      }
+    });
+
+    // Aquí se inicia la conexión
+    return connection;
+  }
 
   /** Método que permite obtener una instancia de la connección a SQL Server */
   public GetInstance = () => {
