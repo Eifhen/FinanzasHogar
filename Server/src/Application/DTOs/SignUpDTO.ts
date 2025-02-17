@@ -1,51 +1,47 @@
 import { z } from "zod";
-import { AppImage } from "../../JFramework/DTOs/AppImage";
-import { fromZodError } from "zod-validation-error";
-import { schemaValidator } from "../../JFramework/Utils/schemaValidator";
+import SchemaProperty from "../../JFramework/Decorators/SchemaProperty";
+import EntitySchema from "../../JFramework/DTOs/Data/EntitySchema";
+import AppImage from "../../JFramework/DTOs/AppImage";
 
 
+export default class SignUpDTO extends EntitySchema {
 
-/** NameSpace para el DTO de registro */
-export namespace SignUpDTO {
+  /** Nombre del usuario */
+  @SchemaProperty(z.string().min(4))
+  public nombre: string = "";
 
-  /** Esquema del SignUpDTO */
-  export const Schema = z.object({
+  /** Apellido del usuario */
+  @SchemaProperty(z.string().min(4))
+  public apellidos: string = "";
 
-    /** Nombre del usuario */
-    nombre: z.string().min(4),
+  /** Fecha de nacimiento del usuario */
+  @SchemaProperty(z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) {
+      return new Date(arg);
+    }
+    return arg;
+  }, z.date()))
+  public fechaNacimiento: Date = new Date();
 
-    /** Apellidos del usuario */
-    apellidos: z.string().min(4),
+  /** Pais de origen del usuario */
+  @SchemaProperty(z.string().min(4))
+  public pais: string = "";
 
-    /** Fecha de nacimiento del usuario */
-    fechaNacimiento: z.preprocess((arg) => {
-      if (typeof arg === "string" || arg instanceof Date) {
-        return new Date(arg);
-      }
-      return arg;
-    }, z.date()),
+  /** Email del usuario */
+  @SchemaProperty(z.string().email())
+  public email: string = "";
 
-    /** Pais del usuario */
-    pais: z.string().min(4),
+  /** Contraseña del usuario */
+  @SchemaProperty(z.string().max(12))
+  public password: string = "";
 
-    /** Email del usuario */
-    email: z.string().email(),
+  /** Sexo del usuario false = F | true = M */
+  @SchemaProperty(z.boolean())
+  public sexo: boolean = false;
+ 
+  /** Datos de la foto de perfil */
+  @SchemaProperty(AppImage.createSchema())
+  public foto:AppImage = new AppImage();
 
-    /** Contraseña del usuario */
-    password: z.string().max(12),
-
-    /** sexo del usuario */
-    sexo: z.boolean(),
-
-    /** foto perfil*/
-    foto: AppImage.Schema
-
-  });
-
-  /** Tipo SignUpDTO */
-  export type Type = z.infer<typeof Schema>;
-
-  /** Función que valida y obtiene los errores del DTO */
-  export const { Validate } = schemaValidator(Schema);
 }
 

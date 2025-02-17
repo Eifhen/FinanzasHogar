@@ -23,10 +23,7 @@ interface ISqlStrategyDependencies {
 export default class SqlConnectionStrategy implements IDataBaseConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
 
   /** Logger Manager Instance */
-  private _loggerManager: ILoggerManager = new LoggerManager({
-    entityCategory: LoggEntityCategorys.STRATEGY,
-    entityName: "SqlConnectionStrategy"
-  });
+  private _loggerManager: ILoggerManager;
 
   /** Dialecto sql */
   private _dialect: MssqlDialect | null = null;
@@ -38,6 +35,12 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
   private _applicationContext: ApplicationContext;
 
   constructor(deps: ISqlStrategyDependencies) { 
+    this._loggerManager = new LoggerManager({
+      entityCategory: LoggEntityCategorys.STRATEGY,
+      applicationContext: deps.applicationContext,
+      entityName: "SqlConnectionStrategy"
+    });
+
     this._applicationContext = deps.applicationContext;
   }
 

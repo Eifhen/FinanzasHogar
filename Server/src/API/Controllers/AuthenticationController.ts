@@ -4,12 +4,12 @@ import { NextFunction, Response } from "express";
 import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
 import IAuthenticationService from "../../Application/Services/Interfaces/IAuthenticationService";
 import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
-import { SignUpDTO } from "../../Application/DTOs/SignUpDTO";
 import { HttpStatusCode } from "../../JFramework/Utils/HttpCodes";
-import { SignInDTO } from "../../Application/DTOs/SignInDTO";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
+import SignUpDTO from "../../Application/DTOs/SignUpDTO";
+import SignInDTO from "../../Application/DTOs/SignInDTO";
 
 
 
@@ -50,7 +50,7 @@ export default class AuthenticationController {
   public SignUp:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("SignUp");
-      const args = new ApplicationArgs<SignUpDTO.Type>(req);
+      const args = new ApplicationArgs<SignUpDTO>(req);
       const result = await this.authenticationService.SignUp(args);
       return res.status(HttpStatusCode.OK).send(result);
     }
@@ -66,7 +66,7 @@ export default class AuthenticationController {
   public SignIn: ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("SignIn");
-      const args = new ApplicationArgs<SignInDTO.Type>(req);
+      const args = new ApplicationArgs<SignInDTO>(req);
       const result = await this.authenticationService.SignIn(args);
       return res.status(HttpStatusCode.OK).send(result);
     }

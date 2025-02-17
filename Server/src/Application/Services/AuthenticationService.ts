@@ -1,7 +1,5 @@
 import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
 import { ApplicationResponse } from "../../JFramework/Application/ApplicationResponse";
-import { SignInDTO } from "../DTOs/SignInDTO";
-import { SignUpDTO } from "../DTOs/SignUpDTO";
 import IAuthenticationService from "./Interfaces/IAuthenticationService";
 import IUsuariosSqlRepository from '../../Dominio/Repositories/IUsuariosSqlRepository';
 import { HttpStatusMessage } from '../../JFramework/Utils/HttpCodes';
@@ -15,13 +13,15 @@ import { CreateUsuarios } from "../../Dominio/Entities/Usuarios";
 import { EstadosUsuario } from "../../JFramework/Utils/estados";
 import MssSqlTransactionBuilder from "../../Infraestructure/Repositories/Generic/MssSqlTransactionBuilder";
 import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
-import { AppImage } from "../../JFramework/DTOs/AppImage";
 import { BadRequestException, BaseException, InternalServerException, RecordAlreadyExistsException } from '../../JFramework/ErrorHandling/Exceptions';
 import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
 import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
 import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
 import { EmailVerificationData } from "../../JFramework/Managers/Types/EmailDataManagerTypes";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
+import AppImage from "../../JFramework/DTOs/AppImage";
+import SignUpDTO from "../DTOs/SignUpDTO";
+import SignInDTO from "../DTOs/SignInDTO";
 
 
 
@@ -33,6 +33,7 @@ interface IAuthenticationServiceDependencies {
   imageDirector: ImageStrategyDirector;
   emailManager: IEmailManager;
   emailDataManager: IEmailDataManager;
+  sqlTransaction: MssSqlTransactionBuilder;
 }
 
 
@@ -68,6 +69,12 @@ export default class AuthenticationService implements IAuthenticationService {
   private readonly _emailDataManager: IEmailDataManager;
 
   constructor(deps: IAuthenticationServiceDependencies) {
+    this._logger = new LoggerManager({
+      entityName: "AuthenticationService",
+      entityCategory: LoggEntityCategorys.CONTROLLER,
+      applicationContext: deps.applicationContext,
+    });
+
     this._usuariosRepository = deps.usuariosRepository;
     this._applicationContext = deps.applicationContext;
     this._encrypterManager = deps.encrypterManager;
@@ -75,36 +82,28 @@ export default class AuthenticationService implements IAuthenticationService {
     this._imageDirector = deps.imageDirector;
     this._emailManager = deps.emailManager;
     this._emailDataManager = deps.emailDataManager;
-
-    this._logger = new LoggerManager({
-      entityName: "AuthenticationService",
-      entityCategory: LoggEntityCategorys.CONTROLLER,
-      applicationContext: this._applicationContext,
-    });
-
-    this._transaction = new MssSqlTransactionBuilder(
-      this._applicationContext,
-      [
-        this._usuariosRepository
-      ]
-    );
+    this._transaction = deps.sqlTransaction;
   }
 
   /** Método que permite el registro del usuario */
-  public SignUp = async (args: ApplicationArgs<SignUpDTO.Type>): Promise<ApplicationResponse<void>> => {
+  public SignUp = async (args: ApplicationArgs<SignUpDTO>): Promise<ApplicationResponse<void>> => {
     try {
       this._logger.Activity("SignUp");
 
       // Validamos datos de entrada
       const signupValidation = SignUpDTO.Validate(args.data);
       if (!signupValidation.isValid) {
+        console.log("VALIDATED DATA =>", args.data);
         throw new BadRequestException("SignUp", signupValidation.error, this._applicationContext, __filename);
       }
 
       let uploadedImageId = "";
 
       /** Se inicia la transacción */
-      const [transError] = await this._transaction.Start(async () => {
+      const [transError] = await this._transaction.Start(async (builder, trans) => {
+
+        /** Seteamos los repositorios */
+        builder.SetWorkingRepositorys(trans, [this._usuariosRepository]);
 
         /** Validamos y devolvemos los datos del usuario recibido */
         const user = await this.ValidateUserData(args.data);
@@ -147,11 +146,11 @@ export default class AuthenticationService implements IAuthenticationService {
         __filename,
         err
       );
-    }
+    } 
   }
 
   /** Valida la data del objeto recibido y devuelve un objeto `CreateUsuarios` */
-  private ValidateUserData = async (data: SignUpDTO.Type): Promise<CreateUsuarios> => {
+  private ValidateUserData = async (data: SignUpDTO): Promise<CreateUsuarios> => {
     // Validar que no exista un usuario con ese email
     const [findUserError, findUser] = await this._usuariosRepository.find("email", "=", data.email);
 
@@ -161,9 +160,9 @@ export default class AuthenticationService implements IAuthenticationService {
 
     if (findUser) {
       throw new RecordAlreadyExistsException(
-        "ValidateUserData", 
-        ["email", findUser.email], 
-        this._applicationContext, 
+        "ValidateUserData",
+        ["email", findUser.email],
+        this._applicationContext,
         __filename
       );
     }
@@ -188,7 +187,7 @@ export default class AuthenticationService implements IAuthenticationService {
 
   /** Valida la data de la imagen recibida, si la misma es valida, 
    * entonces se sube la imagen, retorna el id de la imagen guardada */
-  private ValidateAndUploadImage = async (data: SignUpDTO.Type, user: CreateUsuarios): Promise<string> => {
+  private ValidateAndUploadImage = async (data: SignUpDTO, user: CreateUsuarios): Promise<string> => {
     /** Se guarda imagen en el proveedor */
     if (AppImage.Validate(data.foto).isValid) {
 
@@ -235,7 +234,7 @@ export default class AuthenticationService implements IAuthenticationService {
 
 
   /** Método que permite el inicio de sesión del usuario */
-  public SignIn = async (args: ApplicationArgs<SignInDTO.Type>): Promise<ApplicationResponse<boolean>> => {
+  public SignIn = async (args: ApplicationArgs<SignInDTO>): Promise<ApplicationResponse<boolean>> => {
     try {
       this._logger.Activity("SignIn");
 

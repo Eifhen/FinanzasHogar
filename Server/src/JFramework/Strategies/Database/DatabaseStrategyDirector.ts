@@ -27,6 +27,7 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.DIRECTOR,
+      applicationContext: deps.applicationContext,
       entityName: "DatabaseManager"
     });
 
@@ -93,6 +94,5 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
       );
     }
   };
-
 
 }

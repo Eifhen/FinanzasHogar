@@ -7,6 +7,7 @@ import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationRequest from "../Application/ApplicationRequest";
 import IsNullOrEmpty from "../Utils/utils";
 import { NO_REQUEST_ID } from "../Utils/const";
+import ServiceManager from "../Managers/ServiceManager";
 
 
 /** Esta clase representa al middleware de manejo de errores de la aplicación */
@@ -15,11 +16,15 @@ export default class ErrorHandlerMiddleware implements IApplicationMiddleware {
   /** Instancia del logger */
   private _logger: ILoggerManager;
 
-  constructor(){
+  private _serviceManager: ServiceManager;
+
+  constructor(services: ServiceManager){
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MIDDLEWARE,
       entityName: "ErrorHandlerMiddleware"
     });
+
+    this._serviceManager = services;
   }
 
   /** Middleware que permite interceptar los errores de la aplicación */

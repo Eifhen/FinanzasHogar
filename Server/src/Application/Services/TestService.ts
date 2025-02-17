@@ -11,7 +11,6 @@ import { ITestService } from "./Interfaces/ITestService";
 
 export default class TestService implements ITestService {
   
-  
   public GetAll = () : string[] =>  {
 
     return  [
@@ -21,8 +20,5 @@ export default class TestService implements ITestService {
       "Joel"
     ];; 
   };
-
-
-
 
 }

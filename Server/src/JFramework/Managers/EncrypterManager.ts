@@ -24,7 +24,8 @@ export default class EncrypterManager implements IEncrypterManager {
    // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MANAGER,
-      entityName: "EncrypterManager"
+      applicationContext: deps.applicationContext,
+      entityName: "EncrypterManager",
     });
 
     this._applicationContext = deps.applicationContext;

@@ -138,7 +138,12 @@ export default class LoggerManager implements ILoggerManager {
    */
   public Register = async (type: LoggerType, method: string, obj?:any) => {
     try {
-      const msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`;
+      let msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`;
+      
+      if(this._applicationContext?.requestID){
+       msg =  `RequestId: ${this._applicationContext.requestID} | ` + msg;
+      }
+     
       this.Message(type, msg, obj);
       return;
     }

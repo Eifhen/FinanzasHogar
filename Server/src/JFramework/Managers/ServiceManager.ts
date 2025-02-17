@@ -10,13 +10,7 @@ import { NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { ErrorRequestHandler } from "express-serve-static-core";
-import ImageStrategyDirector from "../Strategies/Image/ImageStrategyDirector";
-import IApplicationImageStrategy from "../Strategies/Image/IApplicationImageStrategy";
-import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 import ApplicationContext from "../Application/ApplicationContext";
-import ApplicationContextMiddleware from "../Middlewares/ApplicationContextMiddleware";
-import { BaseException } from "../ErrorHandling/Exceptions";
-
 
 export default class ServiceManager {
 
@@ -196,9 +190,9 @@ export default class ServiceManager {
   }
 
   /** Permite configurar el contexto de la aplicación */
-  public AddAplicationContext = (callback:(context:ApplicationContext)=> void) => {
+  public AddAplicationContext = () => {
     this._logger.Activity(`AddAplicationContext`);
-    this.AddMiddleware(new ApplicationContextMiddleware(this, callback));
+    this.AddInstance<ApplicationContext>("applicationContext",  new ApplicationContext());
   }
 
   /** 
@@ -208,13 +202,15 @@ export default class ServiceManager {
    * definida y devuelve la instancia de la conección a la DB.
   */
   public AddDataBaseConnection = async <ConnectionType, InstanceType>(
-    applicationContext:ApplicationContext,
     dbManager: DatabaseStrategyDirector<any, any>|null = null,
     strategyType: new (deps:any) => IDataBaseConnectionStrategy<ConnectionType, InstanceType>
   ) : Promise<DatabaseStrategyDirector<ConnectionType, InstanceType>> => {
     try {
       this._logger.Activity(`AddDataBaseConnection`);
-
+      
+      // obtenemos el contexto
+      const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
+      
       // Crear una instancia de la estrategia con el parámetro resuelto
       const strategy = new strategyType({ applicationContext });
 
@@ -226,7 +222,6 @@ export default class ServiceManager {
       
       const database = databaseManager.GetInstance();
 
-      // applicationContext.database = 
       // Agrega la instancia de la base de datos al contenedor de dependencias
       this.AddInstance("database", database);
 

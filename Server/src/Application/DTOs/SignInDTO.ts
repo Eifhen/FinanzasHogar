@@ -1,26 +1,19 @@
 import { z } from "zod";
-import { schemaValidator } from "../../JFramework/Utils/schemaValidator";
+import SchemaProperty from "../../JFramework/Decorators/SchemaProperty";
+import EntitySchema from "../../JFramework/DTOs/Data/EntitySchema";
 
 
+export default class SignInDTO extends EntitySchema {
+
+  /** Hace referencia al email del usuario */
+  @SchemaProperty(z.string().email())
+  public email: string = "";
+
+      /** Hace referencia a la contraseña del usuario */
+  @SchemaProperty(z.string().min(10))
+  public password: string = "";
 
 
-/** NameSpace que contiene el esquema y el tipo LoginDTO */
-export namespace SignInDTO {
-  
-  /** Schema para el LoginDTO */
-  export const Schema = z.object({
-    /** Hace referencia al email del usuario */
-    email: z.string().email(),
-  
-    /** Hace referencia a la contraseña del usuario */
-    password: z.string().min(10),
-  })
-  
-  /** Tipo LoginDTO */
-  export type Type = z.infer<typeof Schema>;
-
-  /** Función que valida y obtiene los errores del DTO */
-  export const { Validate } = schemaValidator(Schema);
 }
 
 

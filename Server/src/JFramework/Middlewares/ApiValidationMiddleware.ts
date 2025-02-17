@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ApplicationContext from '../Application/ApplicationContext';
 import ServiceManager from '../Managers/ServiceManager';
 import ConfigurationSettings from '../Configurations/ConfigurationSettings';
+import { ApplicationLenguage, ApplicationLenguages } from '../Application/types/types';
 
 
 interface ApiValidationMiddlewareDependencies {
@@ -25,30 +26,36 @@ export default class ApiValidationMiddleware implements IApplicationMiddleware {
   /** Manejador de servicios */
   private readonly _serviceManager: ServiceManager;
 
-  /** Contexto de applicación */
-  private readonly _applicationContext: ApplicationContext;
-
-
-  constructor(services: ServiceManager, applicationContext: ApplicationContext){
-
-    this._serviceManager = services;
-    this._applicationContext = applicationContext;
-
+  constructor(services: ServiceManager){
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MIDDLEWARE,
       entityName: "ApiValidationMiddleware"
     });
+
+    this._serviceManager = services;
+  }
+
+  /** Obtiene la configuración de idioma de la requeste en curso */
+  private GetLenguageConfig = (req: ApplicationRequest, settings: ConfigurationSettings) => {
+    if(IsNullOrEmpty(req.headers[settings.apiData.headers.langHeader])){
+      return ApplicationLenguages.en
+    }
+    else {
+      return req.headers[settings.apiData.headers.langHeader] as ApplicationLenguage ;
+    }
   }
 
   /** Intercepta el request en curso y agrega funcionalidad */
   public Intercept:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) : Promise<any> => {
     try {
       this._logger.Activity("Intercept");
-      const configurationSettings = this._applicationContext.settings;
+
+      /** Obtenemos el contexto de aplicación */
+      const applicationContext = this._serviceManager.Resolve<ApplicationContext>("applicationContext");
       
       /** Data de aplicación */
-      const apiData = configurationSettings.apiData;
+      const apiData = applicationContext.settings.apiData;
       
       /** ApiKey recibida en la request */
       const incomingApiKey = req.headers[apiData.headers.apiKeyHeader];
@@ -62,7 +69,7 @@ export default class ApiValidationMiddleware implements IApplicationMiddleware {
         throw new ApplicationException(
           "ApiValidationMiddleware",
           HttpStatusName.InternalServerError,
-          this._applicationContext.translator.Translate("apikey-no-definido"),
+          applicationContext.translator.Translate("apikey-no-definido"),
           HttpStatusCode.InternalServerError,
           request_id,
           __filename
@@ -76,7 +83,7 @@ export default class ApiValidationMiddleware implements IApplicationMiddleware {
         throw new ApplicationException(
           "ApiValidationMiddleware",
           HttpStatusName.BadRequest,
-          this._applicationContext.translator.Translate("apikey-invalido", invalidKey),
+          applicationContext.translator.Translate("apikey-invalido", invalidKey),
           HttpStatusCode.BadRequest,
           request_id,
           __filename
@@ -84,7 +91,13 @@ export default class ApiValidationMiddleware implements IApplicationMiddleware {
       }
 
       /** Agregamos el ApiKey al contexto */
-      this._applicationContext.requestID = request_id;
+      applicationContext.requestID = request_id;
+
+      /** Agregamos la ip actual al contexto */
+      applicationContext.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
+
+      /** Seteamos la configuración de idioma al contexto */
+      applicationContext.lang = this.GetLenguageConfig(req, applicationContext.settings);
 
       /** Agregamos el ApiKey a la request */
       req.requestID = request_id;

@@ -12,6 +12,12 @@ import { BaseException } from "../../../JFramework/ErrorHandling/Exceptions";
 import { ApplicationPromise, IApplicationPromise } from "../../../JFramework/Application/ApplicationPromise";
 
 
+
+interface MssSqlTransactionBuilderDependencies {
+  applicationContext: ApplicationContext;
+  database: ApplicationSQLDatabase;
+}
+
 /** Clase para generar transacciones sql */
 export default class MssSqlTransactionBuilder {
 
@@ -25,26 +31,24 @@ export default class MssSqlTransactionBuilder {
   private _repositorys?: IMssSqlGenericRepository<any, any>[];
 
   /** contexto de aplicación */
-  private _context: ApplicationContext;
+  private _applicationContext: ApplicationContext;
 
-
-  constructor(context: ApplicationContext, repositorys?: IMssSqlGenericRepository<any, any>[]) {
+  constructor(deps:MssSqlTransactionBuilderDependencies) {
 
     // Instanciamos el logger
     this._logger = new LoggerManager({
-      applicationContext: context,
+      applicationContext: deps.applicationContext,
       entityCategory: LoggEntityCategorys.BUILDER,
       entityName: "MssSqlTransactionBuilder"
     });
 
-    this._context = context;
-    this._database = this._context.database;
-    this._repositorys = repositorys;
+    this._applicationContext =  deps.applicationContext;
+    this._database = deps.database;
   }
 
 
   /** Inicia una nueva transacción */
-  public Start = async <T>(action: (trx: Transaction<DataBase>) => Promise<T>): IApplicationPromise<T> => {
+  public Start = async <T>(action: (builder:MssSqlTransactionBuilder, trx: Transaction<DataBase>) => Promise<T>): IApplicationPromise<T> => {
     this._logger.Activity("Start");
 
     return ApplicationPromise.Try<T>(new Promise<T>((resolve, reject) => {
@@ -58,7 +62,7 @@ export default class MssSqlTransactionBuilder {
 
         /** Ejecutamos la acción y pasamos la transacción al callback */
         this._logger.Message("INFO", "Ejecutando acción con transacción");
-        const result = await action(transaction);
+        const result = await action(this, transaction);
 
         /** Resolvemos la promesa con el resultado de la acción */
         this._logger.Message("INFO", "Transacción ejecutada exitosamente");
@@ -104,7 +108,32 @@ export default class MssSqlTransactionBuilder {
         "SetTransactions",
         HttpStatusName.InternalServerError,
         err.message,
-        this._context,
+        this._applicationContext,
+        __filename,
+        err
+      )
+    }
+  }
+
+  /** Setea los repositorios que se van a utilizar en la transacción*/
+  public SetWorkingRepositorys = async (transaction: Transaction<DataBase>, repositorys: IMssSqlGenericRepository<any, any>[]) => {
+    try {
+      this._logger.Activity("SetWorkingRepositorys");
+      this._repositorys = repositorys;
+      this.SetRepositoryTransactions(transaction);
+    }
+    catch(err:any){
+      this._logger.Error("ERROR", "SetWorkingRepositorys", err);
+
+      if (err instanceof ApplicationException) {
+        throw err;
+      }
+
+      throw new BaseException(
+        "SetWorkingRepositorys",
+        HttpStatusName.InternalServerError,
+        err.message,
+        this._applicationContext,
         __filename,
         err
       )

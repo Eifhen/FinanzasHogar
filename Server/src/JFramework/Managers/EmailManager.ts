@@ -78,17 +78,17 @@ export default class EmailManager implements IEmailManager {
           /** Enviar correo */
           transporter.sendMail(mailOptions, (err, info)=>{
             if(err){
-              console.log("Error al enviar correo =>", err);
+              this._logger.Message("ERROR", "Error al enviar correo", err);
               throw err;
             }
             else{
-              console.log("Correo enviado", info.response);
+              this._logger.Message("INFO", `Correo enviado => ${info.response}`);
             }
           });
 
         }
         catch(err:any){
-          console.log("Catch =>", err);
+          this._logger.Message("ERROR", "SendMail Promise Error", err);
           throw err;
         }
       })());

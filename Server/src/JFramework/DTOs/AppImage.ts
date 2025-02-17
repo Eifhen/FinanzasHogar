@@ -1,46 +1,43 @@
 import { z } from "zod";
-import { schemaValidator } from "../Utils/schemaValidator";
+import EntitySchema from "./Data/EntitySchema";
+import SchemaProperty from "../Decorators/SchemaProperty";
 
+export default class AppImage extends EntitySchema {
 
+  /** Id de la imagen */
+  @SchemaProperty(z.string().optional())
+  public id?: string = "";
 
-/** Representa una imagen de la aplicación */
-export namespace AppImage {
+  /** Url de la imagen */
+  @SchemaProperty(z.string().optional())
+  public url?: string = "";
 
-  /** Esquema del DTO AppImage */
-  export const Schema = z.object({
+  /** Nombre del archivo */
+  @SchemaProperty(z.string())
+  public nombre: string = "";
 
-    /** Id de la imagen */
-    id: z.string().nullable(),
+  /** Nombre de la extensión del archivo */
+  @SchemaProperty(z.string())
+  public extension: string = "";
 
-    /** Url de la imagen */
-    url: z.string(),
+  /** Archivo en base64 */
+  @SchemaProperty(z.string().optional())
+  public base64: string = "";
 
-    /** Nombre del archivo */
-    nombre: z.string(),
+  /** Tamaño del archivo en bytes */
+  @SchemaProperty(z.number().refine(size => size <= 10 * 1024 * 1024, { // 10MB en bytes
+    message: 'El tamaño de la imagen no puede ser mayor a 10MB'
+  }))
+  public size: number = 0;
 
-    /** Nombre de la extensión del archivo */
-    extension: z.string(),
+  /** Fecha de carga del archivo */
+  @SchemaProperty(z.preprocess((arg) => {
+    if (typeof arg === "string" || arg instanceof Date) {
+      return new Date(arg);
+    }
+    return arg;
+  }, z.date()))
+  public fecha: Date = new Date();
 
-    /** Archivo en base64 */
-    base64: z.string(),
-
-    /** Tamaño del archivo en bytes */
-    size: z.number().refine(size => size <= 10 * 1024 * 1024, { // 10MB en bytes
-      message: 'El tamaño de la imagen no puede ser mayor a 10MB'
-    }),
-
-    /** Fecha de carga del archivo */
-    fecha: z.preprocess((arg) => {
-      if (typeof arg === "string" || arg instanceof Date) {
-        return new Date(arg);
-      }
-      return arg;
-    }, z.date()),
-  });
-
-  /** Tipo ApplicationImage */
-  export type Type = z.infer<typeof Schema>;
-
-  /** Función que valida y obtiene los errores del DTO */
-  export const { Validate } = schemaValidator(Schema);
 }
+

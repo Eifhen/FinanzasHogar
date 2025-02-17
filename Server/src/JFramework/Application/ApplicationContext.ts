@@ -4,15 +4,7 @@ import TranslatorHandler from "../Translations/TranslatorHandler";
 import { ApplicationLenguage, ApplicationLenguages } from "./types/types";
 
 
-
-interface ApplicationContextDependencies {
- database: ApplicationSQLDatabase;
- configurationSettings: ConfigurationSettings;
-}
-
-/**
- * Clase que maneja el contexto de ejecución la aplicación
- */
+/*** Clase que maneja el contexto de ejecución la aplicación */
 export default class ApplicationContext {
 
   /** Usuario Logueado */
@@ -24,19 +16,17 @@ export default class ApplicationContext {
   /** Ip del request en curso */
   public ipAddress: string = "";
   
-  /** Instancia de la base de datos */
-  public database: ApplicationSQLDatabase = {} as ApplicationSQLDatabase; // OJO
-
   /** Contiene el lenguaje disponible en la aplicación  (esto nos llega en la request)*/
   public lang: ApplicationLenguage = ApplicationLenguages.en;
 
   /** Objeto de configuración de la aplicación */
-  public settings: ConfigurationSettings = {} as ConfigurationSettings; // OJO
+  public settings: ConfigurationSettings; 
 
   /** Tranductor */
   public translator: TranslatorHandler;
   
   constructor(){
     this.translator = new TranslatorHandler({ applicationContext: this })
+    this.settings = new ConfigurationSettings();
   }
 }

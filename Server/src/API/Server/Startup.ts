@@ -36,10 +36,7 @@ import ITransaccionesSqlRepository from "../../Dominio/Repositories/ITransaccion
 import TransaccionesSqlRepository from "../../Infraestructure/Repositories/TransaccionesSqlRepository";
 import IUsuarioHogarSqlRepository from "../../Dominio/Repositories/IUsuarioHogarSqlRepository";
 import UsuarioHogarSqlRepository from "../../Infraestructure/Repositories/UsuarioHogarSqlRepository";
-import ApplicationContextMiddleware from "../../JFramework/Middlewares/ApplicationContextMiddleware";
-import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
-import ApiAuthenticationMiddleware from "../../JFramework/Middlewares/ApiAuthenticationMiddleware";
 import EncrypterManager from "../../JFramework/Managers/EncrypterManager";
 import IEncrypterManager from "../../JFramework/Managers/Interfaces/IEncrypterManager";
 import ITokenManager from "../../JFramework/Managers/Interfaces/ITokenManager";
@@ -54,14 +51,9 @@ import { EmailDataManager } from "../../JFramework/Managers/EmailDataManager";
 import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
 import { FileManager } from "../../JFramework/Managers/FileManager";
 import IFileManager from "../../JFramework/Managers/Interfaces/IFileManager";
-import IConfigurationSettings from "../../JFramework/Configurations/types/IConfigurationSettings";
-import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
 import EmailTemplateManager from "../../JFramework/Managers/EmailTemplateManager";
 import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEmailTemplateManager";
-import { ITranslatorHandler } from "../../JFramework/Translations/Interfaces/ITranslatorHandler";
-import TranslatorHandler from "../../JFramework/Translations/TranslatorHandler";
-
-
+import MssSqlTransactionBuilder from "../../Infraestructure/Repositories/Generic/MssSqlTransactionBuilder";
 
 export default class Startup implements IApplicationStart {
   
@@ -78,35 +70,26 @@ export default class Startup implements IApplicationStart {
   // Configura los servicios de la aplicación
   ConfigurationServices = async (services: ServiceManager) : Promise<void> => {
     
-    // Configuration Settings
-
-    // OJO
-    services.AddInstance<IConfigurationSettings>("configurationSettings", new ConfigurationSettings());
-
-    // OJO
-    services.AddInstance<ApplicationContext>("applicationContext", new ApplicationContext());
-    
     /** ApplicationContext */
-    services.AddAplicationContext((applicationContext:ApplicationContext) => {
-      
-      /** Agregamos archivo de traducción */
-      services.AddInstance<ITranslatorHandler>("translatorHandler", new TranslatorHandler({ applicationContext }));
-      
-      /** API Validation */
-      services.AddApiValidation(new ApiValidationMiddleware(services, applicationContext));
+    services.AddAplicationContext();
 
-      /** DatabaseManager | Se establece la conección con la BD */
-      services.AddDataBaseConnection(applicationContext, this._databaseManager, SqlConnectionStrategy);
-    });
+    /** DatabaseManager | Se establece la conección con la BD */
+    services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);
+   
+    /** API Validation */
+    services.AddApiValidation(new ApiValidationMiddleware(services));
 
     // Instancia los controladores
     services.AddControllers();
  
     // Middlewares
-    services.AddMiddleware(new ErrorHandlerMiddleware());
+    services.AddMiddleware(new ErrorHandlerMiddleware(services));
 
     // Strategys
     services.AddStrategy("imageDirector", ImageStrategyDirector, CloudinaryImageStrategy);
+
+    // Builders
+    services.AddService<MssSqlTransactionBuilder>("sqlTransaction", MssSqlTransactionBuilder);
 
     // Managers
     services.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);

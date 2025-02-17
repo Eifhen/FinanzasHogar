@@ -48,7 +48,7 @@ export default class TranslatorHandler implements ITranslatorHandler {
         return this.TranslateToSpanish(key, value);
 
       default:
-        throw new Error("Error al traducir");
+        throw new Error(`Error al traducir el lenguaje: ${lenguage}`);
     }
   }
 

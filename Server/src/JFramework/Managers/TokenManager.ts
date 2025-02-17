@@ -26,7 +26,8 @@ export default class TokenManager implements ITokenManager {
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MANAGER,
-      entityName: "TokenManager"
+      applicationContext: deps.applicationContext,
+      entityName: "TokenManager",
     });
 
     this._applicationContext = deps.applicationContext;

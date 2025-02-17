@@ -1,7 +1,7 @@
 import ApplicationContext from "../../Application/ApplicationContext";
 import { ApplicationPromise, IApplicationPromise } from "../../Application/ApplicationPromise";
 import IConfigurationSettings from "../../Configurations/types/IConfigurationSettings";
-import { AppImage } from "../../DTOs/AppImage";
+import AppImage from "../../DTOs/AppImage";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
@@ -30,6 +30,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.STRATEGY,
+      applicationContext: deps.applicationContext,
       entityName: "CloudinaryImageStrategy"
     });
 
@@ -82,10 +83,10 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
    @param folderId {string} - la carpeta donde se debe guardar la imagen
    @returns - Retorna la imagen que fue cargada exitosamente 
   */
-  public Upload = async (img: AppImage.Type, folderId: string): IApplicationPromise<AppImage.Type> => {
+  public Upload = async (img: AppImage, folderId: string): IApplicationPromise<AppImage> => {
     try {
       this._logger.Activity("Upload");
-      return ApplicationPromise.Try(new Promise<AppImage.Type>((resolve, reject) => {
+      return ApplicationPromise.Try(new Promise<AppImage>((resolve, reject) => {
         cloudinary.uploader.upload(
           img.base64,
           {
@@ -99,7 +100,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
               extension: img.extension,
               base64: "",
               fecha: img.fecha
-            } as AppImage.Type);
+            } as AppImage);
           }
         );
       }));
@@ -123,11 +124,11 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
    * @param publicId {string} - El ID público de la imagen
    * @returns - La imagen solicitada 
   */
-  public Get = async (publicId: string): IApplicationPromise<AppImage.Type> => {
+  public Get = async (publicId: string): IApplicationPromise<AppImage> => {
     try {
       this._logger.Activity("Get");
 
-      return ApplicationPromise.Try(new Promise<AppImage.Type>((resolve, reject) => {
+      return ApplicationPromise.Try(new Promise<AppImage>((resolve, reject) => {
         cloudinary.api.resource(
           publicId,
           (error, result) => {
@@ -138,7 +139,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
               extension: result?.format,
               base64: "",
               fecha: new Date(result.created_at)
-            } as AppImage.Type);
+            } as AppImage);
           }
         )
       }));
