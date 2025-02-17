@@ -13,7 +13,7 @@ import { CreateUsuarios } from "../../Dominio/Entities/Usuarios";
 import { EstadosUsuario } from "../../JFramework/Utils/estados";
 import MssSqlTransactionBuilder from "../../Infraestructure/Repositories/Generic/MssSqlTransactionBuilder";
 import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
-import { BadRequestException, BaseException, InternalServerException, RecordAlreadyExistsException } from '../../JFramework/ErrorHandling/Exceptions';
+import { BadRequestException, InternalServerException, RecordAlreadyExistsException } from '../../JFramework/ErrorHandling/Exceptions';
 import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
 import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
 import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
@@ -22,8 +22,6 @@ import ApplicationException from "../../JFramework/ErrorHandling/ApplicationExce
 import AppImage from "../../JFramework/DTOs/AppImage";
 import SignUpDTO from "../DTOs/SignUpDTO";
 import SignInDTO from "../DTOs/SignInDTO";
-
-
 
 interface IAuthenticationServiceDependencies {
   usuariosRepository: IUsuariosSqlRepository;
@@ -39,7 +37,6 @@ interface IAuthenticationServiceDependencies {
 
 /** Servicio de Authenticación de usuario */
 export default class AuthenticationService implements IAuthenticationService {
-
 
   /** Instancia del logger */
   private readonly _logger: ILoggerManager;
@@ -93,7 +90,6 @@ export default class AuthenticationService implements IAuthenticationService {
       // Validamos datos de entrada
       const signupValidation = SignUpDTO.Validate(args.data);
       if (!signupValidation.isValid) {
-        console.log("VALIDATED DATA =>", args.data);
         throw new BadRequestException("SignUp", signupValidation.error, this._applicationContext, __filename);
       }
 
@@ -231,7 +227,6 @@ export default class AuthenticationService implements IAuthenticationService {
     const [emailErr] = await this._emailManager.SendEmail(data);
     if (emailErr) throw emailErr;
   }
-
 
   /** Método que permite el inicio de sesión del usuario */
   public SignIn = async (args: ApplicationArgs<SignInDTO>): Promise<ApplicationResponse<boolean>> => {

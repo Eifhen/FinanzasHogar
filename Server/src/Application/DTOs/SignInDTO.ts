@@ -9,7 +9,7 @@ export default class SignInDTO extends EntitySchema {
   @SchemaProperty(z.string().email())
   public email: string = "";
 
-      /** Hace referencia a la contraseña del usuario */
+  /** Hace referencia a la contraseña del usuario */
   @SchemaProperty(z.string().min(10))
   public password: string = "";
 
