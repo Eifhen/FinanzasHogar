@@ -232,6 +232,10 @@ export default class ServiceManager {
     catch(err:any){
       this._logger.Error("FATAL", "AddDataBaseConnection", err);
 
+      if(err instanceof ApplicationException){
+        throw err;
+      }
+
       throw new ApplicationException(
         "AddDataBaseConnection",
         HttpStatusName.InternalServerError,

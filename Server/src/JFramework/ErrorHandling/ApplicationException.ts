@@ -41,7 +41,7 @@ export default class ApplicationException extends Error {
   public errorName: HttpStatusNames;
 
   /** Nombre del método donde ocurrio el error */
-  public methodName: string;
+  public methodName?: string;
 
   /** Código de la excepción */
   public status: HttpStatusCodes;

@@ -54,12 +54,19 @@ import IFileManager from "../../JFramework/Managers/Interfaces/IFileManager";
 import EmailTemplateManager from "../../JFramework/Managers/EmailTemplateManager";
 import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEmailTemplateManager";
 import MssSqlTransactionBuilder from "../../Infraestructure/Repositories/Generic/MssSqlTransactionBuilder";
+import { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../JFramework/Managers/LoggerManager";
 
 export default class Startup implements IApplicationStart {
   
   /** Instancia del DatabaseStrategyDirector, el cual nos permite 
    * manipular la conección con la base de datos */
   private _databaseManager: DatabaseStrategyDirector<any, any> | null = null;
+  private _loggerManager =  new LoggerManager({
+    entityCategory: LoggEntityCategorys.CONFIGURATION,
+    entityName: "Startup"
+  });
+  
 
   // Permite configurar la configuración del servidor
   Configuration = async (config: ServerConfig) : Promise<void> => {
@@ -69,57 +76,60 @@ export default class Startup implements IApplicationStart {
 
   // Configura los servicios de la aplicación
   ConfigurationServices = async (services: ServiceManager) : Promise<void> => {
-    
-    /** ApplicationContext */
-    services.AddAplicationContext();
-
-    /** DatabaseManager | Se establece la conección con la BD */
-    services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);
+    try {
+      /** ApplicationContext */
+      services.AddAplicationContext();
+  
+      /** DatabaseManager | Se establece la conección con la BD */
+      services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);
+     
+      /** API Validation */
+      services.AddApiValidation(new ApiValidationMiddleware(services));
+  
+      // Instancia los controladores
+      services.AddControllers();
    
-    /** API Validation */
-    services.AddApiValidation(new ApiValidationMiddleware(services));
+      // Middlewares
+      services.AddMiddleware(new ErrorHandlerMiddleware(services));
 
-    // Instancia los controladores
-    services.AddControllers();
- 
-    // Middlewares
-    services.AddMiddleware(new ErrorHandlerMiddleware(services));
-
-    // Strategys
-    services.AddStrategy("imageDirector", ImageStrategyDirector, CloudinaryImageStrategy);
-
-    // Builders
-    services.AddService<MssSqlTransactionBuilder>("sqlTransaction", MssSqlTransactionBuilder);
-
-    // Managers
-    services.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);
-    services.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
-    services.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
-    services.AddService<IEmailDataManager, EmailDataManager>("emailDataManager", EmailDataManager);
-    services.AddService<IEmailTemplateManager, EmailTemplateManager>("emailTemplateManager", EmailTemplateManager);
-    services.AddService<IFileManager, FileManager>("fileManager", FileManager);
-
-    // Servicios
-    services.AddService<ITestService, TestService>("testService", TestService);
-    services.AddService<IAuthenticationService, AuthenticationService>("authenticationService", AuthenticationService);
-
-    // Repositorios
-    services.AddService<IAhorrosSqlRepository, AhorrosSqlRepository>("ahorrosRepository", AhorrosSqlRepository);
-    services.AddService<ICategoriasSqlRepository, CategoriasSqlRepository>("categoriasRepository", CategoriasSqlRepository);
-    services.AddService<ICuentasSqlRepository, CuentasSqlRepository>("cuentasRepository", CuentasSqlRepository);
-    services.AddService<IDeudasSqlRepository, DeudasSqlRepository>("deudasRepository", DeudasSqlRepository);
-    services.AddService<IHistorialCambiosHogarSqlRepository, HistorialCambiosHogarSqlRepository>("historialCambiosHogarRepository", HistorialCambiosHogarSqlRepository);
-    services.AddService<IHogaresSqlRepository, HogaresSqlRepository>("hogaresRepository", HogaresSqlRepository);
-    services.AddService<IMetasSqlRepository, MetasSqlRepository>("metasRepository", MetasSqlRepository);
-    services.AddService<INotificacionesSqlRepository, NotificacionesSqlRepository>("notificacionesRepository", NotificacionesSqlRepository);
-    services.AddService<IPagosDeudaSqlRepository, PagosDeudaSqlRepository>("pagosDeudaRepository", PagosDeudaSqlRepository);
-    services.AddService<IPresupuestoCategoriaSqlRepository, PresupuestoCategoriaSqlRepository>("presupuestoCategoriaRepository", PresupuestoCategoriaSqlRepository);
-    services.AddService<IRolesSqlRepository, RolesSqlRepository>("rolesRepository", RolesSqlRepository);
-    services.AddService<ISolicitudHogarSqlRepository, SolicitudHogarSqlRepository>("solicitudHogarRepository", SolicitudHogarSqlRepository);
-    services.AddService<ITransaccionesSqlRepository, TransaccionesSqlRepository>("transaccionesRepository", TransaccionesSqlRepository);
-    services.AddService<IUsuarioHogarSqlRepository, UsuarioHogarSqlRepository>("usuarioHogarRepository", UsuarioHogarSqlRepository);
-    services.AddService<IUsuariosSqlRepository, UsuariosSqlRepository>("usuariosRepository", UsuariosSqlRepository);
-    
+      // Strategys
+      services.AddStrategy("imageDirector", ImageStrategyDirector, CloudinaryImageStrategy);
+  
+      // Builders
+      services.AddService<MssSqlTransactionBuilder>("sqlTransaction", MssSqlTransactionBuilder);
+  
+      // Managers
+      services.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);
+      services.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
+      services.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
+      services.AddService<IEmailDataManager, EmailDataManager>("emailDataManager", EmailDataManager);
+      services.AddService<IEmailTemplateManager, EmailTemplateManager>("emailTemplateManager", EmailTemplateManager);
+      services.AddService<IFileManager, FileManager>("fileManager", FileManager);
+  
+      // Servicios
+      services.AddService<ITestService, TestService>("testService", TestService);
+      services.AddService<IAuthenticationService, AuthenticationService>("authenticationService", AuthenticationService);
+  
+      // Repositorios
+      services.AddService<IAhorrosSqlRepository, AhorrosSqlRepository>("ahorrosRepository", AhorrosSqlRepository);
+      services.AddService<ICategoriasSqlRepository, CategoriasSqlRepository>("categoriasRepository", CategoriasSqlRepository);
+      services.AddService<ICuentasSqlRepository, CuentasSqlRepository>("cuentasRepository", CuentasSqlRepository);
+      services.AddService<IDeudasSqlRepository, DeudasSqlRepository>("deudasRepository", DeudasSqlRepository);
+      services.AddService<IHistorialCambiosHogarSqlRepository, HistorialCambiosHogarSqlRepository>("historialCambiosHogarRepository", HistorialCambiosHogarSqlRepository);
+      services.AddService<IHogaresSqlRepository, HogaresSqlRepository>("hogaresRepository", HogaresSqlRepository);
+      services.AddService<IMetasSqlRepository, MetasSqlRepository>("metasRepository", MetasSqlRepository);
+      services.AddService<INotificacionesSqlRepository, NotificacionesSqlRepository>("notificacionesRepository", NotificacionesSqlRepository);
+      services.AddService<IPagosDeudaSqlRepository, PagosDeudaSqlRepository>("pagosDeudaRepository", PagosDeudaSqlRepository);
+      services.AddService<IPresupuestoCategoriaSqlRepository, PresupuestoCategoriaSqlRepository>("presupuestoCategoriaRepository", PresupuestoCategoriaSqlRepository);
+      services.AddService<IRolesSqlRepository, RolesSqlRepository>("rolesRepository", RolesSqlRepository);
+      services.AddService<ISolicitudHogarSqlRepository, SolicitudHogarSqlRepository>("solicitudHogarRepository", SolicitudHogarSqlRepository);
+      services.AddService<ITransaccionesSqlRepository, TransaccionesSqlRepository>("transaccionesRepository", TransaccionesSqlRepository);
+      services.AddService<IUsuarioHogarSqlRepository, UsuarioHogarSqlRepository>("usuarioHogarRepository", UsuarioHogarSqlRepository);
+      services.AddService<IUsuariosSqlRepository, UsuariosSqlRepository>("usuariosRepository", UsuariosSqlRepository);
+    }
+    catch(err:any){
+      this._loggerManager.Error("FATAL", "ConfigurationServices", err);
+    }
   }
 
   // Ejecuta en el momento que se genera un error grave en el sistema

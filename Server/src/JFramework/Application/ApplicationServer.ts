@@ -29,7 +29,7 @@ export default class ApplicationServer {
   private _logger: ILoggerManager;
 
   /** Manejador de servicios */
-  private _serviceManager: ServiceManager;
+  private _serviceManager: ServiceManager; 
 
   /**  Manejador de configuración del servidor */
   private _serverConfig: ServerConfig;
@@ -138,7 +138,7 @@ export default class ApplicationServer {
       });
     }
     catch (err: any) {
-      this._logger.Error(LoggerTypes.FATAL, "Start");
+      this._logger.Error(LoggerTypes.FATAL, "Start", err);
       throw err;
     }
   }

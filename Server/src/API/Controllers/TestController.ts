@@ -152,19 +152,15 @@ export default class TestController {
     try {
       this._logger.Activity("GetUsuarios");
 
-      const [err, data] = await this._usuariosRepository.paginate({
-        pageSize: 10,
-        currentPage: 1,
-      });
+      // const [err, data] = await this._usuariosRepository.paginate({
+      //   pageSize: 10,
+      //   currentPage: 1,
+      // });
+
+      const [err, data] = await this._usuariosRepository.GetAll();
 
       if(err){
-        throw new InternalServerException(
-          "GetUsuarios",
-          err.message,
-          this._applicationContext,
-          __filename,
-          err
-        )
+        throw err;
       }
 
       return res.status(HttpStatusCode.OK).send(data);

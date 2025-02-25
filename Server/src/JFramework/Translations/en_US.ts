@@ -11,6 +11,8 @@ export const EN = {
   "bienvenido-a": "Welcome to",
   "cuenta-creada-exitosamente": "Your account has been successfully created. Click the link below to activate your account",
   "hola": "Hello",
+  "minutes": "Minutes",
+  "seconds": "Seconds",
   
   /** Status Messages */
   "ok-result": "Successful Request",
@@ -35,5 +37,10 @@ export const EN = {
   "record-not-found": "No record found with identifier {0}",
   "null-parameter-exception": "The parameter {0} can't be null.",
   "database-connection-exception" : "An error occurred while connecting to the database", 
-  
+  "database-no-instance-exception" : "There is no database instance available at the moment",
+  "database-no-dialect-exception": "There is no dialect available at the moment",
+  "database-transaction-exception": "An error occurred while performing the transaction.",
+  "database-exception": "An error has occurred in the database",
+  "rate-limit-exceded": "Too many requests from this IP, please try again after {0} {1}",
+
 } as const;

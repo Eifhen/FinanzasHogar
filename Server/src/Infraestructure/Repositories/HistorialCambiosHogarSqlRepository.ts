@@ -1,4 +1,5 @@
 import IHistorialCambiosHogarSqlRepository from "../../Dominio/Repositories/IHistorialCambiosHogarSqlRepository";
+import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
@@ -10,6 +11,7 @@ import MssSqlGenericRepository from "./Generic/MssSqlGenericRepository";
 
 interface IHistorialCambiosHogarRepositoryDependencies {
   database: ApplicationSQLDatabase;
+    applicationContext: ApplicationContext;
 }
 
 /** Repositorio para la entidad historial cambios hogar */
@@ -19,12 +21,13 @@ export default class HistorialCambiosHogarSqlRepository extends MssSqlGenericRep
   private _logger: ILoggerManager;
     
   constructor(deps: IHistorialCambiosHogarRepositoryDependencies){
-    super(deps.database, "historialCambiosHogar", "id_historial");
+    super(deps.database, "historialCambiosHogar", "id_historial", deps.applicationContext);
 
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.REPOSITORY,
-      entityName: "HistorialCambiosHogarSqlRepository"
+      entityName: "HistorialCambiosHogarSqlRepository",
+      applicationContext: deps.applicationContext
     });
   }
 

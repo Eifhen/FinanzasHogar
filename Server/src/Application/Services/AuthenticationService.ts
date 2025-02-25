@@ -108,7 +108,7 @@ export default class AuthenticationService implements IAuthenticationService {
         uploadedImageId = await this.ValidateAndUploadImage(args.data, user);
 
         /** Se guarda el usuario en la BD */
-        const [createErr] = await this._usuariosRepository.create(user);
+        const [createErr] = await this._usuariosRepository.Create(user);
         if (createErr) throw createErr;
 
         /** Envia el email al usuario */
@@ -148,7 +148,7 @@ export default class AuthenticationService implements IAuthenticationService {
   /** Valida la data del objeto recibido y devuelve un objeto `CreateUsuarios` */
   private ValidateUserData = async (data: SignUpDTO): Promise<CreateUsuarios> => {
     // Validar que no exista un usuario con ese email
-    const [findUserError, findUser] = await this._usuariosRepository.find("email", "=", data.email);
+    const [findUserError, findUser] = await this._usuariosRepository.Find("email", "=", data.email);
 
     if (findUserError) {
       throw new InternalServerException("ValidateUserData", findUserError.message, this._applicationContext, __filename);

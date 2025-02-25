@@ -129,6 +129,12 @@ export interface DatabaseConnectionData {
 
   /** Timeout de conección */
   connectionTimeout: number;
+
+  /** Tamaño minimo del connection pool */
+  connectionPoolMinSize: number;
+  
+  /** Tamaño maximo del connection pool */
+  connectionPoolMaxSize: number;
 }
 
 /** Objeto de connección a base de datos */

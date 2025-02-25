@@ -40,7 +40,7 @@ export default class ApiAuthenticationMiddleware implements IApplicationMiddlewa
       const tokenManager = this._serviceManager.Resolve<ITokenManager>("tokenManager");
       const userRepository = this._serviceManager.Resolve<IUsuariosSqlRepository>("usuariosRepository");
       
-      const [err, data] = await userRepository.getAll();
+      const [err, data] = await userRepository.GetAll();
 
       
       /**

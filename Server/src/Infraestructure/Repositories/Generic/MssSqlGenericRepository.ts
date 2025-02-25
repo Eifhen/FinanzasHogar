@@ -7,6 +7,7 @@ import { UpdateObjectExpression } from "kysely/dist/cjs/parser/update-set-parser
 import IPaginationResult from "../../../JFramework/Application/types/IPaginationResult";
 import IMssSqlGenericRepository, { QueryBuilderCallback } from "./Interfaces/IMssSqlGenericRepository";
 import { DrainOuterGeneric } from "kysely/dist/cjs/util/type-utils";
+import ApplicationContext from "../../../JFramework/Application/ApplicationContext";
 
 
 export default class MssSqlGenericRepository<
@@ -24,28 +25,43 @@ export default class MssSqlGenericRepository<
   public _database: ApplicationSQLDatabase;
 
   /** Representa una transacción de la base de datos */
-  public _transaction: Transaction<DataBase> | null = null;
+  private _transaction: Transaction<DataBase> | null = null;
+
+  /** Contexto de aplicación */
+  private readonly _applicationContext: ApplicationContext;
+
+  /** Manejador de promesas */
+  private readonly _applicationPromise: ApplicationPromise;
 
 
-  constructor(database: ApplicationSQLDatabase, tableName: TableName, primaryKey: PrimaryKey) {
+  constructor(
+    database: ApplicationSQLDatabase, 
+    tableName: TableName, 
+    primaryKey: PrimaryKey,
+    applicationContext: ApplicationContext
+  ) {
     this._tableName = tableName;
     this._database = database;
     this._primaryKey = primaryKey;
-
+    this._applicationContext = applicationContext;
+    this._applicationPromise = new ApplicationPromise(this._applicationContext)
   }
 
   /** Permite obtener todos los registros de una tabla */
-  public getAll = async (): IApplicationPromise<Selectable<DataBase[TableName]>[]> => {
+  public GetAll = async (): IApplicationPromise<Selectable<DataBase[TableName]>[]> => {
 
     const query = this._transaction ?
       this._transaction.selectFrom(this._tableName).selectAll().execute() :
       this._database.selectFrom(this._tableName).selectAll().execute();
 
-    return ApplicationPromise.Try(query as unknown as Promise<Selectable<DataBase[TableName]>[]>);
+    return this._applicationPromise.TryQuery(
+      query as unknown as Promise<Selectable<DataBase[TableName]>[]>,
+      "GetAll"
+    );
   };
 
   /** Permite buscar un registro en base a un id */
-  public findById = async (id: DataBase[TableName][PrimaryKey]): IApplicationPromise<Selectable<DataBase[TableName]> | null> => {
+  public FindById = async (id: DataBase[TableName][PrimaryKey]): IApplicationPromise<Selectable<DataBase[TableName]> | null> => {
     const query = this._transaction ?
       this._transaction.selectFrom(this._tableName).selectAll()
         .where(
@@ -61,11 +77,14 @@ export default class MssSqlGenericRepository<
           id
         ).executeTakeFirst();
 
-    return ApplicationPromise.Try(query as Promise<Selectable<DataBase[TableName]> | null>);
+    return this._applicationPromise.TryQuery(
+      query as Promise<Selectable<DataBase[TableName]> | null>,
+      "FindById"
+    );
   };
 
   /** Permite buscar un registro en base a un predicado */
-  public find = async (
+  public Find = async (
     columnName: keyof DataBase[TableName],
     operator: string,
     value: any
@@ -77,11 +96,14 @@ export default class MssSqlGenericRepository<
 
     const result = query.where(columnName, operator, value).executeTakeFirst();
 
-    return ApplicationPromise.Try(result as Promise<Selectable<DataBase[TableName]> | null>);
+    return this._applicationPromise.TryQuery(
+      result as Promise<Selectable<DataBase[TableName]> | null>, 
+      "Find"
+    );
   };
 
   /** Permite buscar un registro en base a un predicado */
-  public where = async (expression: QueryBuilderCallback<TableName>): IApplicationPromise<Selectable<DataBase[TableName]> | null> => {
+  public Where = async (expression: QueryBuilderCallback<TableName>): IApplicationPromise<Selectable<DataBase[TableName]> | null> => {
     let query:any = this._transaction ?
       this._transaction.selectFrom(this._tableName).selectAll()
       :
@@ -95,20 +117,26 @@ export default class MssSqlGenericRepository<
 
     const result = query.execute();
 
-    return ApplicationPromise.Try(result as Promise<Selectable<DataBase[TableName]> | null>);
+    return this._applicationPromise.TryQuery(
+      result as Promise<Selectable<DataBase[TableName]> | null>,
+      "Where"
+    );
   };
 
   /**  Permite agregar un nuevo elemento a la tabla  */
-  public create = async (record: Insertable<DataBase[TableName]>): IApplicationPromise<InsertResult> => {
+  public Create = async (record: Insertable<DataBase[TableName]>): IApplicationPromise<InsertResult> => {
     const query = this._transaction ?
       this._transaction.insertInto(this._tableName).values(record).executeTakeFirst() :
       this._database.insertInto(this._tableName).values(record).executeTakeFirst();
 
-    return ApplicationPromise.Try(query as unknown as Promise<InsertResult>);
+    return this._applicationPromise.TryQuery(
+      query as unknown as Promise<InsertResult>,
+      "Create"
+    );
   }
 
   /** Permite actualizar un elemento  */
-  public update = async (id: DataBase[TableName][PrimaryKey], record: Updateable<DataBase[TableName]>): IApplicationPromise<number> => {
+  public Update = async (id: DataBase[TableName][PrimaryKey], record: Updateable<DataBase[TableName]>): IApplicationPromise<number> => {
     const query = this._transaction ?
       this._transaction.updateTable(this._tableName)
         .set(record as UpdateObjectExpression<DataBase, ExtractTableAlias<DataBase, TableName>>)
@@ -127,11 +155,14 @@ export default class MssSqlGenericRepository<
           id
         )
         .executeTakeFirst();
-    return ApplicationPromise.Try(query as unknown as Promise<number>);
+    return this._applicationPromise.TryQuery(
+      query as unknown as Promise<number>,
+      "Update"
+    );
   }
 
   /** Permite eliminar un elemento */
-  public delete = async (id: DataBase[TableName][PrimaryKey]): IApplicationPromise<number> => {
+  public Delete = async (id: DataBase[TableName][PrimaryKey]): IApplicationPromise<number> => {
     const query = this._transaction ?
       this._transaction.deleteFrom(this._tableName)
         .where(
@@ -148,72 +179,75 @@ export default class MssSqlGenericRepository<
           id
         )
         .executeTakeFirst();
-    return ApplicationPromise.Try(query as unknown as Promise<number>);
+    return this._applicationPromise.TryQuery(
+      query as unknown as Promise<number>,
+      "Delete"
+    );
   }
 
   /** Permite paginar la data buscada en base a los argumentos de paginación */
-  public paginate = async (
+  public Paginate = async (
     params: IPaginationArgs,
     filter?: Partial<Selectable<DataBase[TableName]>>
   ): IApplicationPromise<IPaginationResult<Selectable<DataBase[TableName]>>> => {
 
-    return ApplicationPromise.Try(
-      (async () => {
-        const { pageSize, currentPage } = params;
+    const getPaginatedResults = async () => {
+      const { pageSize, currentPage } = params;
 
-        // Construir la consulta base
-        let baseQuery = this._transaction
-          ? this._transaction.selectFrom(this._tableName)
-          : this._database.selectFrom(this._tableName);
-
-
-        // Aplicar filtros dinámicamente
-        if (filter) {
-          Object.entries(filter).forEach(([key, value]) => {
-            baseQuery = baseQuery.where(
-              key as ReferenceExpression<DataBase, ExtractTableAlias<DataBase, TableName>>,
-              '=',
-              value
-            );
-          });
-        }
-
-        // Contar el total de registros antes de la paginación
-        const countQuery = baseQuery.select((qb) => qb.fn.countAll().as('total'));
-        const totalItemsResult = await countQuery.executeTakeFirst();
-        const totalItems = Number(totalItemsResult?.total || 0);
-        const totalPages = Math.ceil(totalItems / pageSize);
+      // Construir la consulta base
+      let baseQuery = this._transaction
+        ? this._transaction.selectFrom(this._tableName)
+        : this._database.selectFrom(this._tableName);
 
 
-        // Calcular el offset y limitar los resultados
-        const offset = (currentPage - 1) * pageSize;
+      // Aplicar filtros dinámicamente
+      if (filter) {
+        Object.entries(filter).forEach(([key, value]) => {
+          baseQuery = baseQuery.where(
+            key as ReferenceExpression<DataBase, ExtractTableAlias<DataBase, TableName>>,
+            '=',
+            value
+          );
+        });
+      }
 
-        const paginatedQuery = baseQuery.selectAll()
-          .orderBy(this._primaryKey as ReferenceExpression<DataBase, ExtractTableAlias<DataBase, TableName>>)
-          .offset(offset)
-          .fetch(pageSize);
+      // Contar el total de registros antes de la paginación
+      const countQuery = baseQuery.select((qb) => qb.fn.countAll().as('total'));
+      const totalItemsResult = await countQuery.executeTakeFirst();
+      const totalItems = Number(totalItemsResult?.total || 0);
+      const totalPages = Math.ceil(totalItems / pageSize);
 
-        const items = await paginatedQuery.execute() as unknown as Selectable<DataBase[TableName]>[];
+
+      // Calcular el offset y limitar los resultados
+      const offset = (currentPage - 1) * pageSize;
+
+      const paginatedQuery = baseQuery.selectAll()
+        .orderBy(this._primaryKey as ReferenceExpression<DataBase, ExtractTableAlias<DataBase, TableName>>)
+        .offset(offset)
+        .fetch(pageSize);
+
+      const items = await paginatedQuery.execute() as unknown as Selectable<DataBase[TableName]>[];
 
 
-        // Construir el resultado de paginación
-        const paginationResult: IPaginationResult<Selectable<DataBase[TableName]>> = {
-          result: items,
-          options: {
-            pageSize: params.pageSize,
-            currentPage: params.currentPage,
-            totalPages: totalPages,
-            totalItems: totalItems,
-          },
-        };
+      // Construir el resultado de paginación
+      const paginationResult: IPaginationResult<Selectable<DataBase[TableName]>> = {
+        result: items,
+        options: {
+          pageSize: params.pageSize,
+          currentPage: params.currentPage,
+          totalPages: totalPages,
+          totalItems: totalItems,
+        },
+      };
 
-        return paginationResult;
-      })()
-    );
+      return paginationResult;
+    }
+
+    return this._applicationPromise.TryQuery(getPaginatedResults(), "Paginate");
   }
 
   /** Setea una nueva transacción */
-  public setTransaction = async (transaction: Transaction<DataBase> | null) => {
+  public SetTransaction = async (transaction: Transaction<DataBase> | null) => {
     this._transaction = transaction;
   }
 

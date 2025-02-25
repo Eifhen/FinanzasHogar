@@ -220,6 +220,12 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 
       /** Timeout de conección */
       connectionTimeout: dbConfig.CONNECTION_TIMEOUT,
+
+      /** Tamaño minimo del connection pool */
+      connectionPoolMinSize: dbConfig.CONNECTION_POOL_MIN_SIZE,
+
+      /** Tamaño maximo del connection pool */
+      connectionPoolMaxSize: dbConfig.CONNECTION_POOL_MAX_SIZE,
     } as DatabaseConnectionData;
   }
 
@@ -228,9 +234,14 @@ export default class ConfigurationSettings implements IConfigurationSettings {
     return {
       /** Objeto de connección a sql server */
       sqlConnectionConfig: {
+        /** Nombre del servidor */
         server: this.databaseConnectionData.server ?? "",
+
+        /** Opciones de configuración */
         options: {
+          /** Nombre de la base de datos */
           database: this.databaseConnectionData.databaseName ?? "",
+          /** Nombre de la instancia */
           instanceName: this.databaseConnectionData.instance ?? "",
           // port: Number(process.env.DB_PORT ?? 0),
           trustServerCertificate: true,
@@ -239,6 +250,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
           // The number of milliseconds before the attempt to connect is considered failed (default: 15000).
           connectTimeout: this.databaseConnectionData.connectionTimeout ?? 3000,
         },
+        /** Datos de autenticación */
         authentication: {
           type: 'default',
           options: {

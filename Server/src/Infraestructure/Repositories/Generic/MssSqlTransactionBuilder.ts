@@ -8,7 +8,7 @@ import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
 import IMssSqlGenericRepository from "./Interfaces/IMssSqlGenericRepository";
 import ApplicationContext from "../../../JFramework/Application/ApplicationContext";
 import IsNullOrEmpty from "../../../JFramework/Utils/utils";
-import { BaseException } from "../../../JFramework/ErrorHandling/Exceptions";
+import { BaseException, DatabaseTransactionException } from "../../../JFramework/ErrorHandling/Exceptions";
 import { ApplicationPromise, IApplicationPromise } from "../../../JFramework/Application/ApplicationPromise";
 
 
@@ -72,8 +72,13 @@ export default class MssSqlTransactionBuilder {
         /** Cuando ocurre un error en la transacción este catch se ejecuta siempre y se ejecuta de
          * forma asyncrona ya que transaction.execute es una IO operation */
         this._logger.Error("ERROR", "Transaction Execution Error", transactionErr);
-        reject(transactionErr);
 
+        if(transactionErr instanceof ApplicationException){
+          reject(transactionErr);
+        }
+        else {
+          reject(new DatabaseTransactionException("Start", this._applicationContext, __filename, transactionErr));
+        }
       }).finally(() => {
         if (this._repositorys && this._repositorys.length > 0) {
           this._logger.Message("INFO", "Limpiando transacciones de los repostorios");
@@ -93,7 +98,7 @@ export default class MssSqlTransactionBuilder {
       this._logger.Activity("SetTransactions");
 
       if (this._repositorys && this._repositorys.length > 0) {
-        await Promise.all(this._repositorys.map(repository => repository.setTransaction(transaction)));
+        await Promise.all(this._repositorys.map(repository => repository.SetTransaction(transaction)));
       }
 
     }

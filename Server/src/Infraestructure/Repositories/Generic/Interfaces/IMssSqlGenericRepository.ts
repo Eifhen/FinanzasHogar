@@ -25,34 +25,34 @@ export default interface IMssSqlGenericRepository <
   PrimaryKey extends keyof DataBase[TableName]
 > {
   /** Obtiene todos los registros de la tabla */
-  getAll(): IApplicationPromise<Selectable<DataBase[TableName]>[]>;
+  GetAll(): IApplicationPromise<Selectable<DataBase[TableName]>[]>;
 
   /** Busca un registro por su clave primaria */
-  findById(id: DataBase[TableName][PrimaryKey]): IApplicationPromise<Selectable<DataBase[TableName]>>;
+  FindById(id: DataBase[TableName][PrimaryKey]): IApplicationPromise<Selectable<DataBase[TableName]>>;
 
   /** Permite buscar un registro por un campo */
-  find(
+  Find(
     columnName: keyof DataBase[TableName],
     operator: string,
     value: any
   ) : IApplicationPromise<Selectable<DataBase[TableName]>>
 
   /** Permite buscar un registro por un campo */
-  where(expression: QueryBuilderCallback<TableName>) : IApplicationPromise<Selectable<DataBase[TableName]>>
+  Where(expression: QueryBuilderCallback<TableName>) : IApplicationPromise<Selectable<DataBase[TableName]>>
 
   /** Inserta un nuevo registro en la tabla */
-  create(record: Insertable<DataBase[TableName]>): IApplicationPromise<InsertResult>;
+  Create(record: Insertable<DataBase[TableName]>): IApplicationPromise<InsertResult>;
 
   /** Actualiza un registro basado en la clave primaria */
-  update(id: DataBase[TableName][PrimaryKey], record: Updateable<DataBase[TableName]>): IApplicationPromise<number>;
+  Update(id: DataBase[TableName][PrimaryKey], record: Updateable<DataBase[TableName]>): IApplicationPromise<number>;
 
   /** Elimina un registro basado en la clave primaria */
-  delete(id: DataBase[TableName][PrimaryKey]): IApplicationPromise<number>;
+  Delete(id: DataBase[TableName][PrimaryKey]): IApplicationPromise<number>;
 
   /** Permite paginar la data buscada en base a los argumentos de paginación */
-  paginate(params: IPaginationArgs,  filter?: Partial<Selectable<DataBase[TableName]>>) : 
+  Paginate(params: IPaginationArgs,  filter?: Partial<Selectable<DataBase[TableName]>>) : 
     IApplicationPromise<IPaginationResult<Selectable<DataBase[TableName]>>>;
 
   /** Setea la transacción en el repositorio */
-  setTransaction(transaction:Transaction<DataBase>|null) : Promise<void>;
+  SetTransaction(transaction:Transaction<DataBase>|null) : Promise<void>;
 }

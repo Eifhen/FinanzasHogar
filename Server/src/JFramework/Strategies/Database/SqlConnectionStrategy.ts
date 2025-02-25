@@ -8,7 +8,7 @@ import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
 import ApplicationContext from "../../Application/ApplicationContext";
-import { DatabaseConnectionException } from "../../ErrorHandling/Exceptions";
+import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException } from "../../ErrorHandling/Exceptions";
 
 
 
@@ -49,17 +49,22 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
   public Connect = async () => {
     try {
       this._loggerManager.Activity("Connect");
+
+      /** Probamos si la conección se establece correctamente */
+      // await this.TestConnection();
+
       const dialect = new MssqlDialect({
         tarn: {
           ...tarn,
           options: {
-            min: 1, // tamaño minimo del conection pool
-            max: 10, // tamaño maximo del connection pool
+            min: this._applicationContext.settings.databaseConnectionData.connectionPoolMinSize,
+            max: this._applicationContext.settings.databaseConnectionData.connectionPoolMaxSize,
+            // propagateCreateError: true, // Propaga los errores de creación de conexión
           },
         },
         tedious: {
           ...tedious,
-          connectionFactory: this.CreateConnection,
+          connectionFactory: this.ConnectionFactory,
         },
       });
 
@@ -73,39 +78,78 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
         this._applicationContext,
         __filename,
         err
-      );
+      ); 
     }
   };
 
   /** Crea la connección a sqlserver */
-  private CreateConnection = (): TediousConnection => {
+  private CreateConnection = (): tedious.Connection => {
+    this._loggerManager.Register("INFO", "CreateConnection");
+    const connectionSettings = this._applicationContext.settings.databaseConnectionConfig.sqlConnectionConfig
+    const connection = new tedious.Connection(connectionSettings);
+    return connection;
+  }
 
-    this._loggerManager.Register("INFO", "connectionFactory");
-    const connection = new tedious.Connection(this._applicationContext.settings.databaseConnectionConfig.sqlConnectionConfig);
+  /** Permite generar connecciones nuevas */
+  private ConnectionFactory = (): TediousConnection  => {
+    this._loggerManager.Register("INFO", "ConnectionFactory");
 
-    // Manejador de conexión exitosa
-    connection.on("connect", (err) => {
-      this._loggerManager.Message("INFO", "Starting connection to the database");
+    const connection = this.CreateConnection();
+
+    connection.on("connect", (err)=> {
+     this._loggerManager.Message("INFO", "Starting connection to the database");
       if (err) {
-        // Si ocurre un error al conectar, se rechaza la promesa
         this._loggerManager.Message("FATAL", "Database Connection failed", err);
 
-        // Emitimos el evento 'error' para que Kysely lo maneje
-        connection.emit("error", new DatabaseConnectionException(
-          "CreateConnection",
-          this._applicationContext,
-          __filename,
-          err
-        ))
-
+        /** OJO a esto, se está emitiendo un nuevo error cuando 
+         ocurre un error de conección, desconosco que impacto puede tener esto
+         en Kysely,pero según lo que he podido ver, al emitir el error de esta forma
+         Kysely sobreescribe el error de connección original con el error emitido aquí */
+        // connection.emit("error", new DatabaseConnectionException(
+        //   "ConnectionFactory", 
+        //   this._applicationContext, 
+        //   __filename, 
+        //   err
+        // ));
       } else {
-        // Si la conexión es exitosa, se resuelve la promesa
         this._loggerManager.Message("INFO", "Database Connection established");
       }
     });
 
-    // Aquí se inicia la conexión
+    connection.on("error", (err)=>{
+      this._loggerManager.Message("FATAL", "Runtime Database Error", err);
+    })
+    
     return connection;
+  }
+
+  /** Prueba la conección a la base de datos */
+  private TestConnection = () : Promise<void> => {
+
+    const connection = this.CreateConnection();
+
+    return new Promise((resolve, reject)=> {
+
+      /** Iniciamos la coneccion */
+      connection.connect((err)=> {
+        this._loggerManager.Message("INFO", "Testing connection to the database");
+        if (err) {
+          // Si ocurre un error al conectar, se rechaza la promesa
+          this._loggerManager.Message("FATAL", "Testing connection | Database Connection failed", err);
+
+          /** Si ocurre un error cerramos la coneccion */
+          connection.close();
+          reject(err);
+        } else {
+          // Si la conexión es exitosa, se resuelve la promesa
+          this._loggerManager.Message("INFO", "Testing connection | Database Connection established");
+
+          /** Si la conneccion es exitosa cerramos la conección */
+          connection.close();
+          resolve();
+        }
+      });
+    });
   }
 
   /** Método que permite obtener una instancia de la connección a SQL Server */
@@ -113,7 +157,7 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
     try {
       this._loggerManager.Activity("GetInstance");
       if (this._dialect === null) {
-        throw Error("Por el momento no hay un dialecto disponible");
+        throw new DatabaseNoDialectException("GetInstance", this._applicationContext, __filename);
       }
 
       this._instance = new Kysely<DataBase>({
@@ -124,6 +168,11 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
     }
     catch (err: any) {
       this._loggerManager.Error("FATAL", "GetInstance", err);
+      
+      if(err instanceof ApplicationException){
+        throw err;
+      }
+
       throw new ApplicationException(
         "GetInstance",
         HttpStatusName.InternalServerError,
@@ -142,7 +191,7 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
       this._loggerManager.Activity("CloseDataBaseConnection");
 
       if (this._instance === null) {
-        throw Error("Por el momento no hay una instancia disponible");
+        throw new DatabaseNoInstanceException("CloseConnection", this._applicationContext, __filename);
       }
 
       await this._instance.destroy();
@@ -150,6 +199,11 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
     }
     catch (err: any) {
       this._loggerManager.Error("FATAL", "CloseConnection", err);
+      
+      if(err instanceof ApplicationException){
+        throw err;
+      }
+
       throw new ApplicationException(
         "CloseConnection",
         HttpStatusName.InternalServerError,
@@ -163,3 +217,5 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
   }
 
 }
+
+

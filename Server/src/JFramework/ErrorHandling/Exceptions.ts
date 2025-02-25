@@ -164,3 +164,79 @@ export class DatabaseConnectionException extends ApplicationException {
     )
   }
 }
+
+export class DatabaseNoInstanceException extends ApplicationException {
+  constructor(
+    methodName: string,
+    applicationContext:ApplicationContext,
+    path?: string,
+    innerException?: Error
+  ) {
+    super(
+      methodName,
+      HttpStatusName.DatabaseNoInstanceException,
+      applicationContext.translator.Translate("database-no-instance-exception"),
+      HttpStatusCode.InternalServerError,
+      applicationContext.requestID,
+      path,
+      innerException
+    )
+  }
+}
+
+export class DatabaseNoDialectException extends ApplicationException {
+  constructor(
+    methodName: string,
+    applicationContext:ApplicationContext,
+    path?: string,
+    innerException?: Error
+  ) {
+    super(
+      methodName,
+      HttpStatusName.DatabaseNoDialectException,
+      applicationContext.translator.Translate("database-no-dialect-exception"),
+      HttpStatusCode.InternalServerError,
+      applicationContext.requestID,
+      path,
+      innerException
+    )
+  }
+}
+
+export class DatabaseTransactionException extends ApplicationException {
+  constructor(
+    methodName: string,
+    applicationContext:ApplicationContext,
+    path?: string,
+    innerException?: Error
+  ) {
+    super(
+      methodName,
+      HttpStatusName.DatabaseTransactionException,
+      applicationContext.translator.Translate("database-transaction-exception"),
+      HttpStatusCode.InternalServerError,
+      applicationContext.requestID,
+      path,
+      innerException
+    )
+  }
+}
+
+export class DatabaseException extends ApplicationException {
+  constructor(
+    methodName: string,
+    applicationContext:ApplicationContext,
+    path?: string,
+    innerException?: Error
+  ) {
+    super(
+      methodName,
+      HttpStatusName.DatabaseException,
+      applicationContext.translator.Translate("database-exception"),
+      HttpStatusCode.InternalServerError,
+      applicationContext.requestID,
+      path,
+      innerException
+    )
+  }
+}
