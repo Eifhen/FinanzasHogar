@@ -5,5 +5,6 @@
 
 # Archivos a ignorar
 Server/node_modules
-Server/src/API/Logs/*
+Server/src/API/Logs/error-0.log
+Server/src/API/Logs/out-0.log
 Server/ecosystem.config.js

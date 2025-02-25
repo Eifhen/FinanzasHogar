@@ -1,4 +1,4 @@
-import { before, POST, route } from "awilix-express";
+import { before, inject, POST, route } from "awilix-express";
 import { ApplicationRequestHandler } from "../../JFramework/Configurations/types/ServerTypes";
 import { NextFunction, Response } from "express";
 import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
@@ -10,7 +10,7 @@ import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 import SignUpDTO from "../../Application/DTOs/SignUpDTO";
 import SignInDTO from "../../Application/DTOs/SignInDTO";
-import RateLimiter from "../../JFramework/Security/RateLimiter";
+import RateLimiter from "../../JFramework/Security/RateLimiter/RateLimiter";
 
 
 
@@ -18,7 +18,6 @@ import RateLimiter from "../../JFramework/Security/RateLimiter";
 interface IAuthenticationDependencies {
   authenticationService: IAuthenticationService;
   applicationContext: ApplicationContext
-  applicationRateLimiter: RateLimiter;
 }
 
 
@@ -36,8 +35,6 @@ export default class AuthenticationController {
   /** Contexto de aplicación */
   private readonly _applicationContext: ApplicationContext;
 
-  /** RateLimiter ojo */
-  private readonly _rateLimiter: RateLimiter;
 
   constructor(deps: IAuthenticationDependencies){
     this.authenticationService = deps.authenticationService;
@@ -49,15 +46,10 @@ export default class AuthenticationController {
       applicationContext: this._applicationContext,
     });
 
-    this._rateLimiter = new RateLimiter({ applicationContext: deps.applicationContext })
-
   }
 
  
   /** EndPoint que se encarga del registro del usuario en la aplicación */
-  // @before(function(){
-  //   return this._rateLimiter();
-  // })
   @route("/sign-up")
   @POST()
   public SignUp:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {

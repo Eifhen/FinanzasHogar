@@ -1,3 +1,4 @@
+import { TimeUnit } from "../../Utils/types/CommonTypes";
 
 export interface RateLimiterConfig {
   
@@ -10,5 +11,3 @@ export interface RateLimiterConfig {
   /**  Representa el numero de request permitidas según la unidad de tiempo especificada*/
   requestPerTime: number;
 }
-
-export type TimeUnit = "minutes" | "seconds";

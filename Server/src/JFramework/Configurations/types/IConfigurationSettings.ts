@@ -32,15 +32,19 @@ export default interface IConfigurationSettings {
    * - `sqlConnectionConfig` - Objeto de connección a sql server */
   databaseConnectionConfig: DatabaseConnectionConfig;
 
-  /** Proveedores para almacenamiento de archivos */
-  fileProvider: IFileProviderConfig
-
   /** Objeto de configuración de proveedores de email */
-  emailProviderConfig: IEmailProviderConfig;
+  emailProviderConfig: EmailProviderConfig;
+
+  /** Proveedores para almacenamiento de archivos */
+  fileProvider: FileProviderConfig
+
+  /** Configuracion de cache */
+  cacheConfig: CacheClientConfig;
+
 }
 
 /** Datos de API */
-export interface ApiData {
+export type ApiData = {
   /** Clave de aplicación */
   apiKey: string;
 
@@ -73,13 +77,13 @@ export interface ApiData {
 }
 
 /** Contiene la configuración de estilos de la aplicación */
-export interface ApplicationStyleConfig {
+export type ApplicationStyleConfig = {
   /** Color primario de la aplicación */
   primaryColor: string;
 }
 
 /** Contiene los headers custom que se utilizan en los request de la aplicación */
-export interface ApplicationHeaders {
+export type ApplicationHeaders = {
   /** Nombre del header en la request, que contiene el apiKey */
   apiKeyHeader: string; 
 
@@ -88,7 +92,7 @@ export interface ApplicationHeaders {
 }
 
 /** Objeto que contiene las rutas para realizar distintas operaciones en el sistema */
-export interface ApplicationLinks {
+export type ApplicationLinks = {
 
   /** Ruta base */
   baseRoute: string;
@@ -98,14 +102,14 @@ export interface ApplicationLinks {
 }
 
 /** Imagenes por defecto de la aplicación */
-export interface ApplicationImages {
+export type ApplicationImages = {
   APP_LOGO: string;
   PORTFOLIO_LOGO: string;
   BLACK_WAVE: string;
 }
 
 /** Objeto de configuración de conección a base de datos */
-export interface DatabaseConnectionData {
+export type DatabaseConnectionData = {
   /** Nombre de usuario de la base de datos */
   userName: string;
 
@@ -138,13 +142,13 @@ export interface DatabaseConnectionData {
 }
 
 /** Objeto de connección a base de datos */
-export interface DatabaseConnectionConfig {
+export type DatabaseConnectionConfig = {
   /** Objeto de connección a sql */
   sqlConnectionConfig: ConnectionConfiguration
 }
 
 /** Objeto de configuración de proveedores de archivos */
-export interface IFileProviderConfig {
+export type FileProviderConfig = {
 
   /** Nombre del actual proveedor */
   currentProviderName: string;
@@ -193,7 +197,7 @@ export type FileProviderData = {
   maxFileSize: string;
 }
 
-export interface IEmailProviderConfig {
+export type EmailProviderConfig = {
   currentProvider: EmailProvider;
   currentProviderName: string;
   providers:EmailProvider[];
@@ -205,4 +209,22 @@ export type EmailProvider = {
     user: string,
     pass: string
   }
+}
+
+/** Datos de configuración de caché */
+export type CacheClientConfig = {
+  /** Ruta para conectarse al servidor de redis */
+  url:string;
+
+  /** Usuario de redis */
+  userName: string,
+  
+  /** Contraseña de usuario */
+  password: string,
+
+  /** Nombre base de datos */
+  databaseNumber: number,
+
+  /** Nombre del cliente */
+  clientName: string,
 }

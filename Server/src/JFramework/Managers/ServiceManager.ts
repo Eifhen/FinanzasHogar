@@ -11,6 +11,12 @@ import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { ErrorRequestHandler } from "express-serve-static-core";
 import ApplicationContext from "../Application/ApplicationContext";
+import ICacheConnectionManager from "./Interfaces/ICacheConnectionManager";
+import CacheConnectionManager from "./CacheConnectionManager";
+import { RedisClientType } from "redis";
+import rateLimit, { Options } from "express-rate-limit";
+import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
+import { Limiters } from '../Security/RateLimiter/Limiters';
 
 export default class ServiceManager {
 
@@ -23,14 +29,14 @@ export default class ServiceManager {
 
   /** Ruta de los controladores */
   private _controllers_route: string = process.env.CONTROLLERS ?? "";
-  
+
   /** Instancia del logger */
   private _logger: ILoggerManager;
 
   /** Propiedad que contiene nuestro contenedor de dependencias */
   private _container: AwilixContainer;
 
-  constructor(app:Application){
+  constructor(app: Application) {
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MANAGER,
@@ -48,10 +54,10 @@ export default class ServiceManager {
 
   }
 
-   /** Método que permite resolver servicios */
+  /** Método que permite resolver servicios */
   public Resolve<T>(serviceName: string): T {
     try {
-      this._logger.Message(LoggerTypes.INFO,`Resolviendo servicio: ${serviceName}`);
+      this._logger.Message(LoggerTypes.INFO, `Resolviendo servicio: ${serviceName}`);
       return this._container?.resolve<T>(serviceName) as T;
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, `No se pudo resolver el servicio: ${serviceName}`, err);
@@ -68,16 +74,16 @@ export default class ServiceManager {
   }
 
   /** Agrega los controladores a la aplicación de express */
-  public AddControllers =  async () : Promise<void> => {
+  public AddControllers = async (): Promise<void> => {
     try {
       this._logger.Activity("AddControllers");
       this._app.use(scopePerRequest(this._container));
       this._app.use(
-        this._api_route, 
-        loadControllers(this._controllers_route, { cwd: __dirname})
+        this._api_route,
+        loadControllers(this._controllers_route, { cwd: __dirname })
       );
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "AddControllers", err);
       throw new ApplicationException(
         "AddControllers",
@@ -96,16 +102,16 @@ export default class ServiceManager {
     name: string,
     implementation: new (...args: any[]) => T,
     lifetime: LifetimeType = Lifetime.SCOPED
-  )=> {
+  ) => {
     try {
-     // this._logger.Activity(`AddService`);
-      
+      // this._logger.Activity(`AddService`);
+
       // Registrar la implementación asociada a la interfaz
       this._container?.register(
-        name, 
+        name,
         asClass<T>(implementation, { lifetime })
       );
-  
+
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "AddService", err);
       throw new ApplicationException(
@@ -126,10 +132,10 @@ export default class ServiceManager {
     <K, T extends K>(name: string, implementation: T): void; // sobrecarga 2
   } = <K, T extends K>(name: string, implementation: K | T): void => {
     try {
-    
+
       // Registrar la implementación asociada a la interfaz
       this._container?.register(name, asValue(implementation));
-  
+
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, "AddService", err);
       throw new ApplicationException(
@@ -153,7 +159,7 @@ export default class ServiceManager {
       // this._logger.Activity(`AddInstance`);
       let instance;
       const contextExists = this._container.hasRegistration("applicationContext");
-     
+
       if (contextExists) {
         // Inyectamos el context
         const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
@@ -178,7 +184,7 @@ export default class ServiceManager {
   }
 
   /** Agrega un middleware a la aplicación */
-  public AddMiddleware = (middleware:IApplicationMiddleware) => {
+  public AddMiddleware = (middleware: IApplicationMiddleware) => {
     this._logger.Activity(`AddMiddleware`);
     this._app.use(middleware.Init() as RequestHandler | ErrorRequestHandler);
   }
@@ -189,55 +195,53 @@ export default class ServiceManager {
     this.AddMiddleware(middleware);
   }
 
+  /** Se conecta al servidor de caché y agrega un singleton 
+   * con dicha conección al contenedor de dependencias*/
+  public AddCacheClient = async () => {
+    
+    const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
+    const cacheManager = new CacheConnectionManager({ applicationContext });
+
+    await cacheManager.Connect().then(client => {
+      this.AddInstance<RedisClientType<any, any, any>>("cacheClient", client);
+    });
+  }
+
+  /** Permite agregar una instancia del RateLimiter 
+   * Middleware como singleton */
+  public AddRateLimiter = (name: Limiters, options:Partial<Options>) => {
+    const cacheClient = this.Resolve<RedisClientType<any, any, any>>("cacheClient");
+    const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
+    const manager = new RateLimiterManager({ cacheClient, applicationContext });
+    manager.BuildStore(options);
+
+    this.AddInstance(name, rateLimit(options));
+  }
+
   /** Permite configurar el contexto de la aplicación */
   public AddAplicationContext = () => {
     this._logger.Activity(`AddAplicationContext`);
-    this.AddInstance<ApplicationContext>("applicationContext",  new ApplicationContext());
+    this.AddInstance<ApplicationContext>("applicationContext", new ApplicationContext());
   }
 
-  /** 
-   * @param {DatabaseStrategyDirector} dbManager - Manejador de base de datos
-   * @param {IDataBaseConnectionStrategy} strategy - Estrategia de connección a base de datos
-   * @description - Reliza la connección a la base de datos en base a la estrategia 
-   * definida y devuelve la instancia de la conección a la DB.
-  */
-  public AddDataBaseConnection = async <ConnectionType, InstanceType>(
-    dbManager: DatabaseStrategyDirector<any, any>|null = null,
-    strategyType: new (deps:any) => IDataBaseConnectionStrategy<ConnectionType, InstanceType>
-  ) : Promise<DatabaseStrategyDirector<ConnectionType, InstanceType>> => {
+  /** Método que permite agregar un director de estrategias */
+  public AddStrategy = async<T, K>(
+    name: string,
+    director: new (...args: any[]) => T,
+    strategyType: new (...args: any[]) => K
+  ) => {
     try {
-      this._logger.Activity(`AddDataBaseConnection`);
-      
-      // obtenemos el contexto
+      this._logger.Activity(`AddStrategy`);
       const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
-      
-      // Crear una instancia de la estrategia con el parámetro resuelto
-      const strategy = new strategyType({ applicationContext });
-
-      // se inserta la estrategia al DatabaseManager
-      const databaseManager = new DatabaseStrategyDirector({ strategy, applicationContext });
-      
-      // Se inicia la conección a la base de datos
-      await databaseManager.Connect();
-      
-      const database = databaseManager.GetInstance();
-
-      // Agrega la instancia de la base de datos al contenedor de dependencias
-      this.AddInstance("database", database);
-
-      /** Se pasa por referencia el objeto databaseManager */
-      dbManager = databaseManager;
-      return databaseManager;
+      const strategy = new strategyType({ applicationContext })
+      const implementation = new director({ strategy, applicationContext });
+      this.AddInstance(name, implementation);
     }
-    catch(err:any){
-      this._logger.Error("FATAL", "AddDataBaseConnection", err);
-
-      if(err instanceof ApplicationException){
-        throw err;
-      }
+    catch (err: any) {
+      this._logger.Error("FATAL", "AddStrategy", err);
 
       throw new ApplicationException(
-        "AddDataBaseConnection",
+        "AddStrategy",
         HttpStatusName.InternalServerError,
         err.message,
         HttpStatusCode.InternalServerError,
@@ -248,24 +252,49 @@ export default class ServiceManager {
     }
   }
 
-  /** Método que permite agregar un director de estrategias */
-  public AddStrategy = async<T, K>(
-    name: string,
-    director: new (...args: any[]) => T, 
-    strategyType: new (...args: any[]) => K
-  ) => {
+  /** 
+   * @param {DatabaseStrategyDirector} dbManager - Manejador de base de datos
+   * @param {IDataBaseConnectionStrategy} strategy - Estrategia de connección a base de datos
+   * @description - Reliza la connección a la base de datos en base a la estrategia 
+   * definida y devuelve la instancia de la conección a la DB.
+  */
+  public AddDataBaseConnection = async <ConnectionType, InstanceType>(
+    dbManager: DatabaseStrategyDirector<any, any> | null = null,
+    strategyType: new (deps: any) => IDataBaseConnectionStrategy<ConnectionType, InstanceType>
+  ): Promise<DatabaseStrategyDirector<ConnectionType, InstanceType>> => {
     try {
-      this._logger.Activity(`AddStrategy`);
+      this._logger.Activity(`AddDataBaseConnection`);
+
+      // obtenemos el contexto
       const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
-      const strategy = new strategyType({ applicationContext })
-      const implementation = new director({ strategy, applicationContext });
-      this.AddInstance(name, implementation);
+
+      // Crear una instancia de la estrategia con el parámetro resuelto
+      const strategy = new strategyType({ applicationContext });
+
+      // se inserta la estrategia al DatabaseManager
+      const databaseManager = new DatabaseStrategyDirector({ strategy, applicationContext });
+
+      // Se inicia la conección a la base de datos
+      await databaseManager.Connect();
+
+      const database = databaseManager.GetInstance();
+
+      // Agrega la instancia de la base de datos al contenedor de dependencias
+      this.AddInstance("database", database);
+
+      /** Se pasa por referencia el objeto databaseManager */
+      dbManager = databaseManager;
+      return databaseManager;
     }
-    catch(err:any){
-      this._logger.Error("FATAL", "AddStrategy", err);
+    catch (err: any) {
+      this._logger.Error("FATAL", "AddDataBaseConnection", err);
+
+      if (err instanceof ApplicationException) {
+        throw err;
+      }
 
       throw new ApplicationException(
-        "AddStrategy",
+        "AddDataBaseConnection",
         HttpStatusName.InternalServerError,
         err.message,
         HttpStatusCode.InternalServerError,

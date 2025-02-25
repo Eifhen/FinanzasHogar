@@ -1,4 +1,4 @@
-import { GET, POST, route } from "awilix-express";
+import { before, GET, inject, POST, route } from "awilix-express";
 import { ITestService } from "../../Application/Services/Interfaces/ITestService";
 import { NextFunction, Request, Response } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
@@ -14,6 +14,7 @@ import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
 import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
 import { ITranslatorHandler } from "../../JFramework/Translations/Interfaces/ITranslatorHandler";
 import { InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
+import RateLimiter from "../../JFramework/Security/RateLimiter/RateLimiter";
 
 
 
@@ -148,6 +149,7 @@ export default class TestController {
 
   @route("/usuarios")
   @GET()
+  @before(inject(RateLimiter("slowLimiter")))
   public GetUsuarios = async (req: Request, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("GetUsuarios");

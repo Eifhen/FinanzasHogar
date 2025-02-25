@@ -1,6 +1,6 @@
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
-import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, IEmailProviderConfig, IFileProviderConfig, EmailProvider, ApplicationStyleConfig, FileProvider, ApplicationHeaders, ApplicationLinks } from "./types/IConfigurationSettings";
+import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, FileProviderConfig, EmailProvider, ApplicationStyleConfig, FileProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig } from "./types/IConfigurationSettings";
 
 
 
@@ -30,10 +30,13 @@ export default class ConfigurationSettings implements IConfigurationSettings {
   databaseConnectionConfig: DatabaseConnectionConfig;
 
   /** Proveedores de email */
-  emailProviderConfig: IEmailProviderConfig;
+  emailProviderConfig: EmailProviderConfig;
 
   /** Proveedores de almacenamiento de archivos */
-  fileProvider: IFileProviderConfig
+  fileProvider: FileProviderConfig
+
+  /** Configuracion de cache */
+  cacheConfig: CacheClientConfig;
 
   constructor() {
     this.appName = process.env.APP_NAME ?? "";
@@ -45,6 +48,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
     this.fileProvider = this.GetFileProviders();
     this.databaseConnectionData = this.GetDataBaseConnectionData();
     this.databaseConnectionConfig = this.GetDatabaseConnectionConfig();
+    this.cacheConfig = this.GetCacheConfig();
   }
 
   /** Retorna el nivel de log de la aplicación */
@@ -136,7 +140,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
   }
 
   /** Obtiene el listado de proveedores de Email */
-  private GetEmailProviders = (): IEmailProviderConfig => {
+  private GetEmailProviders = (): EmailProviderConfig => {
 
     const emailProvidersData = JSON.parse(process.env.EMAIL_PROVIDERS ?? "");
     const providers = emailProvidersData.providers as EmailProvider[];
@@ -158,11 +162,11 @@ export default class ConfigurationSettings implements IConfigurationSettings {
       currentProviderName: emailProvidersData.currentProvider,
       currentProvider: getCurrentProvider(),
       providers
-    } as IEmailProviderConfig
+    } as EmailProviderConfig
   }
 
   /** Obtiene los proveedores de manejo de archivo */
-  private GetFileProviders = (): IFileProviderConfig => {
+  private GetFileProviders = (): FileProviderConfig => {
     const fileProvidersData = JSON.parse(process.env.FILE_PROVIDERS ?? "");
     const currentProviderName = fileProvidersData.currentProvider;
     const providers = fileProvidersData.providers as FileProvider[];
@@ -189,7 +193,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
       currentProvider: getCurrentProvider(),
       currentProviderName,
       providers
-    } as IFileProviderConfig;
+    } as FileProviderConfig;
   }
 
   /** Obtiene los datos de connección a la base de datos */
@@ -261,6 +265,18 @@ export default class ConfigurationSettings implements IConfigurationSettings {
         }
       }
     } as DatabaseConnectionConfig;
+  }
+
+  /** Obtener la configuración de cache */
+  private GetCacheConfig = (): CacheClientConfig => {
+    const config = JSON.parse(process.env.CACHE_CLIENT ?? "");
+    return {
+      url: config.url,
+      userName: config.userName,
+      password: config.password,
+      clientName: config.clientName,
+      databaseNumber: config.databaseNumber
+    }
   }
 
 }

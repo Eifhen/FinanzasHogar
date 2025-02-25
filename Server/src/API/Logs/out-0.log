@@ -1,362 +1,129 @@
-2025-02-24 06:39:03: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Intercept]
-2025-02-24 06:39:03: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:39:03: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método [GetUsuarios]
-2025-02-24 06:39:03: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:03: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:06: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:06: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:06: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:06: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
+2025-02-25 09:00:37: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
+2025-02-25 09:00:37: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
+2025-02-25 09:00:37: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:00:37: [34m[INFO][0m | El MANAGER [CacheManager] ha ejecutado el método [CreateClient]
+2025-02-25 09:00:37: [34m[INFO][0m | Resolviendo servicio: cacheClient
+2025-02-25 09:00:37: [38;2;213;0;0m[FATAL] | Ha ocurrido un error en el MANAGER [ServiceManager] en el método [No se pudo resolver el servicio: cacheClient] {}
+2025-02-25 09:00:37: [38;2;213;0;0m[FATAL] | Ha ocurrido un error en el CONFIGURATION [Startup] en el método [ConfigurationServices] {
+  "requestID": "NO_REQUEST_ID",
+  "errorName": "InternalServerError",
   "status": 500,
-  "message": "An error occurred while connecting to the database",
+  "message": "Could not resolve 'cacheClient'.\n\nResolution path: cacheClient",
   "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
+    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts",
+    "innerException": "AwilixResolutionError: Could not resolve 'cacheClient'.\n\nResolution path: cacheClient\n    at Object.resolve (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\awilix\\src\\container.ts:528:15)\n    at ServiceManager.Resolve (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts:61:31)\n    at ServiceManager.AddRateLimiter (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts:213:30)\n    at Startup.<anonymous> (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:87:16)\n    at Generator.next (<anonymous>)\n    at C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:8:71\n    at new Promise (<anonymous>)\n    at __awaiter (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:4:12)\n    at Startup.ConfigurationServices (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:79:78)\n    at ApplicationServer.<anonymous> (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Application\\ApplicationServer.ts:134:27)",
+    "methodName": "Resolve"
   }
 }
-2025-02-24 06:39:07: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:07: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:10: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:10: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:10: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:10: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
+2025-02-25 09:00:38: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2025-02-25 09:01:18: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
+2025-02-25 09:01:18: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
+2025-02-25 09:01:18: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:01:18: [34m[INFO][0m | El MANAGER [CacheManager] ha ejecutado el método [CreateClient]
+2025-02-25 09:01:18: [34m[INFO][0m | Resolviendo servicio: cacheClient
+2025-02-25 09:01:18: [38;2;213;0;0m[FATAL] | Ha ocurrido un error en el MANAGER [ServiceManager] en el método [No se pudo resolver el servicio: cacheClient] {}
+2025-02-25 09:01:18: [38;2;213;0;0m[FATAL] | Ha ocurrido un error en el CONFIGURATION [Startup] en el método [ConfigurationServices] {
+  "requestID": "NO_REQUEST_ID",
+  "errorName": "InternalServerError",
   "status": 500,
-  "message": "An error occurred while connecting to the database",
+  "message": "Could not resolve 'cacheClient'.\n\nResolution path: cacheClient",
   "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
+    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts",
+    "innerException": "AwilixResolutionError: Could not resolve 'cacheClient'.\n\nResolution path: cacheClient\n    at Object.resolve (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\awilix\\src\\container.ts:528:15)\n    at ServiceManager.Resolve (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts:61:31)\n    at ServiceManager.AddRateLimiter (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts:213:30)\n    at Startup.<anonymous> (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:87:16)\n    at Generator.next (<anonymous>)\n    at C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:8:71\n    at new Promise (<anonymous>)\n    at __awaiter (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:4:12)\n    at Startup.ConfigurationServices (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:79:78)\n    at ApplicationServer.<anonymous> (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Application\\ApplicationServer.ts:134:27)",
+    "methodName": "Resolve"
   }
 }
-2025-02-24 06:39:10: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:10: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:13: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:13: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:13: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:13: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
+2025-02-25 09:01:18: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2025-02-25 09:02:24: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
+2025-02-25 09:02:24: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
+2025-02-25 09:02:24: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:02:24: [34m[INFO][0m | El MANAGER [CacheManager] ha ejecutado el método [CreateClient]
+2025-02-25 09:02:24: [34m[INFO][0m | Resolviendo servicio: cacheClient
+2025-02-25 09:02:24: [38;2;213;0;0m[FATAL] | Ha ocurrido un error en el MANAGER [ServiceManager] en el método [No se pudo resolver el servicio: cacheClient] {}
+2025-02-25 09:02:24: [38;2;213;0;0m[FATAL] | Ha ocurrido un error en el CONFIGURATION [Startup] en el método [ConfigurationServices] {
+  "requestID": "NO_REQUEST_ID",
+  "errorName": "InternalServerError",
   "status": 500,
-  "message": "An error occurred while connecting to the database",
+  "message": "Could not resolve 'cacheClient'.\n\nResolution path: cacheClient",
   "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
+    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts",
+    "innerException": "AwilixResolutionError: Could not resolve 'cacheClient'.\n\nResolution path: cacheClient\n    at Object.resolve (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\awilix\\src\\container.ts:528:15)\n    at ServiceManager.Resolve (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts:61:31)\n    at ServiceManager.AddRateLimiter (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Managers\\ServiceManager.ts:213:30)\n    at Startup.<anonymous> (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:87:16)\n    at Generator.next (<anonymous>)\n    at C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:8:71\n    at new Promise (<anonymous>)\n    at __awaiter (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:4:12)\n    at Startup.ConfigurationServices (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\API\\Server\\Startup.ts:79:78)\n    at ApplicationServer.<anonymous> (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Application\\ApplicationServer.ts:134:27)",
+    "methodName": "Resolve"
   }
 }
-2025-02-24 06:39:13: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:13: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:16: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:16: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
+2025-02-25 09:02:24: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2025-02-25 09:02:24: [34m[INFO][0m | RedisClient Connected =>
+2025-02-25 09:02:44: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
+2025-02-25 09:02:44: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [CacheManager] ha ejecutado el método [CreateClient]
+2025-02-25 09:02:44: [34m[INFO][0m | Resolviendo servicio: cacheClient
+2025-02-25 09:02:44: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [RateLimiterManager] ha ejecutado el método [BuildStore]
+2025-02-25 09:02:44: [34m[INFO][0m | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddDataBaseConnection]
+2025-02-25 09:02:44: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:02:44: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [Connect]
+2025-02-25 09:02:44: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [Connect]
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddApiValidation]
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
+2025-02-25 09:02:44: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Init]
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddControllers]
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
+2025-02-25 09:02:44: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddStrategy]
+2025-02-25 09:02:44: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:02:44: [34m[INFO][0m | El STRATEGY DIRECTOR [ImageStrategyDirector] ha ejecutado el método [Connect]
+2025-02-25 09:02:44: [34m[INFO][0m | El STRATEGY [CloudinaryImageStrategy] ha ejecutado el método [Connect]
+2025-02-25 09:02:44: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [GetInstance]
+2025-02-25 09:02:44: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
+2025-02-25 09:02:44: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2025-02-25 09:02:44: [34m[INFO][0m | RedisClient Connected =>
+2025-02-25 09:03:03: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Intercept]
+2025-02-25 09:03:03: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:03: [34m[INFO][0m | El MIDDLEWARE [RateLimiter] ha ejecutado el método [RateLimiter]
+2025-02-25 09:03:03: [33m[WARN][0m | El MIDDLEWARE [ErrorHandlerMiddleware] ha ejecutado el método [Intercept] {}
+2025-02-25 09:03:07: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Intercept]
+2025-02-25 09:03:07: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:07: [34m[INFO][0m | El MIDDLEWARE [RateLimiter] ha ejecutado el método [RateLimiter]
+2025-02-25 09:03:07: [33m[WARN][0m | El MIDDLEWARE [ErrorHandlerMiddleware] ha ejecutado el método [Intercept] {}
+2025-02-25 09:03:08: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Intercept]
+2025-02-25 09:03:08: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:08: [34m[INFO][0m | El MIDDLEWARE [RateLimiter] ha ejecutado el método [RateLimiter]
+2025-02-25 09:03:08: [33m[WARN][0m | El MIDDLEWARE [ErrorHandlerMiddleware] ha ejecutado el método [Intercept] {}
+2025-02-25 09:03:09: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Intercept]
+2025-02-25 09:03:09: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:09: [34m[INFO][0m | El MIDDLEWARE [RateLimiter] ha ejecutado el método [RateLimiter]
+2025-02-25 09:03:09: [33m[WARN][0m | El MIDDLEWARE [ErrorHandlerMiddleware] ha ejecutado el método [Intercept] {}
+2025-02-25 09:03:53: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
+2025-02-25 09:03:53: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [CacheManager] ha ejecutado el método [CreateClient]
+2025-02-25 09:03:53: [34m[INFO][0m | Resolviendo servicio: cacheClient
+2025-02-25 09:03:53: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [RateLimiterManager] ha ejecutado el método [BuildStore]
+2025-02-25 09:03:53: [34m[INFO][0m | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddDataBaseConnection]
+2025-02-25 09:03:53: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:53: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [Connect]
+2025-02-25 09:03:53: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [Connect]
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddApiValidation]
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
+2025-02-25 09:03:53: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Init]
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddControllers]
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
+2025-02-25 09:03:53: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddStrategy]
+2025-02-25 09:03:53: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:53: [34m[INFO][0m | El STRATEGY DIRECTOR [ImageStrategyDirector] ha ejecutado el método [Connect]
+2025-02-25 09:03:53: [34m[INFO][0m | El STRATEGY [CloudinaryImageStrategy] ha ejecutado el método [Connect]
+2025-02-25 09:03:53: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [GetInstance]
+2025-02-25 09:03:53: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
+2025-02-25 09:03:53: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
+2025-02-25 09:03:53: [34m[INFO][0m | RedisClient Connected =>
+2025-02-25 09:03:58: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Intercept]
+2025-02-25 09:03:58: [34m[INFO][0m | Resolviendo servicio: applicationContext
+2025-02-25 09:03:58: [34m[INFO][0m | El MIDDLEWARE [RateLimiter] ha ejecutado el método [RateLimiter]
+2025-02-25 09:03:58: Rate => [AsyncFunction (anonymous)] {
+  resetKey: [Function: bound resetKey] AsyncFunction,
+  getKey: [Function: bound get] AsyncFunction
 }
-2025-02-24 06:39:16: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:16: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
-  "status": 500,
-  "message": "An error occurred while connecting to the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
-  }
-}
-2025-02-24 06:39:16: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:16: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:19: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:19: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:19: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:19: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
-  "status": 500,
-  "message": "An error occurred while connecting to the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
-  }
-}
-2025-02-24 06:39:19: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:19: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:22: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:22: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:22: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:22: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
-  "status": 500,
-  "message": "An error occurred while connecting to the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
-  }
-}
-2025-02-24 06:39:23: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:23: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:26: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:26: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:26: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:26: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
-  "status": 500,
-  "message": "An error occurred while connecting to the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
-  }
-}
-2025-02-24 06:39:26: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:26: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:29: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:29: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:29: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:29: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
-  "status": 500,
-  "message": "An error occurred while connecting to the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
-  }
-}
-2025-02-24 06:39:29: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:29: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:32: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:32: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:32: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:32: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
-  "status": 500,
-  "message": "An error occurred while connecting to the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
-  }
-}
-2025-02-24 06:39:32: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:39:32: [34m[INFO][0m | RequestId: 8aec885b | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:39:33: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:33: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER [TestController] en el método [GetUsuarios]
-2025-02-24 06:39:33: [33m[WARN][0m | El MIDDLEWARE [ErrorHandlerMiddleware] ha ejecutado el método [Intercept] {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseException",
-  "status": 500,
-  "message": "An error has occurred in the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Application\\ApplicationPromise.ts",
-    "innerException": "Error: An error occurred while connecting to the database\n    at C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tarn\\dist\\PendingOperation.js:14:27\n    at async MssqlDriver.acquireConnection (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\dialect\\mssql\\mssql-driver.js:34:16)\n    at async RuntimeDriver.acquireConnection (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\driver\\runtime-driver.js:46:28)\n    at async DefaultConnectionProvider.provideConnection (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\driver\\default-connection-provider.js:10:28)\n    at async DefaultQueryExecutor.executeQuery (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\query-executor\\query-executor-base.js:36:16)\n    at async SelectQueryBuilderImpl.execute (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\query-builder\\select-query-builder.js:317:24)",
-    "methodName": "getAll"
-  }
-}
-2025-02-24 06:39:35: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:39:35: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:39:35: [34m[INFO][0m | RequestId: 8aec885b | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:39:35: [38;2;213;0;0m[FATAL] | Runtime Database Error {
-  "requestID": "8aec885b",
-  "errorName": "DatabaseConnectionException",
-  "status": 500,
-  "message": "An error occurred while connecting to the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Strategies\\Database\\SqlConnectionStrategy.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at Connection.connectTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2198:26)\n    at Timeout._onTimeout (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tedious\\src\\connection.ts:2143:12)\n    at listOnTimeout (node:internal/timers:594:17)\n    at processTimers (node:internal/timers:529:7)",
-    "methodName": "ConnectionFactory"
-  }
-}
-2025-02-24 06:40:29: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
-2025-02-24 06:40:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
-2025-02-24 06:40:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddDataBaseConnection]
-2025-02-24 06:40:29: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:40:29: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [Connect]
-2025-02-24 06:40:29: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:40:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddApiValidation]
-2025-02-24 06:40:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:40:29: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Init]
-2025-02-24 06:40:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddControllers]
-2025-02-24 06:40:30: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:40:30: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddStrategy]
-2025-02-24 06:40:30: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:40:30: [34m[INFO][0m | El STRATEGY DIRECTOR [ImageStrategyDirector] ha ejecutado el método [Connect]
-2025-02-24 06:40:30: [34m[INFO][0m | El STRATEGY [CloudinaryImageStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:40:30: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [GetInstance]
-2025-02-24 06:40:30: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
-2025-02-24 06:40:30: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
-2025-02-24 06:42:06: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
-2025-02-24 06:42:06: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
-2025-02-24 06:42:06: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddDataBaseConnection]
-2025-02-24 06:42:06: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:42:06: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [Connect]
-2025-02-24 06:42:06: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:42:06: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddApiValidation]
-2025-02-24 06:42:06: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:42:06: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Init]
-2025-02-24 06:42:06: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddControllers]
-2025-02-24 06:42:07: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:42:07: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddStrategy]
-2025-02-24 06:42:07: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:42:07: [34m[INFO][0m | El STRATEGY DIRECTOR [ImageStrategyDirector] ha ejecutado el método [Connect]
-2025-02-24 06:42:07: [34m[INFO][0m | El STRATEGY [CloudinaryImageStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:42:07: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [GetInstance]
-2025-02-24 06:42:07: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
-2025-02-24 06:42:07: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
-2025-02-24 06:42:17: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
-2025-02-24 06:42:17: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
-2025-02-24 06:42:17: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddDataBaseConnection]
-2025-02-24 06:42:17: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:42:17: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [Connect]
-2025-02-24 06:42:17: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:42:17: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddApiValidation]
-2025-02-24 06:42:17: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:42:17: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Init]
-2025-02-24 06:42:17: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddControllers]
-2025-02-24 06:42:17: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:42:17: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddStrategy]
-2025-02-24 06:42:17: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:42:17: [34m[INFO][0m | El STRATEGY DIRECTOR [ImageStrategyDirector] ha ejecutado el método [Connect]
-2025-02-24 06:42:17: [34m[INFO][0m | El STRATEGY [CloudinaryImageStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:42:17: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [GetInstance]
-2025-02-24 06:42:17: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
-2025-02-24 06:42:17: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
-2025-02-24 06:42:29: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
-2025-02-24 06:42:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
-2025-02-24 06:42:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddDataBaseConnection]
-2025-02-24 06:42:29: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:42:29: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [Connect]
-2025-02-24 06:42:29: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:42:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddApiValidation]
-2025-02-24 06:42:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:42:29: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Init]
-2025-02-24 06:42:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddControllers]
-2025-02-24 06:42:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:42:29: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddStrategy]
-2025-02-24 06:42:29: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:42:29: [34m[INFO][0m | El STRATEGY DIRECTOR [ImageStrategyDirector] ha ejecutado el método [Connect]
-2025-02-24 06:42:29: [34m[INFO][0m | El STRATEGY [CloudinaryImageStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:42:29: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [GetInstance]
-2025-02-24 06:42:29: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
-2025-02-24 06:42:29: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
-2025-02-24 06:47:11: [34m[INFO][0m | El CONFIGURATION [ApplicationServer] ha ejecutado el método [START]
-2025-02-24 06:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddAplicationContext]
-2025-02-24 06:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddDataBaseConnection]
-2025-02-24 06:47:11: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:47:11: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [Connect]
-2025-02-24 06:47:11: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddApiValidation]
-2025-02-24 06:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:47:11: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Init]
-2025-02-24 06:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddControllers]
-2025-02-24 06:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddMiddleware]
-2025-02-24 06:47:11: [34m[INFO][0m | El MANAGER [ServiceManager] ha ejecutado el método [AddStrategy]
-2025-02-24 06:47:11: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:47:11: [34m[INFO][0m | El STRATEGY DIRECTOR [ImageStrategyDirector] ha ejecutado el método [Connect]
-2025-02-24 06:47:11: [34m[INFO][0m | El STRATEGY [CloudinaryImageStrategy] ha ejecutado el método [Connect]
-2025-02-24 06:47:11: [34m[INFO][0m | El STRATEGY DIRECTOR [DatabaseManager] ha ejecutado el método [GetInstance]
-2025-02-24 06:47:11: [34m[INFO][0m | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [GetInstance]
-2025-02-24 06:47:11: [34m[INFO][0m | El servidor está corriendo en el puerto 5000
-2025-02-24 06:47:30: [34m[INFO][0m | El MIDDLEWARE [ApiValidationMiddleware] ha ejecutado el método [Intercept]
-2025-02-24 06:47:30: [34m[INFO][0m | Resolviendo servicio: applicationContext
-2025-02-24 06:47:30: [34m[INFO][0m | El CONTROLLER [TestController] ha ejecutado el método [GetUsuarios]
-2025-02-24 06:47:30: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:30: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:33: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:33: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:33: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:33: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:36: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:36: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:36: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:36: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:39: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:39: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:39: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:39: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:42: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:42: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:42: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:42: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:45: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:45: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:46: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:46: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:49: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:49: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:49: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:49: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:52: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:52: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:52: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:52: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:55: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:55: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:55: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:55: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:47:58: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:47:58: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
-2025-02-24 06:47:59: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [ConnectionFactory]
-2025-02-24 06:47:59: [34m[INFO][0m | RequestId: 60f4db3a | El STRATEGY [SqlConnectionStrategy] ha ejecutado el método [CreateConnection]
-2025-02-24 06:48:00: [34m[INFO][0m | RequestId: 60f4db3a | El HANDLER [TranslatorHandler] ha ejecutado el método [Translate]
-2025-02-24 06:48:00: [31m[ERROR] | Ha ocurrido un error en el CONTROLLER [TestController] en el método [GetUsuarios]
-2025-02-24 06:48:00: [33m[WARN][0m | El MIDDLEWARE [ErrorHandlerMiddleware] ha ejecutado el método [Intercept] {
-  "requestID": "60f4db3a",
-  "errorName": "DatabaseException",
-  "status": 500,
-  "message": "An error has occurred in the database",
-  "details": {
-    "path": "C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\src\\JFramework\\Application\\ApplicationPromise.ts",
-    "innerException": "Error: Failed to connect to JIMENEZG\\MSSQLSERVER in 3000ms\n    at C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\tarn\\dist\\PendingOperation.js:14:27\n    at async MssqlDriver.acquireConnection (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\dialect\\mssql\\mssql-driver.js:34:16)\n    at async RuntimeDriver.acquireConnection (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\driver\\runtime-driver.js:46:28)\n    at async DefaultConnectionProvider.provideConnection (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\driver\\default-connection-provider.js:10:28)\n    at async DefaultQueryExecutor.executeQuery (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\query-executor\\query-executor-base.js:36:16)\n    at async SelectQueryBuilderImpl.execute (C:\\Users\\jimen\\Documents\\AZ\\CodeFiles\\CodeProyects\\JavaScript Proyects\\FinanzasHogar\\Server\\node_modules\\kysely\\dist\\cjs\\query-builder\\select-query-builder.js:317:24)",
-    "methodName": "GetAll"
-  }
-}
-2025-02-24 06:48:02: [34m[INFO][0m | Starting connection to the database
-2025-02-24 06:48:02: [38;2;213;0;0m[FATAL] | Database Connection failed {
-  "code": "ETIMEOUT"
-}
+2025-02-25 09:03:58: [33m[WARN][0m | El MIDDLEWARE [ErrorHandlerMiddleware] ha ejecutado el método [Intercept] {}
