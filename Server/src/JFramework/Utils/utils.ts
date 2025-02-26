@@ -1,4 +1,4 @@
-import { TimeUnit } from "./types/CommonTypes";
+
 
 
 
@@ -20,15 +20,3 @@ export default function IsNullOrEmpty(value: any) {
   return false;
 }
 
-
-/** Convierte el tiempo a milisegundos según la unidad proporcionada */
-export function ConvertTimeToMiliSeconds(time: number, unit: TimeUnit): number {
-  switch (unit) {
-    case "minutes":
-      return time * 60 * 1000; // Convertir minutos a milisegundos
-    case "seconds":
-      return time * 1000; // Convertir segundos a milisegundos
-    default:
-      throw new Error("Unidad de tiempo no soportada");
-  }
-}

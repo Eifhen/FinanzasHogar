@@ -11,8 +11,11 @@ export const EN = {
   "bienvenido-a": "Welcome to",
   "cuenta-creada-exitosamente": "Your account has been successfully created. Click the link below to activate your account",
   "hola": "Hello",
+  "days": "days",
+  "hours": "hours",
   "minutes": "Minutes",
   "seconds": "Seconds",
+  "milliseconds": "Milliseconds",
   
   /** Status Messages */
   "ok-result": "Successful Request",
@@ -31,6 +34,7 @@ export const EN = {
   "not-implemented": "Functionality not implemented",
   "bad-gateway": "Bad gateway",
   "service-unavailable": "Service unavailable",
+  "too-many-requests": "Too many requests from this IP, please try again after {0} {1}",
 
   /** Errores custom */
   "record-exists": "There is already a record with {0} equal to {1}",
@@ -41,6 +45,11 @@ export const EN = {
   "database-no-dialect-exception": "There is no dialect available at the moment",
   "database-transaction-exception": "An error occurred while performing the transaction.",
   "database-exception": "An error has occurred in the database",
-  "rate-limit-exceded": "Too many requests from this IP, please try again after {0} {1}",
+  "rate-limiter-invalid": "RateLimiter for {0} is not a function",
+
+  // Limiters
+  "generalLimiter": "You have reached the request limit. Please try again later after {0} {1}",
+  "authLimiter" : "Too many login attempts. Please try again after {0} {1}",
+  "resourceHeavyLimiter" : "Request limit for this resource exceeded. Please try again after {0} {1}",
 
 } as const;

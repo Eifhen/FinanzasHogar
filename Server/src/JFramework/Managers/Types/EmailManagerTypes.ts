@@ -1,4 +1,4 @@
-import { EmailTemplateType } from "../../Utils/EmailTemplates";
+import { EmailTemplateType } from "./EmailTemplates";
 
 
 /** Representa un objeto que contiene todo lo necesario para enviar un email */

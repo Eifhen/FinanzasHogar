@@ -14,6 +14,7 @@ export const HttpStatusCode = {
   NotFound : 404,
   MethodNotAllowed : 405,
   UnprocessableEntity : 422,
+  TooManyRequests: 429,
 
   // Errores de servidor
   InternalServerError : 500,
@@ -40,12 +41,14 @@ export const HttpStatusMessage = {
   NotFound : "not-found",
   MethodNotAllowed : "method-not-allowed",
   UnprocessableEntity : "unprocessable-entity",
+  TooManyRequests: "too-many-requests",
 
   // Errores de servidor
   InternalServerError : "internal-error",
   NotImplemented :  "not-implemented",
   BadGateway : "bad-gateway",
   ServiceUnavailable : "service-unavailable",
+
 } as const;
 
 
@@ -65,6 +68,7 @@ export const HttpStatusName = {
   NotFound : 'NotFound',
   MethodNotAllowed : 'MethodNotAllowed',
   UnprocessableEntity : 'UnprocessableEntity',
+  TooManyRequests: "TooManyRequests",
 
   // Errores de servidor
   InternalServerError : 'InternalServerError',

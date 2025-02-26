@@ -52,6 +52,7 @@ export default class AuthenticationController {
   /** EndPoint que se encarga del registro del usuario en la aplicación */
   @route("/sign-up")
   @POST()
+  @before(inject(RateLimiter("generalLimiter")))
   public SignUp:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("SignUp");
@@ -67,7 +68,8 @@ export default class AuthenticationController {
 
   /** EndPoint que se encarga del inicio de sesión a la aplicación */
   @route("/sign-in")
-  @POST() 
+  @POST()
+  @before(inject(RateLimiter("authLimiter"))) 
   public SignIn: ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("SignIn");

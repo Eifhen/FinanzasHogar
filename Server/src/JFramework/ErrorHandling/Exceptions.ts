@@ -1,8 +1,12 @@
 import ApplicationContext from "../Application/ApplicationContext";
 import { HttpStatusCode, HttpStatusName, HttpStatusNames } from "../Utils/HttpCodes";
-import IsNullOrEmpty from "../Utils/utils";
 import ApplicationException from "./ApplicationException";
+import { EN } from '../Translations/en_US';
 
+export type ErrorMessageData = {
+  message: keyof typeof EN;
+  translateValues?: (string | number)[]
+}
 
 /** Error base, si el error ingresado es una instancia de ApplicationException 
  * utiliza esa instancia para llenar el error, del o contrario utiliza los 
@@ -15,17 +19,25 @@ import ApplicationException from "./ApplicationException";
  * */
 export class BaseException extends ApplicationException {
   constructor(
-    methodName: string, 
-    errorName:HttpStatusNames, 
-    message: string, 
-    applicationContext: ApplicationContext, 
-    path?: string, 
+    methodName: string,
+    errorName: HttpStatusNames,
+    messageData: string | ErrorMessageData,
+    applicationContext: ApplicationContext,
+    path?: string,
     error?: any
   ) {
+
+    let errMsg: string = "";
+    if (typeof messageData === "string") {
+      errMsg = messageData;
+    } else {
+      errMsg = applicationContext.translator.Translate(messageData.message, messageData.translateValues);
+    }
+
     super(
       methodName,
       errorName,
-      message,
+      errMsg,
       HttpStatusCode.InternalServerError,
       applicationContext.requestID,
       path,
@@ -37,13 +49,29 @@ export class BaseException extends ApplicationException {
 /** Cuando ocurre un error interno  */
 export class InternalServerException extends ApplicationException {
   constructor(
-    methodName: string, 
-    message?: string, 
-    applicationContext?: ApplicationContext, 
-    path?: string, 
-    innerException?: Error
+    methodName: string,
+    messageData?: string | ErrorMessageData,
+    applicationContext?: ApplicationContext,
+    path?: string,
+    innerException?: Error,
   ) {
-    const errMsg = message ? message : applicationContext ? applicationContext.translator.Translate("internal-error") : "";
+
+    let errMsg: string = "";
+
+    if (applicationContext) {
+      if (messageData) {
+        if (typeof messageData === "string") {
+          errMsg = messageData;
+        } else {
+          errMsg = applicationContext.translator.Translate(messageData.message, messageData.translateValues);
+        }
+      } else {
+        errMsg = applicationContext.translator.Translate("internal-error");
+      }
+    } else if (messageData && typeof messageData === "string") {
+      errMsg = messageData;
+    }
+
     super(
       methodName,
       HttpStatusName.InternalServerError,
@@ -56,13 +84,35 @@ export class InternalServerException extends ApplicationException {
   }
 }
 
+/** Error que indica que se ejecutaron demasiadas solicitudes */
+export class TooManyRequestsException extends ApplicationException {
+  constructor(
+    methodName: string,
+    messageData: ErrorMessageData,
+    applicationContext: ApplicationContext,
+    path?: string,
+    innerException?: Error,
+  ) {
+
+    super(
+      methodName,
+      HttpStatusName.TooManyRequests,
+      applicationContext.translator.Translate(messageData.message, messageData.translateValues),
+      HttpStatusCode.TooManyRequests,
+      applicationContext?.requestID,
+      path,
+      innerException
+    )
+  }
+}
+
 /** Error a ejecutar cuando un registro no es encontrado, devuelve un objeto ApplicationException */
 export class NotFoundException extends ApplicationException {
   constructor(
-    methodName:string, 
-    value:string[], 
-    applicationContext: ApplicationContext, 
-    path?: string, 
+    methodName: string,
+    value: string[],
+    applicationContext: ApplicationContext,
+    path?: string,
     innerException?: Error
   ) {
     super(
@@ -80,16 +130,16 @@ export class NotFoundException extends ApplicationException {
 /** Cuando se envia un parámetro que es requerido de forma nula */
 export class NullParameterException extends ApplicationException {
   constructor(
-    methodName:string, 
-    message: string, 
-    applicationContext: ApplicationContext, 
-    path?: string, 
+    methodName: string,
+    parameterName: string,
+    applicationContext: ApplicationContext,
+    path?: string,
     innerException?: Error
   ) {
     super(
       methodName,
       HttpStatusName.NullParameterException,
-      applicationContext.translator.Translate("null-parameter-exception", [message]),
+      applicationContext.translator.Translate("null-parameter-exception", [parameterName]),
       HttpStatusCode.BadRequest,
       applicationContext.requestID,
       path,
@@ -101,17 +151,33 @@ export class NullParameterException extends ApplicationException {
 /** Cuando la request tiene algún error */
 export class BadRequestException extends ApplicationException {
   constructor(
-    methodName:string, 
-    message?: string, 
-    applicationContext?: ApplicationContext, 
-    path?: string, 
+    methodName: string,
+    messageData?: string | ErrorMessageData,
+    applicationContext?: ApplicationContext,
+    path?: string,
     innerException?: Error
   ) {
-    const msg = !IsNullOrEmpty(message) ? message! : applicationContext ? applicationContext.translator.Translate("bad-request") : "";
+
+    let errMsg: string = "";
+
+    if (applicationContext) {
+      if (messageData) {
+        if (typeof messageData === "string") {
+          errMsg = messageData;
+        } else {
+          errMsg = applicationContext.translator.Translate(messageData.message, messageData.translateValues);
+        }
+      } else {
+        errMsg = applicationContext.translator.Translate("bad-request");
+      }
+    } else if (messageData && typeof messageData === "string") {
+      errMsg = messageData;
+    }
+
     super(
       methodName,
       HttpStatusName.BadRequest,
-      msg,
+      errMsg,
       HttpStatusCode.BadRequest,
       applicationContext?.requestID,
       path,
@@ -129,10 +195,10 @@ export class BadRequestException extends ApplicationException {
 */
 export class RecordAlreadyExistsException extends ApplicationException {
   constructor(
-    methodName:string, 
-    message: [string, string], 
-    applicationContext: ApplicationContext, 
-    path?: string, 
+    methodName: string,
+    message: [string, string],
+    applicationContext: ApplicationContext,
+    path?: string,
     innerException?: Error
   ) {
     super(
@@ -144,12 +210,14 @@ export class RecordAlreadyExistsException extends ApplicationException {
       path,
       innerException
     );
-  }  
+  }
 }
+
+/** Error que indica que hay un problema de conección a la base de datos */
 export class DatabaseConnectionException extends ApplicationException {
   constructor(
     methodName: string,
-    applicationContext:ApplicationContext,
+    applicationContext: ApplicationContext,
     path?: string,
     innerException?: Error
   ) {
@@ -165,10 +233,11 @@ export class DatabaseConnectionException extends ApplicationException {
   }
 }
 
+/** Error que indica que no existe una instancia de la base de datos */
 export class DatabaseNoInstanceException extends ApplicationException {
   constructor(
     methodName: string,
-    applicationContext:ApplicationContext,
+    applicationContext: ApplicationContext,
     path?: string,
     innerException?: Error
   ) {
@@ -184,10 +253,11 @@ export class DatabaseNoInstanceException extends ApplicationException {
   }
 }
 
+/** Error que indica que no hay un dialecto disponible para la base de datos */
 export class DatabaseNoDialectException extends ApplicationException {
   constructor(
     methodName: string,
-    applicationContext:ApplicationContext,
+    applicationContext: ApplicationContext,
     path?: string,
     innerException?: Error
   ) {
@@ -203,10 +273,11 @@ export class DatabaseNoDialectException extends ApplicationException {
   }
 }
 
+/** Error que indica que hay un problema al realizar una transacción */
 export class DatabaseTransactionException extends ApplicationException {
   constructor(
     methodName: string,
-    applicationContext:ApplicationContext,
+    applicationContext: ApplicationContext,
     path?: string,
     innerException?: Error
   ) {
@@ -222,10 +293,11 @@ export class DatabaseTransactionException extends ApplicationException {
   }
 }
 
+/** Error de base de datos genérico */
 export class DatabaseException extends ApplicationException {
   constructor(
     methodName: string,
-    applicationContext:ApplicationContext,
+    applicationContext: ApplicationContext,
     path?: string,
     innerException?: Error
   ) {

@@ -1,4 +1,4 @@
-import { EmailTemplateType } from "../../Utils/EmailTemplates";
+import { EmailTemplateType } from "../Types/EmailTemplates";
 import { EmailTemplate } from "../Types/EmailManagerTypes";
 
 

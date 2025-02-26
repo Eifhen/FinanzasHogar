@@ -109,7 +109,7 @@ export default class LoggerManager implements ILoggerManager {
         `El ${this._entityCategory} [${this._entityName}] se ha ejecutado`;
      
 
-      if (this._applicationContext && this._applicationContext.requestID != "") {
+      if (this._applicationContext && this._applicationContext.requestID !== "") {
         msg = `RequestId: ${this._applicationContext.requestID} | ` + msg;
       }
 

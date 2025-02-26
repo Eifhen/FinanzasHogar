@@ -32,7 +32,7 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 
 
   /** Permite crear el cliente de Redis para manejar el cache */
-  public Connect = async () : Promise<RedisClientType<any, any, any>> => {
+  public Connect = () : RedisClientType<any, any, any> => {
     try {
       this.logger.Activity("CreateClient");
 
@@ -41,10 +41,10 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 
       /** Conectamos al cliente de redis */
       if(environment === EnvironmentStatus.DEVELOPMENT){
-        redisClient = await createClient();
+        redisClient = createClient();
       }
       else {
-        redisClient = await createClient({
+        redisClient = createClient({
           url: this._applicationContext.settings.cacheConfig.url,
           username: this._applicationContext.settings.cacheConfig.userName,
           password: this._applicationContext.settings.cacheConfig.password,

@@ -56,7 +56,7 @@ import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEma
 import MssSqlTransactionBuilder from "../../Infraestructure/Repositories/Generic/MssSqlTransactionBuilder";
 import { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { slowLimiter } from "../../JFramework/Security/RateLimiter/Limiters";
+
 
 export default class Startup implements IApplicationStart {
   
@@ -82,9 +82,9 @@ export default class Startup implements IApplicationStart {
       services.AddAplicationContext();
 
       /** Se establece la conección con el cliente de cache */
-      await services.AddCacheClient();
+      services.AddCacheClient();
 
-      services.AddRateLimiter("slowLimiter", slowLimiter);
+      services.AddRateLimiters();
   
       /** DatabaseManager | Se establece la conección con la BD */
       services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);

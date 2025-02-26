@@ -16,7 +16,7 @@ import CacheConnectionManager from "./CacheConnectionManager";
 import { RedisClientType } from "redis";
 import rateLimit, { Options } from "express-rate-limit";
 import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
-import { Limiters } from '../Security/RateLimiter/Limiters';
+import { limiterConfig, Limiters } from '../Security/RateLimiter/Limiters';
 
 export default class ServiceManager {
 
@@ -201,21 +201,23 @@ export default class ServiceManager {
     
     const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
     const cacheManager = new CacheConnectionManager({ applicationContext });
+    const cacheClient = cacheManager.Connect();
 
-    await cacheManager.Connect().then(client => {
-      this.AddInstance<RedisClientType<any, any, any>>("cacheClient", client);
-    });
+    this.AddInstance<RedisClientType<any, any, any>>("cacheClient", cacheClient);
   }
 
   /** Permite agregar una instancia del RateLimiter 
    * Middleware como singleton */
-  public AddRateLimiter = (name: Limiters, options:Partial<Options>) => {
+  public AddRateLimiters = () => {
     const cacheClient = this.Resolve<RedisClientType<any, any, any>>("cacheClient");
     const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
     const manager = new RateLimiterManager({ cacheClient, applicationContext });
-    manager.BuildStore(options);
 
-    this.AddInstance(name, rateLimit(options));
+    /** Registramos los limiters según la configuración */
+    Object.entries(limiterConfig).forEach(([limiterName, options])=>{
+      manager.BuildStore(limiterName as Limiters, options);
+      this.AddInstance(limiterName, rateLimit(options));
+    });
   }
 
   /** Permite configurar el contexto de la aplicación */

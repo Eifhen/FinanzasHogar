@@ -47,6 +47,7 @@ export default class TestController {
     //  context: this._context,
       entityName: "TestController",
       entityCategory: LoggEntityCategorys.CONTROLLER,
+      applicationContext: deps.applicationContext
     });
   }
 
@@ -149,7 +150,7 @@ export default class TestController {
 
   @route("/usuarios")
   @GET()
-  @before(inject(RateLimiter("slowLimiter")))
+  @before(inject(RateLimiter("generalLimiter")))
   public GetUsuarios = async (req: Request, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("GetUsuarios");

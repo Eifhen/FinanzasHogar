@@ -12,8 +12,11 @@ export const ES = {
   "bienvenido-a": "Bienvenido a",
   "cuenta-creada-exitosamente": "Tu cuenta ha sido creada exitosamente. Pulsa el link para activar tu cuenta.",
   "hola": "Hola",
+  "days": "Días",
+  "hours": "Horas",
   "minutes": "Minutos",
   "seconds": "Segundos",
+  "milliseconds": "Milisegundos",
 
   /** Status Messages */
   "ok-result": "Petición Exitosa",
@@ -32,6 +35,7 @@ export const ES = {
   "not-implemented": "Funcionalidad no implementada",
   "bad-gateway": "Puerta de enlace incorrecta",
   "service-unavailable": "Servicio no disponible",
+  "too-many-requests": "Demasiadas solicitudes desde esta IP, inténtelo de nuevo después de {0} {1}",
   
   /** Errores custom */
   "record-exists": "Ya existe un registro con el {0} igual a {1}",
@@ -42,6 +46,11 @@ export const ES = {
   "database-no-dialect-exception": "Por el momento no hay un dialecto disponible",
   "database-transaction-exception": "Ha ocurrido un error al realizar la transaccion",
   "database-exception": "Ha ocurrido un error en la base de datos",
-  "rate-limit-exceded": "Demasiadas solicitudes desde esta IP, por favor intenta de nuevo después de {0} {1}"
+  "rate-limiter-invalid": "El RateLimiter {0} no es una función",
+
+  // Limiters
+  "generalLimiter": "Has alcanzado el límite de solicitudes. Por favor, inténtalo de nuevo después de {0} {1}",
+  "authLimiter" : "Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo después de {0} {1}",
+  "resourceHeavyLimiter" : "Se ha excedido el límite de solicitudes para este recurso. Por favor, inténtalo de nuevo después de {0} {1}",
 
 } as const;
