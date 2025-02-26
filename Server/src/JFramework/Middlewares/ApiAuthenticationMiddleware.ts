@@ -1,15 +1,15 @@
 import { NextFunction, Response } from "express";
 import ApplicationRequest from "../Application/ApplicationRequest";
-import { ApplicationRequestHandler, IApplicationMiddleware, MiddleWareFunction } from "../Configurations/types/ServerTypes";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ServiceManager from "../Managers/ServiceManager";
 import ITokenManager from "../Managers/Interfaces/ITokenManager";
+import { ApplicationMiddleware, ApplicationRequestHandler, MiddleWareFunction } from "./types/MiddlewareTypes";
 
 
 /** Middleware de autenticación */
-export default class ApiAuthenticationMiddleware implements IApplicationMiddleware {
+export default class ApiAuthenticationMiddleware implements ApplicationMiddleware {
 
 
   /** Instancia del logger */

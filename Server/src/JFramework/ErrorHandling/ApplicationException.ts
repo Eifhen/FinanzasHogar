@@ -1,7 +1,10 @@
+import ApplicationContext from "../Application/ApplicationContext";
+import { EN } from "../Translations/en_US";
 import { NO_REQUEST_ID } from "../Utils/const";
 import { EnvironmentStatus } from "../Utils/Environment";
 import { HttpStatusCode, HttpStatusCodes, HttpStatusMessage, HttpStatusName, HttpStatusNames } from "../Utils/HttpCodes";
 import IsNullOrEmpty from "../Utils/utils";
+import { ErrorMessageData } from "./Exceptions";
 
 
 interface ApplicationError {
@@ -94,6 +97,32 @@ export default class ApplicationException extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 
+  /** Obtiene el mensaje de error traducido */
+  public GetErrorMessage = (
+    messageData: string | ErrorMessageData,
+    applicationContext: ApplicationContext|undefined, 
+    defaultEntry: keyof typeof EN
+  ): string => {
+    if (applicationContext) {
+      if (messageData) {
+        if (typeof messageData === "string") {
+          if (messageData in EN){
+            return applicationContext.translator.Translate(messageData as keyof typeof EN);
+          }
+          else {
+            return messageData;
+          }
+        } else {
+          return applicationContext.translator.Translate(messageData.message, messageData.translateValues);
+        }
+      } else {
+        return applicationContext.translator.Translate(defaultEntry);
+      }
+    } else {
+      return messageData && typeof messageData === "string" ? messageData : "";
+    }
+  }
+
   /** Sobrescribe el método toJSON para asegurar 
   que todas las propiedades sean serializables */
   toJSON() {
@@ -120,4 +149,6 @@ export default class ApplicationException extends Error {
 
     return error;
   }
+
+
 }

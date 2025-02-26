@@ -1,17 +1,15 @@
 import { Response, NextFunction } from "express";
 import ApplicationException from "./ApplicationException";
-import { ApplicationExceptionHandler, IApplicationMiddleware, MiddleWareFunction } from "../Configurations/types/ServerTypes";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationRequest from "../Application/ApplicationRequest";
-import IsNullOrEmpty from "../Utils/utils";
-import { NO_REQUEST_ID } from "../Utils/const";
 import ServiceManager from "../Managers/ServiceManager";
+import { ApplicationExceptionHandler, MiddleWareFunction, ApplicationErrorMiddleware } from "../Middlewares/types/MiddlewareTypes";
 
 
 /** Esta clase representa al middleware de manejo de errores de la aplicación */
-export default class ErrorHandlerMiddleware implements IApplicationMiddleware {
+export default class ErrorHandlerMiddleware implements ApplicationErrorMiddleware {
 
   /** Instancia del logger */
   private _logger: ILoggerManager;

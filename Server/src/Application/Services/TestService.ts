@@ -11,14 +11,15 @@ import { ITestService } from "./Interfaces/ITestService";
 
 export default class TestService implements ITestService {
   
-  public GetAll = () : string[] =>  {
+  private list: string [] = [
+    "Gabriel",
+    "Andrés",
+    "Abel",
+    "Joel"
+  ]
 
-    return  [
-      "Gabriel",
-      "Andrés",
-      "Abel",
-      "Joel"
-    ];; 
+  public GetAll () : string[] {
+    return this.list;
   };
 
 }

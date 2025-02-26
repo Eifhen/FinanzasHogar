@@ -1,5 +1,4 @@
 import { before, inject, POST, route } from "awilix-express";
-import { ApplicationRequestHandler } from "../../JFramework/Configurations/types/ServerTypes";
 import { NextFunction, Response } from "express";
 import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
 import IAuthenticationService from "../../Application/Services/Interfaces/IAuthenticationService";
@@ -11,6 +10,8 @@ import ApplicationContext from "../../JFramework/Application/ApplicationContext"
 import SignUpDTO from "../../Application/DTOs/SignUpDTO";
 import SignInDTO from "../../Application/DTOs/SignInDTO";
 import RateLimiter from "../../JFramework/Security/RateLimiter/RateLimiter";
+import { ApplicationRequestHandler } from "../../JFramework/Middlewares/types/MiddlewareTypes";
+import UseMiddleware from "../../JFramework/Decorators/UseMiddleware";
 
 
 
@@ -52,7 +53,7 @@ export default class AuthenticationController {
   /** EndPoint que se encarga del registro del usuario en la aplicación */
   @route("/sign-up")
   @POST()
-  @before(inject(RateLimiter("generalLimiter")))
+  @UseMiddleware([RateLimiter("generalLimiter")])
   public SignUp:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("SignUp");
@@ -69,7 +70,7 @@ export default class AuthenticationController {
   /** EndPoint que se encarga del inicio de sesión a la aplicación */
   @route("/sign-in")
   @POST()
-  @before(inject(RateLimiter("authLimiter"))) 
+  @UseMiddleware([RateLimiter("authLimiter")])
   public SignIn: ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("SignIn");

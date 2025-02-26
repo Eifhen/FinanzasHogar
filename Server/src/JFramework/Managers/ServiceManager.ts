@@ -3,7 +3,6 @@ import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/I
 import LoggerManager from "./LoggerManager";
 import { loadControllers, scopePerRequest } from "awilix-express";
 import { asClass, asValue, AwilixContainer, createContainer, InjectionMode, Lifetime, LifetimeType } from "awilix";
-import { IApplicationMiddleware } from '../Configurations/types/ServerTypes';
 import IDataBaseConnectionStrategy from "../Strategies/Database/IDataBaseConnectionStrategy";
 import DatabaseStrategyDirector from "../Strategies/Database/DatabaseStrategyDirector";
 import { NO_REQUEST_ID } from "../Utils/const";
@@ -17,6 +16,7 @@ import { RedisClientType } from "redis";
 import rateLimit, { Options } from "express-rate-limit";
 import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
 import { limiterConfig, Limiters } from '../Security/RateLimiter/Limiters';
+import { ApplicationErrorMiddleware, ApplicationMiddleware } from "../Middlewares/types/MiddlewareTypes";
 
 export default class ServiceManager {
 
@@ -184,13 +184,13 @@ export default class ServiceManager {
   }
 
   /** Agrega un middleware a la aplicación */
-  public AddMiddleware = (middleware: IApplicationMiddleware) => {
+  public AddMiddleware = (middleware: ApplicationMiddleware | ApplicationErrorMiddleware) => {
     this._logger.Activity(`AddMiddleware`);
     this._app.use(middleware.Init() as RequestHandler | ErrorRequestHandler);
   }
 
   /** Agrega middleware para validación del api */
-  public AddApiValidation = (middleware: IApplicationMiddleware) => {
+  public AddApiValidation = (middleware: ApplicationMiddleware) => {
     this._logger.Activity(`AddApiValidation`);
     this.AddMiddleware(middleware);
   }

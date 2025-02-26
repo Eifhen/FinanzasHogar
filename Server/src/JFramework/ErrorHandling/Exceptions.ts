@@ -27,22 +27,17 @@ export class BaseException extends ApplicationException {
     error?: any
   ) {
 
-    let errMsg: string = "";
-    if (typeof messageData === "string") {
-      errMsg = messageData;
-    } else {
-      errMsg = applicationContext.translator.Translate(messageData.message, messageData.translateValues);
-    }
-
     super(
       methodName,
       errorName,
-      errMsg,
+      "",
       HttpStatusCode.InternalServerError,
       applicationContext.requestID,
       path,
       error
     );
+
+    this.message = this.GetErrorMessage(messageData, applicationContext, "internal-error");
   }
 }
 
@@ -50,37 +45,24 @@ export class BaseException extends ApplicationException {
 export class InternalServerException extends ApplicationException {
   constructor(
     methodName: string,
-    messageData?: string | ErrorMessageData,
+    messageData: string | ErrorMessageData,
     applicationContext?: ApplicationContext,
     path?: string,
     innerException?: Error,
   ) {
 
-    let errMsg: string = "";
-
-    if (applicationContext) {
-      if (messageData) {
-        if (typeof messageData === "string") {
-          errMsg = messageData;
-        } else {
-          errMsg = applicationContext.translator.Translate(messageData.message, messageData.translateValues);
-        }
-      } else {
-        errMsg = applicationContext.translator.Translate("internal-error");
-      }
-    } else if (messageData && typeof messageData === "string") {
-      errMsg = messageData;
-    }
-
     super(
       methodName,
       HttpStatusName.InternalServerError,
-      errMsg,
+      "",
       HttpStatusCode.InternalServerError,
       applicationContext?.requestID,
       path,
       innerException
     );
+
+    this.message = this.GetErrorMessage(messageData, applicationContext, "internal-error");
+
   }
 }
 

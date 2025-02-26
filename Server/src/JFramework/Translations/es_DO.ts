@@ -47,6 +47,7 @@ export const ES = {
   "database-transaction-exception": "Ha ocurrido un error al realizar la transaccion",
   "database-exception": "Ha ocurrido un error en la base de datos",
   "rate-limiter-invalid": "El RateLimiter {0} no es una función",
+  "middleware-instance-type-exception": "El middleware ingresado debe ser una instancia de ApplicationMiddleware",
 
   // Limiters
   "generalLimiter": "Has alcanzado el límite de solicitudes. Por favor, inténtalo de nuevo después de {0} {1}",

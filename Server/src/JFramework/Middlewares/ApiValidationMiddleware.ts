@@ -1,6 +1,5 @@
 import { NextFunction, Response } from 'express';
 import ApplicationRequest from '../Application/ApplicationRequest';
-import { IApplicationMiddleware, ApplicationRequestHandler, MiddleWareFunction } from '../Configurations/types/ServerTypes';
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from '../Managers/Interfaces/ILoggerManager';
 import LoggerManager from '../Managers/LoggerManager';
 import IsNullOrEmpty from '../Utils/utils';
@@ -11,6 +10,7 @@ import ApplicationContext from '../Application/ApplicationContext';
 import ServiceManager from '../Managers/ServiceManager';
 import ConfigurationSettings from '../Configurations/ConfigurationSettings';
 import { ApplicationLenguage, ApplicationLenguages } from '../Application/types/types';
+import { ApplicationMiddleware, ApplicationRequestHandler, MiddleWareFunction } from './types/MiddlewareTypes';
 
 
 interface ApiValidationMiddlewareDependencies {
@@ -18,7 +18,7 @@ interface ApiValidationMiddlewareDependencies {
 }
 
 /** Middleware para manejo de la validación del api */
-export default class ApiValidationMiddleware implements IApplicationMiddleware {
+export default class ApiValidationMiddleware implements ApplicationMiddleware {
 
   /** Instancia del logger */
   private readonly _logger: ILoggerManager;

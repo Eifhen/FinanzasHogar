@@ -1,27 +1,24 @@
-import { before, GET, inject, POST, route } from "awilix-express";
+import { before, GET, POST, route } from "awilix-express";
 import { ITestService } from "../../Application/Services/Interfaces/ITestService";
 import { NextFunction, Request, Response } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-
-import { HttpStatusCode, HttpStatusMessage, HttpStatusName } from "../../JFramework/Utils/HttpCodes";
+import { HttpStatusCode } from "../../JFramework/Utils/HttpCodes";
 import ApplicationContext from "../../JFramework/Application/ApplicationContext";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
-import { NO_REQUEST_ID } from "../../JFramework/Utils/const";
 import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
 import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
 import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
-import { ITranslatorHandler } from "../../JFramework/Translations/Interfaces/ITranslatorHandler";
 import { InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
 import RateLimiter from "../../JFramework/Security/RateLimiter/RateLimiter";
-
-
+import ExampleMiddleware from "../../JFramework/Middlewares/ExampleMiddleware";
+import UseMiddleware from '../../JFramework/Decorators/UseMiddleware';
 
 
 interface TestControllerDependencies {
   testService: ITestService;
- // context: ApplicationContext;
+  // context: ApplicationContext;
   usuariosRepository: IUsuariosSqlRepository;
   imageDirector: ImageStrategyDirector;
   applicationContext: ApplicationContext;
@@ -31,7 +28,7 @@ interface TestControllerDependencies {
 export default class TestController {
 
   private readonly _testService: ITestService;
- // private readonly _context: ApplicationContext;
+  // private readonly _context: ApplicationContext;
   private readonly _logger: ILoggerManager;
   private readonly _usuariosRepository: IUsuariosSqlRepository;
   private readonly _imageDirector: ImageStrategyDirector;
@@ -39,12 +36,12 @@ export default class TestController {
 
   constructor(deps: TestControllerDependencies) {
     this._testService = deps.testService;
-  //  this._context = deps.context;
-    this._usuariosRepository = deps.usuariosRepository;  
-    this._imageDirector = deps.imageDirector;  
+    //  this._context = deps.context;
+    this._usuariosRepository = deps.usuariosRepository;
+    this._imageDirector = deps.imageDirector;
     this._applicationContext = deps.applicationContext;
     this._logger = new LoggerManager({
-    //  context: this._context,
+      //  context: this._context,
       entityName: "TestController",
       entityCategory: LoggEntityCategorys.CONTROLLER,
       applicationContext: deps.applicationContext
@@ -52,8 +49,9 @@ export default class TestController {
   }
 
   @route("/")
-  @GET()
-  public GetAll = async (req: Request, res: Response, next: NextFunction) => {
+  @GET() 
+  @UseMiddleware([ExampleMiddleware, RateLimiter("generalLimiter")])
+  public async GetAll (req: Request, res: Response, next: NextFunction) {
     try {
       this._logger.Activity("GetAll");
       const data = await this._testService.GetAll();
@@ -73,9 +71,9 @@ export default class TestController {
 
       // Generar un Error
       throw new Error("Error Nuevo")
-  
+
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error("ERROR", "GetError");
       next(err);
     }
@@ -85,16 +83,16 @@ export default class TestController {
   @GET()
   public GetPromiseError = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      
+
       this._logger.Activity("GetPromiseError");
-  
+
       // Generar un unhandledRejection
       Promise.reject(new Error("Prueba Error GetPromiseError"));
-  
+
       // Responder para verificar comportamiento del cliente
       return res.status(200).send({ message: "Este endpoint genera un unhandledRejection" });
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error("ERROR", "GetPromiseError");
       next(err);
     }
@@ -150,8 +148,8 @@ export default class TestController {
 
   @route("/usuarios")
   @GET()
-  @before(inject(RateLimiter("generalLimiter")))
-  public GetUsuarios = async (req: Request, res: Response, next: NextFunction) => {
+  // @before(inject(RateLimiter("generalLimiter")))
+  public async GetUsuarios (req: Request, res: Response, next: NextFunction) {
     try {
       this._logger.Activity("GetUsuarios");
 
@@ -162,16 +160,16 @@ export default class TestController {
 
       const [err, data] = await this._usuariosRepository.GetAll();
 
-      if(err){
+      if (err) {
         throw err;
       }
 
       return res.status(HttpStatusCode.OK).send(data);
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error("ERROR", "GetUsuarios");
-      
-      if(err instanceof ApplicationException) {
+
+      if (err instanceof ApplicationException) {
         return next(err);
       }
 
@@ -194,10 +192,10 @@ export default class TestController {
       const result = await this._imageDirector.Upload(req.body, "casa_1");
       return res.status(HttpStatusCode.OK).send(result);
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error("ERROR", "GetUsuarios");
-      
-      if(err instanceof ApplicationException) {
+
+      if (err instanceof ApplicationException) {
         return next(err);
       }
 
@@ -213,24 +211,24 @@ export default class TestController {
 
   @route("/images")
   @GET()
-  public GetImage = async (req: ApplicationRequest<any, { id: string}>, res: Response, next: NextFunction) => {
+  public GetImage = async (req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("GetImage");
-      
-      const args = new ApplicationArgs<any, { id: string}>(req);
+
+      const args = new ApplicationArgs<any, { id: string }>(req);
       const id = args.query?.id ?? "";
       const [error, result] = await this._imageDirector.Get(id);
-      
-      if(error){
+
+      if (error) {
         throw new Error("No encontrado")
       }
 
       return res.status(HttpStatusCode.OK).send(result);
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error("ERROR", "GetImage");
-      
-      if(err instanceof ApplicationException) {
+
+      if (err instanceof ApplicationException) {
         return next(err);
       }
 
@@ -247,7 +245,7 @@ export default class TestController {
 
   @route("/translations")
   @GET()
-  public GetTranslations = async (req: ApplicationRequest<any, { id: string}>, res: Response, next: NextFunction) => {
+  public GetTranslations = async (req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("GetTranslations");
 
@@ -256,10 +254,10 @@ export default class TestController {
       res.status(HttpStatusCode.OK).send(result);
 
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error("ERROR", "GetTranslations");
-      
-      if(err instanceof ApplicationException) {
+
+      if (err instanceof ApplicationException) {
         return next(err);
       }
 
@@ -271,18 +269,18 @@ export default class TestController {
         err
       ));
     }
-  } 
+  }
 
 
   @route("/activate-account/:token")
   @GET()
-  public ActivateAccount = async (req: ApplicationRequest<any>, res: Response, next:NextFunction) => {
+  public ActivateAccount = async (req: ApplicationRequest<any>, res: Response, next: NextFunction) => {
     try {
       this._logger.Activity("ActivateAccount");
       const param = req.params.token;
       res.status(HttpStatusCode.OK).send(param);
     }
-    catch(err:any){
+    catch (err: any) {
       next(new InternalServerException(
         "ActivateAccount",
         err.message,

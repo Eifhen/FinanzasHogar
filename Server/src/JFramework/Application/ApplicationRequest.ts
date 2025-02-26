@@ -1,5 +1,6 @@
 
 
+import { AwilixContainer } from 'awilix';
 import { Request, Query } from 'express-serve-static-core'
 
 
@@ -15,5 +16,6 @@ export default interface ApplicationRequest<TBody = any, TQuery extends Query = 
   /** Body Type */
   body: TBody;
 
-
+  /** Container */
+  container: AwilixContainer;
 }

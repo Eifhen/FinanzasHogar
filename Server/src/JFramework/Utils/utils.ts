@@ -1,3 +1,4 @@
+import { Constructor } from "awilix-express";
 
 
 
@@ -20,3 +21,8 @@ export default function IsNullOrEmpty(value: any) {
   return false;
 }
 
+
+/** Indica si una función es una instancia de una clase */
+export function isClassInstance(fn: any): fn is Constructor {
+  return (typeof fn === "function" && /^class\s/.test(fn.toString()));
+}

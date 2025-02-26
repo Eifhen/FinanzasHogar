@@ -6,12 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node ./src/API/startup.ts ",
-    "start-dev": "pm2 start ecosystem.config.js --only HomeBudgetCluster --env development && pm2 logs HomeBudgetCluster",
-    "start-prod": "pm2 start ecosystem.config.js --only HomeBudgetCluster --env production && pm2 logs HomeBudgetCluster",
+    "dev": "pm2 start ecosystem.config.js --only HomeBudgetCluster --env development && pm2 logs HomeBudgetCluster",
+    "prod": "pm2 start ecosystem.config.js --only HomeBudgetCluster --env production && pm2 logs HomeBudgetCluster",
+    "stop": "pm2 delete ecosystem.config.js --only HomeBudgetCluster && pm2 save --force",
     "stop-dev": "pm2 stop ecosystem.config.js --only HomeBudgetCluster",
     "restart-dev": "pm2 restart ecosystem.config.js --only HomeBudgetCluster",
     "reload-dev": "pm2 reload ecosystem.config.js --only HomeBudgetCluster",
-    "delete-dev": "pm2 delete ecosystem.config.js --only HomeBudgetCluster && pm2 save --force",
     "list": "pm2 list",
     "monit": "pm2 monit"
   },
