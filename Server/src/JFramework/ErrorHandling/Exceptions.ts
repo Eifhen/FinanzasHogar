@@ -5,7 +5,7 @@ import { EN } from '../Translations/en_US';
 
 export type ErrorMessageData = {
   message: keyof typeof EN;
-  translateValues?: (string | number)[]
+  args?: (string | number)[]
 }
 
 /** Error base, si el error ingresado es una instancia de ApplicationException 
@@ -79,7 +79,7 @@ export class TooManyRequestsException extends ApplicationException {
     super(
       methodName,
       HttpStatusName.TooManyRequests,
-      applicationContext.translator.Translate(messageData.message, messageData.translateValues),
+      applicationContext.translator.Translate(messageData.message, messageData.args),
       HttpStatusCode.TooManyRequests,
       applicationContext?.requestID,
       path,
@@ -139,32 +139,18 @@ export class BadRequestException extends ApplicationException {
     path?: string,
     innerException?: Error
   ) {
-
-    let errMsg: string = "";
-
-    if (applicationContext) {
-      if (messageData) {
-        if (typeof messageData === "string") {
-          errMsg = messageData;
-        } else {
-          errMsg = applicationContext.translator.Translate(messageData.message, messageData.translateValues);
-        }
-      } else {
-        errMsg = applicationContext.translator.Translate("bad-request");
-      }
-    } else if (messageData && typeof messageData === "string") {
-      errMsg = messageData;
-    }
-
     super(
       methodName,
       HttpStatusName.BadRequest,
-      errMsg,
+      "",
       HttpStatusCode.BadRequest,
       applicationContext?.requestID,
       path,
       innerException
     );
+
+    this.message = this.GetErrorMessage(messageData, applicationContext, "bad-request");
+
   }
 }
 

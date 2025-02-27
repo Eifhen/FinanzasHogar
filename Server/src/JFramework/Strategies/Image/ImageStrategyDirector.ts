@@ -40,7 +40,7 @@ export default class ImageStrategyDirector {
 
 
   /** Realiza la connección con el proveedor de imagenes */
-  public Connect = async (): Promise<void> => {
+  public async Connect (): Promise<void> {
     try {
       this._logger.Activity("Connect");
       await this._imageStrategy.Connect();
@@ -60,7 +60,7 @@ export default class ImageStrategyDirector {
   }
 
   /** Cierra la connección con el proveedor de imagenes */
-  public CloseConnection = async (): Promise<void> => {
+  public async CloseConnection (): Promise<void> {
     try {
       this._logger.Activity("CloseConnection");
       await this._imageStrategy.CloseConnection();
@@ -83,7 +83,7 @@ export default class ImageStrategyDirector {
    @param img {AppImage.Type} - representa el objeto de imagen que se va a imprimir
    @param folderId {string} - la carpeta donde se debe guardar la imagen
    @returns - Retorna la imagen que fue cargada exitosamente */
-  public Upload = async (img: AppImage, collection: string): IApplicationPromise<AppImage> => {
+  public async Upload (img: AppImage, collection: string): IApplicationPromise<AppImage> {
     try {
       this._logger.Activity("Upload");
       return await this._imageStrategy.Upload(img, collection);
@@ -107,7 +107,7 @@ export default class ImageStrategyDirector {
   * Método para obtener una determinada imagen, retorna la URL de la imagen deseada 
   * @param publicId {string} - El ID público de la imagen
   * @returns - La imagen solicitada */
-  public Get = async (publicId: string): IApplicationPromise<AppImage> => {
+  public async Get (publicId: string): IApplicationPromise<AppImage> {
     try {
       this._logger.Activity("Get");
       return await this._imageStrategy.Get(publicId);
@@ -130,7 +130,7 @@ export default class ImageStrategyDirector {
    * @param publicId {string} - El ID público de la imagen 
    * @returns - true si la imagen fue eliminada exitosamente 
   */
-  public Delete = async (publicId:string): IApplicationPromise<boolean> => {
+  public async Delete (publicId:string): IApplicationPromise<boolean> {
     try {
       this._logger.Activity("Delete");
       return await this._imageStrategy.Delete(publicId);

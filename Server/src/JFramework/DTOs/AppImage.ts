@@ -1,6 +1,7 @@
 import { z } from "zod";
 import EntitySchema from "./Data/EntitySchema";
 import SchemaProperty from "../Decorators/SchemaProperty";
+import { EN } from "../Translations/en_US";
 
 export default class AppImage extends EntitySchema {
 
@@ -26,7 +27,7 @@ export default class AppImage extends EntitySchema {
 
   /** Tamaño del archivo en bytes */
   @SchemaProperty(z.number().refine(size => size <= 10 * 1024 * 1024, { // 10MB en bytes
-    message: 'The Image size cannot be larger than 10MB'
+    message: EN["image-size-exception"]
   }))
   public size: number = 0;
 

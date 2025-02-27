@@ -18,13 +18,18 @@ export default class ExampleMiddleware extends ApplicationMiddleware {
     this._applicationContext = deps.applicationContext;
   }
 
-  public Intercept : ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next:NextFunction) => {
-
-    console.log("Prueba Middleware Example =>");
-    return next();
+  public async Intercept (req: ApplicationRequest, res: Response, next: NextFunction) : Promise<any> {
+    try {
+      console.log("Prueba Example =>");
+      return next();
+    }
+    catch(err:any){
+      throw next(err);
+    }
   }
+
   
-  public Init = () : MiddleWareFunction | Promise<MiddleWareFunction> => {
+  public Init () : MiddleWareFunction | Promise<MiddleWareFunction> {
     return this.Intercept;
   } 
 }

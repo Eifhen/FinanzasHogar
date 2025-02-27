@@ -6,12 +6,9 @@ import { EmailVerificationData } from "./Types/EmailDataManagerTypes";
 import { EmailData } from "./Types/EmailManagerTypes";
 
 
-
-
 interface IEmailDataManagerDependencies {
     applicationContext: ApplicationContext;
 }
-
 
 /** Clase que permite generar objetos `EmailData` 
  * para ser utilizados por el `EmailManager` estos objetos son pasados
@@ -40,7 +37,7 @@ export class EmailDataManager implements IEmailDataManager {
   *  @param {string} recipientEmail - Indica el email de la persona a la que se le enviará el email
   *  @param {string} token - Indica el token de activación 
   */
-  public GetVerificationEmailData = (recipientName: string, recipientEmail:string, token: string) : EmailData<EmailVerificationData> => {
+  public GetVerificationEmailData (recipientName: string, recipientEmail:string, token: string) : EmailData<EmailVerificationData> {
     this._logger.Activity("GetValidationEmailData");
 
     return {

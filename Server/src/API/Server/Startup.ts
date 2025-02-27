@@ -60,9 +60,7 @@ import LoggerManager from "../../JFramework/Managers/LoggerManager";
 
 export default class Startup implements IApplicationStart {
   
-  /** Instancia del DatabaseStrategyDirector, el cual nos permite 
-   * manipular la conección con la base de datos */
-  private _databaseManager: DatabaseStrategyDirector<any, any> | null = null;
+
   private _loggerManager =  new LoggerManager({
     entityCategory: LoggEntityCategorys.CONFIGURATION,
     entityName: "Startup"
@@ -70,13 +68,13 @@ export default class Startup implements IApplicationStart {
   
 
   // Permite configurar la configuración del servidor
-  Configuration = async (config: ServerConfig) : Promise<void> => {
+  public async Configuration(config: ServerConfig) : Promise<void>{
     config.AddCors();
     config.AddJsonResponse();
   }
 
   // Configura los servicios de la aplicación
-  ConfigurationServices = async (services: ServiceManager) : Promise<void> => {
+  public async ConfigurationServices(services: ServiceManager) : Promise<void> {
     try {
       /** ApplicationContext */
       services.AddAplicationContext();
@@ -87,7 +85,7 @@ export default class Startup implements IApplicationStart {
       services.AddRateLimiters();
   
       /** DatabaseManager | Se establece la conección con la BD */
-      services.AddDataBaseConnection(this._databaseManager, SqlConnectionStrategy);
+      services.AddDataBaseConnection(SqlConnectionStrategy);
      
       /** API Validation */
       services.AddApiValidation(new ApiValidationMiddleware(services));
@@ -139,10 +137,10 @@ export default class Startup implements IApplicationStart {
   }
 
   // Ejecuta en el momento que se genera un error grave en el sistema
-  OnApplicationCriticalException(data:any): void {
+  public OnApplicationCriticalException(data:any, services: ServiceManager): void {
     
     // Cierra la conexión a la base de datos si ocurre un error critico
-    this._databaseManager?.CloseConnection();
+    services.CloseDataBaseConnection();
   }
 
 }

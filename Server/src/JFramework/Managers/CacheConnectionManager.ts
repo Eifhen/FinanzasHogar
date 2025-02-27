@@ -32,7 +32,7 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 
 
   /** Permite crear el cliente de Redis para manejar el cache */
-  public Connect = () : RedisClientType<any, any, any> => {
+  public Connect () : RedisClientType<any, any, any> {
     try {
       this.logger.Activity("CreateClient");
 
@@ -91,51 +91,3 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 }
 
 
-
-
-/**
- * @examples
-
-  function RedisManager(){
-    try {
-      const client = createClient();
-      client.connect();
-      return client;
-    }
-    catch(err:any){
-      console.log("REDIS ERROR =>", err);
-      throw err;    
-    }
-  }
-
-  const redisClient = RedisManager();
-  export default redisClient;
-
-  cacheController.get("/test", async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      redisClient.setEx("PLANETS", EXPIRATION_TIME_IN_SECONDS, JSON.stringify(planets));
-      console.log("Controlador ejecutado");
-      return res.status(200).send(planets);
-    }
-    catch(err:any){
-      console.log("Error =>", err);
-    }
-  });
-
-  cacheController.get("/get-cached", async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      console.log("Controlador ejecutado");
-    
-      const data = await redisClient.get("PLANETS");
-      if(data){
-        const items:Planet[] = JSON.parse(data);
-        return res.status(200).send(items);
-      }
-      return res.status(200).send("no data");
-    }
-    catch(err:any){
-      console.log("Error =>", err);
-    }
-  });
-
- */

@@ -18,7 +18,7 @@ interface ApiValidationMiddlewareDependencies {
 }
 
 /** Middleware para manejo de la validación del api */
-export default class ApiValidationMiddleware implements ApplicationMiddleware {
+export default class ApiValidationMiddleware extends ApplicationMiddleware {
 
   /** Instancia del logger */
   private readonly _logger: ILoggerManager;
@@ -27,6 +27,8 @@ export default class ApiValidationMiddleware implements ApplicationMiddleware {
   private readonly _serviceManager: ServiceManager;
 
   constructor(services: ServiceManager){
+    super();
+    
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MIDDLEWARE,
@@ -37,7 +39,7 @@ export default class ApiValidationMiddleware implements ApplicationMiddleware {
   }
 
   /** Obtiene la configuración de idioma de la requeste en curso */
-  private GetLenguageConfig = (req: ApplicationRequest, settings: ConfigurationSettings) => {
+  private GetLenguageConfig (req: ApplicationRequest, settings: ConfigurationSettings) {
     if(IsNullOrEmpty(req.headers[settings.apiData.headers.langHeader])){
       return ApplicationLenguages.en
     }
@@ -47,7 +49,7 @@ export default class ApiValidationMiddleware implements ApplicationMiddleware {
   }
 
   /** Intercepta el request en curso y agrega funcionalidad */
-  public Intercept:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) : Promise<any> => {
+  public async Intercept (req: ApplicationRequest, res: Response, next: NextFunction) : Promise<any> {
     try {
       this._logger.Activity("Intercept");
 
@@ -111,7 +113,7 @@ export default class ApiValidationMiddleware implements ApplicationMiddleware {
   }
 
   /** Función que inicializa el middleware */
-  public Init = (): MiddleWareFunction => {
+  public Init (): MiddleWareFunction {
     this._logger.Activity("Init");
     return this.Intercept;
   }

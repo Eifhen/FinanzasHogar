@@ -4,6 +4,7 @@ import { HttpStatusCode, HttpStatusName } from '../../Utils/HttpCodes';
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from '../../Managers/LoggerManager';
 import ApplicationContext from '../../Application/ApplicationContext';
+import { ClassInstance } from '../../Utils/types/CommonTypes';
 
 
 interface IDatabaseManagerDependencies<C, I> {
@@ -36,7 +37,7 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   }
 
   /** Realiza la connección a la base de datos */
-  public Connect = async (): Promise<ConnectionType> => {
+  public async Connect(): Promise<ConnectionType>{
     try {
       this._logger.Activity("Connect");
       return await this._strategy.Connect();
@@ -60,7 +61,7 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   }
 
   /** Obtiene la instancia de la base de datos */
-  public GetInstance = (): InstanceType => {
+  public GetInstance(): ClassInstance<InstanceType> {
     try {
       this._logger.Activity("GetInstance");
       return this._strategy.GetInstance();
@@ -85,7 +86,7 @@ export default class DatabaseStrategyDirector<ConnectionType, InstanceType> {
   }
 
   /** Método que permite cerrar la conección SQL */
-  public CloseConnection = async () => {
+  public async CloseConnection() : Promise<void> {
     try {
       this._logger.Activity("CloseConnection");
       await this._strategy.CloseConnection();

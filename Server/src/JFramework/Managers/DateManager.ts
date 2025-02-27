@@ -11,7 +11,7 @@ type DateFormats = (typeof DateFormat)[keyof typeof DateFormat];
 export default class DateManager {
 
   /** Método privado para formatear una fecha a 'YYYY-MM-DD' */
-  private static FormatToYYYYMMDD = (date: Date): string => {
+  private static FormatToYYYYMMDD (date: Date): string {
     const year = date.getFullYear();
     const month = ('0' + (date.getMonth() + 1)).slice(-2);
     const day = ('0' + date.getDate()).slice(-2);
@@ -19,7 +19,7 @@ export default class DateManager {
   }
 
   /** Método privado para formatear una fecha a 'DD/MM/YYYY' */
-  private static FormatToDDMMYYYY = (date: Date): string => {
+  private static FormatToDDMMYYYY (date: Date): string {
     const year = date.getFullYear();
     const month = ('0' + (date.getMonth() + 1)).slice(-2);
     const day = ('0' + date.getDate()).slice(-2);
@@ -27,7 +27,7 @@ export default class DateManager {
   }
 
   /** Método privado para formatear una fecha a 'MM-DD-YYYY' */
-  private static FormatToMMDDYYYY = (date: Date): string => {
+  private static FormatToMMDDYYYY (date: Date): string {
     const year = date.getFullYear();
     const month = ('0' + (date.getMonth() + 1)).slice(-2);
     const day = ('0' + date.getDate()).slice(-2);
@@ -35,7 +35,7 @@ export default class DateManager {
   }
 
   /** Método privado para formatear una fecha a 'DD MMM YYYY' */
-  private static FormatToDDMMMYYYY = (date: Date): string => {
+  private static FormatToDDMMMYYYY (date: Date): string {
     const year = date.getFullYear();
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const month = monthNames[date.getMonth()];
@@ -44,7 +44,7 @@ export default class DateManager {
   }
 
   /** Método público para formatear una fecha según el formato especificado */
-  public static Format = (date: Date, format: DateFormats): string => {
+  public static Format (date: Date, format: DateFormats): string {
     switch (format) {
       case DateFormat.YYYYMMDD:
         return this.FormatToYYYYMMDD(date);
@@ -60,7 +60,7 @@ export default class DateManager {
   }
 
   /** Método para obtener la fecha de hoy en formato Date */
-  public static GetToday = (): Date => {
+  public static GetToday (): Date {
     return new Date();
   }
 }

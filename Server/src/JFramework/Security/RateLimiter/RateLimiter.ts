@@ -38,7 +38,7 @@ type RateLimiterDependencies<LimiterName extends Limiters> = CommonDependencies 
  * contenedor de dependencias dependiendo del nombre ingresado. */
 export default function RateLimiter<LimiterName extends Limiters>(limiterName: LimiterName){
   
-  return (deps: RateLimiterDependencies<LimiterName>) => {
+  return function RateLimiterMiddleware (deps: RateLimiterDependencies<LimiterName>) {
     /** Logger */
     const logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MIDDLEWARE,
@@ -56,7 +56,7 @@ export default function RateLimiter<LimiterName extends Limiters>(limiterName: L
         
         const messageData: ErrorMessageData = {
           message: "rate-limiter-invalid",
-          translateValues: [limiterName]
+          args: [limiterName]
         };
 
         throw new InternalServerException(

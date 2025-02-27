@@ -2,6 +2,7 @@ import { ConnectionError } from "tedious";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { DatabaseConnectionException, DatabaseException } from "../ErrorHandling/Exceptions";
 import ApplicationContext from "./ApplicationContext";
+import { AutoBind } from "../Decorators/AutoBind";
 
 
 /*** Retorna una promesa de aplicación  */
@@ -26,7 +27,8 @@ export class ApplicationPromise {
  * @param {Promise<T>} queryPromise - La promesa/promesa a manejar.
  * @returns {Promise<[ApplicationException|Error|null, T|null]>} Un array con el error o los datos resultantes de la promesa.
  */
-  public TryQuery = async <T>(queryPromise: Promise<T>, callerName:string = ""): IApplicationPromise<T> => {
+  @AutoBind
+  public async TryQuery <T>(queryPromise: Promise<T>, callerName:string = ""): IApplicationPromise<T> {
     try {
       const data = await queryPromise;
       return [null, data];
@@ -57,7 +59,7 @@ export class ApplicationPromise {
  * @param {Promise<T>} promise - La promesa a manejar.
  * @returns {Promise<[ApplicationException|Error|null, T|null]>} Un array con el error o los datos resultantes de la promesa.
  */
-  public static Try = async <T>(promise: Promise<T>): IApplicationPromise<T> => {
+  public static async Try <T>(promise: Promise<T>): IApplicationPromise<T> {
     try {
       const data = await promise;
       return [null, data];

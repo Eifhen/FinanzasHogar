@@ -1,5 +1,6 @@
 import ApplicationContext from "../Application/ApplicationContext";
 import { ApplicationLenguages } from "../Application/types/types";
+import { AutoBind, AutoClassBinder } from "../Decorators/AutoBind";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import { EN } from "./en_US";
@@ -12,6 +13,7 @@ interface TranslatorHandlerDependencies {
   applicationContext: ApplicationContext;
 }
 
+@AutoClassBinder
 export default class TranslatorHandler implements ITranslatorHandler {
 
   /** Contexto de aplicación */
@@ -34,7 +36,8 @@ export default class TranslatorHandler implements ITranslatorHandler {
 
   /** Recibe un key del archivo de traducción y devuelve el texto traducido 
    * según la configuración de idioma de la request en curso */
-  public Translate = (key: keyof typeof EN, value?: (string | number)[]): string => {
+  @AutoBind
+  public Translate(key: keyof typeof EN, value?: (string | number)[]): string {
     this._logger.Activity("Translate");
 
     /** Configuración de lenguaje definida por el contexto */
@@ -43,8 +46,8 @@ export default class TranslatorHandler implements ITranslatorHandler {
     switch (lenguage) {
       case ApplicationLenguages.en:
         return this.TranslateToEnglish(key, value);
-        
-        case ApplicationLenguages.es:
+
+      case ApplicationLenguages.es:
         return this.TranslateToSpanish(key, value);
 
       default:
@@ -53,19 +56,19 @@ export default class TranslatorHandler implements ITranslatorHandler {
   }
 
   /** Traduce la expresión al español */
-  private TranslateToSpanish = (key: keyof typeof EN, value?: (string | number)[]): string => {
+  private TranslateToSpanish(key: keyof typeof EN, value?: (string | number)[]): string {
     let element = ES[key];
     return this.TranslateOperation(element, value);
   }
 
   /** Traduce la expresión al inglés */
-  private TranslateToEnglish = (key: keyof typeof EN, value?: (string | number)[]): string => {
+  private TranslateToEnglish(key: keyof typeof EN, value?: (string | number)[]): string {
     let element = EN[key];
     return this.TranslateOperation(element, value);
   }
 
   /** Ejecuta la operación de traducción */
-  private TranslateOperation = (record: string, value?: (string | number)[]): string => {
+  private TranslateOperation(record: string, value?: (string | number)[]): string {
     if (value) {
       return this.Interpolate(record, value);
     }
@@ -77,7 +80,7 @@ export default class TranslatorHandler implements ITranslatorHandler {
  * @param {string} template - La cadena con marcadores de posición (e.g., "Hola {0}, ¿cómo estás {1}?")
  * @param {Array} values - El array de valores a interpolar
  * @returns {string} - La cadena con los valores interpolados */
-  private Interpolate = (template: string, values: any[]) => {
+  private Interpolate(template: string, values: any[]) {
     return template.replace(/{(\d+)}/g, (match, number) => {
       return typeof values[number] !== 'undefined' ? values[number] : match;
     });

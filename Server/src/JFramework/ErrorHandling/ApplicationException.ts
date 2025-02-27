@@ -98,13 +98,13 @@ export default class ApplicationException extends Error {
   }
 
   /** Obtiene el mensaje de error traducido */
-  public GetErrorMessage = (
-    messageData: string | ErrorMessageData,
+  public GetErrorMessage (
+    messageData: string | ErrorMessageData | undefined,
     applicationContext: ApplicationContext|undefined, 
     defaultEntry: keyof typeof EN
-  ): string => {
+  ): string {
     if (applicationContext) {
-      if (messageData) {
+      if (messageData && !IsNullOrEmpty(messageData)) {
         if (typeof messageData === "string") {
           if (messageData in EN){
             return applicationContext.translator.Translate(messageData as keyof typeof EN);
@@ -113,7 +113,7 @@ export default class ApplicationException extends Error {
             return messageData;
           }
         } else {
-          return applicationContext.translator.Translate(messageData.message, messageData.translateValues);
+          return applicationContext.translator.Translate(messageData.message, messageData.args);
         }
       } else {
         return applicationContext.translator.Translate(defaultEntry);
@@ -123,8 +123,8 @@ export default class ApplicationException extends Error {
     }
   }
 
-  /** Sobrescribe el método toJSON para asegurar 
-  que todas las propiedades sean serializables */
+  /** Sobrescribe el método toJSON para definir 
+   * cuales propiedades deben ser serializables */
   toJSON() {
     const error: ApplicationError = {
       requestID: IsNullOrEmpty(this.requestID) ? NO_REQUEST_ID : this.requestID!,

@@ -9,6 +9,7 @@ import IFileManager from "./Interfaces/IFileManager";
 import nodemailer from 'nodemailer';
 import Mail from "nodemailer/lib/mailer";
 import { IEmailTemplateManager } from "./Interfaces/IEmailTemplateManager";
+import { AutoBind } from "../Decorators/AutoBind";
 
 
 interface IEmailManagerDependencies {
@@ -46,7 +47,8 @@ export default class EmailManager implements IEmailManager {
   }
 
   /** Método que permite enviar un email a un usuario */
-  public SendEmail = async <T>(data:EmailData<T>) : IApplicationPromise<void> => {
+  @AutoBind
+  public async SendEmail <T>(data:EmailData<T>) : IApplicationPromise<void> {
     try {
       this._logger.Activity("SendEmail");
       return ApplicationPromise.Try((async ()=> {

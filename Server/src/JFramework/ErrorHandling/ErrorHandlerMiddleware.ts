@@ -26,7 +26,7 @@ export default class ErrorHandlerMiddleware implements ApplicationErrorMiddlewar
   }
 
   /** Middleware que permite interceptar los errores de la aplicación */
-  public Intercept:ApplicationExceptionHandler = (error: ApplicationException|Error, req: ApplicationRequest, res: Response, next:NextFunction) : any => {
+  public Intercept (error: ApplicationException|Error, req: ApplicationRequest, res: Response, next:NextFunction) : any {
     this._logger.Register("WARN", "Intercept", error);
     
     const status = error instanceof ApplicationException && error.status ? 
@@ -48,7 +48,7 @@ export default class ErrorHandlerMiddleware implements ApplicationErrorMiddlewar
   }
 
   /** Método que nos permite obtener el middleware de intercepción de errores */
-  public Init = () : MiddleWareFunction => {
+  public Init () : MiddleWareFunction {
     return this.Intercept;
   }
 }

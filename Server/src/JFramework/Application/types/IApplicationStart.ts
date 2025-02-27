@@ -15,6 +15,6 @@ export default interface IApplicationStart {
   ConfigurationServices(services:ServiceManager): Promise<void>;
 
   /** Este método se ejecuta cuando ocurre un error critico/fatal en el sistema */
-  OnApplicationCriticalException(data:any): void;
+  OnApplicationCriticalException(data:any, services:ServiceManager): void;
 
 }

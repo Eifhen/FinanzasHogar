@@ -48,7 +48,7 @@ export default class LoggerManager implements ILoggerManager {
     por lo tanto el error si se imprimirá. Indicando que solo se pueden imprimir errores
     cuyo nivel sea mayor o igual al nivel del `applicationLevel`
   */
-  private ValidateAllowedLogs = (incomingLogType: LoggerType) => {
+  private ValidateAllowedLogs (incomingLogType: LoggerType) : boolean {
 
     const level = Number(process.env.LOG_LEVEL ?? LogLevels.INFO);
     const incomingLogLevel = LogLevels[incomingLogType];
@@ -66,7 +66,7 @@ export default class LoggerManager implements ILoggerManager {
    * @param msg - Mensaje y objeto que se desea loggear
    * @param obj - Objeto adicional que se desee agregar
    */
-  public Message = async (type: LoggerType, msg: string, obj?: any) => {
+  public async Message (type: LoggerType, msg: string, obj?: any) {
     try {
       /** 
       * Solo imprime los logs cuyo nivel sea mayor al nivel definido por el contexto
@@ -96,7 +96,7 @@ export default class LoggerManager implements ILoggerManager {
    * @param this._entityCategory - Categoría que se intenta loguear
    * @param method - Método ejecutado
    */
-  public Activity = async (method?: string, obj?: any) => {
+  public async Activity (method?: string, obj?: any) {
     try {
       if (!this._entityCategory) {
         return;
@@ -136,7 +136,7 @@ export default class LoggerManager implements ILoggerManager {
    * @param obj - objeto a imprimir si lo hay
    * @returns 
    */
-  public Register = async (type: LoggerType, method: string, obj?:any) => {
+  public async Register (type: LoggerType, method: string, obj?:any) {
     try {
       let msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`;
       
@@ -164,7 +164,7 @@ export default class LoggerManager implements ILoggerManager {
    * @param request_id - Id de la solicitud (opcional)
    * @param type - Tipo de error ( Fatal o Error)
    */
-  public Error = async (type: LoggErrorType = LoggerTypes.ERROR, method?:string, obj?:any) => {
+  public async Error (type: LoggErrorType = LoggerTypes.ERROR, method?:string, obj?:any) {
     try {
 
       // Si el último argumento es un string, se trata de un método

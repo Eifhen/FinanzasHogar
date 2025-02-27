@@ -8,6 +8,6 @@ export default interface ICacheConnectionManager {
 
 
   /** Permite la coneccion con el cliente cache */
-  Connect: () => RedisClientType<any, any, any>;
+  Connect() : RedisClientType<any, any, any>;
 
 }

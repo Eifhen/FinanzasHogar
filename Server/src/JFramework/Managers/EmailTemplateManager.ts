@@ -21,7 +21,7 @@ export default class EmailTemplateManager implements IEmailTemplateManager {
   }
 
   /** Permite obtener un determinado template */
-  public GetTemplate = <TemplateData>(templateName: EmailTemplateType, templateData: TemplateData): string => {
+  public GetTemplate <TemplateData>(templateName: EmailTemplateType, templateData: TemplateData): string {
     switch (templateName) {
       case EmailTemplateTypes.VERIFICATION_EMAIL:
         return this.VerificationEmail(templateData as EmailVerificationData);
@@ -37,7 +37,7 @@ export default class EmailTemplateManager implements IEmailTemplateManager {
   }
 
   /** Email para verificación */
-  private VerificationEmail = (data: EmailVerificationData) => {
+  private VerificationEmail (data: EmailVerificationData) {
 
     return `
   <!DOCTYPE html>

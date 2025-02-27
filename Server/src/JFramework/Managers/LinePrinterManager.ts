@@ -45,7 +45,7 @@ export default class Line {
    * @param obj - Objeto a formatear
    * @returns  - Retorna objeto formateado como json
    */
-  private static Format = (obj:any) => {
+  private static Format (obj:any) {
     return JSON.stringify(obj, (key, value) => {
       return value;
     }, 2); // Adds indentation to the object for readability
@@ -57,7 +57,7 @@ export default class Line {
    * @param message - Mensaje de log que se desea imprimir
    * @param obj - Objeto que se desea imprimir
    */
-  public static Print = (type:LoggerType, message:string, obj?:any) => {
+  public static Print (type:LoggerType, message:string, obj?:any) {
 
     let msg = ``;
 

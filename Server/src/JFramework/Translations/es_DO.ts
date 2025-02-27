@@ -48,6 +48,7 @@ export const ES = {
   "database-exception": "Ha ocurrido un error en la base de datos",
   "rate-limiter-invalid": "El RateLimiter {0} no es una función",
   "middleware-instance-type-exception": "El middleware ingresado debe ser una instancia de ApplicationMiddleware",
+  "image-size-exception": "El tamaño de la imagen no debe ser superior a {0}",
 
   // Limiters
   "generalLimiter": "Has alcanzado el límite de solicitudes. Por favor, inténtalo de nuevo después de {0} {1}",

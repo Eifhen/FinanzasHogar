@@ -9,7 +9,7 @@ import { ApplicationMiddleware, ApplicationRequestHandler, MiddleWareFunction } 
 
 
 /** Middleware de autenticación */
-export default class ApiAuthenticationMiddleware implements ApplicationMiddleware {
+export default class ApiAuthenticationMiddleware extends ApplicationMiddleware {
 
 
   /** Instancia del logger */
@@ -19,6 +19,8 @@ export default class ApiAuthenticationMiddleware implements ApplicationMiddlewar
   private _serviceManager: ServiceManager;
 
   constructor(serviceManager: ServiceManager){
+    super();
+    
     // Instanciamos el logger
     this._logger = new LoggerManager({
       entityCategory: LoggEntityCategorys.MIDDLEWARE,
@@ -30,7 +32,7 @@ export default class ApiAuthenticationMiddleware implements ApplicationMiddlewar
 
 
   /** Middleware que intercepta la respuesta http para aplicar cambios a la solicitud */
-  public Intercept:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next:NextFunction) => {
+  public async Intercept(req: ApplicationRequest, res: Response, next:NextFunction) : Promise<any> {
     try {
       this._logger.Activity("Intercept");
 
@@ -59,7 +61,7 @@ export default class ApiAuthenticationMiddleware implements ApplicationMiddlewar
   }
 
   /** Inicialización del middleware  */
-  public Init = (): MiddleWareFunction => {
+  public Init (): MiddleWareFunction {
     this._logger.Activity("Init");
     return this.Intercept;
   }

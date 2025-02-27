@@ -9,6 +9,7 @@ import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
 import ApplicationContext from "../../Application/ApplicationContext";
 import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException } from "../../ErrorHandling/Exceptions";
+import { AutoClassBinder } from "../../Decorators/AutoBind";
 
 
 
@@ -21,6 +22,7 @@ interface ISqlStrategyDependencies {
 }
 
 /** Estrategia de conección a SQL usandoy Kysely */
+@AutoClassBinder
 export default class SqlConnectionStrategy implements IDataBaseConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
 
   /** Logger Manager Instance */
@@ -46,7 +48,7 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
   }
 
   /** Método que permite realizar la conección a SQL Server */
-  public Connect = async () => {
+  public async Connect() {
     try {
       this._loggerManager.Activity("Connect");
 
@@ -78,12 +80,12 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
         this._applicationContext,
         __filename,
         err
-      ); 
+      );
     }
   };
 
   /** Crea la connección a sqlserver */
-  private CreateConnection = (): tedious.Connection => {
+  private CreateConnection(): tedious.Connection {
     this._loggerManager.Register("INFO", "CreateConnection");
     const connectionSettings = this._applicationContext.settings.databaseConnectionConfig.sqlConnectionConfig
     const connection = new tedious.Connection(connectionSettings);
@@ -91,13 +93,13 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
   }
 
   /** Permite generar connecciones nuevas */
-  private ConnectionFactory = (): TediousConnection  => {
+  private ConnectionFactory(): TediousConnection {
     this._loggerManager.Register("INFO", "ConnectionFactory");
 
     const connection = this.CreateConnection();
 
-    connection.on("connect", (err)=> {
-     this._loggerManager.Message("INFO", "Starting connection to the database");
+    connection.on("connect", (err) => {
+      this._loggerManager.Message("INFO", "Starting connection to the database");
       if (err) {
         this._loggerManager.Message("FATAL", "Database Connection failed", err);
 
@@ -116,44 +118,15 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
       }
     });
 
-    connection.on("error", (err)=>{
+    connection.on("error", (err) => {
       this._loggerManager.Message("FATAL", "Runtime Database Error", err);
     })
-    
+
     return connection;
   }
 
-  /** Prueba la conección a la base de datos */
-  private TestConnection = () : Promise<void> => {
-
-    const connection = this.CreateConnection();
-
-    return new Promise((resolve, reject)=> {
-
-      /** Iniciamos la coneccion */
-      connection.connect((err)=> {
-        this._loggerManager.Message("INFO", "Testing connection to the database");
-        if (err) {
-          // Si ocurre un error al conectar, se rechaza la promesa
-          this._loggerManager.Message("FATAL", "Testing connection | Database Connection failed", err);
-
-          /** Si ocurre un error cerramos la coneccion */
-          connection.close();
-          reject(err);
-        } else {
-          // Si la conexión es exitosa, se resuelve la promesa
-          this._loggerManager.Message("INFO", "Testing connection | Database Connection established");
-
-          /** Si la conneccion es exitosa cerramos la conección */
-          connection.close();
-          resolve();
-        }
-      });
-    });
-  }
-
   /** Método que permite obtener una instancia de la connección a SQL Server */
-  public GetInstance = () => {
+  public GetInstance() {
     try {
       this._loggerManager.Activity("GetInstance");
       if (this._dialect === null) {
@@ -168,8 +141,8 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
     }
     catch (err: any) {
       this._loggerManager.Error("FATAL", "GetInstance", err);
-      
-      if(err instanceof ApplicationException){
+
+      if (err instanceof ApplicationException) {
         throw err;
       }
 
@@ -186,7 +159,7 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
   };
 
   /** Método que permite cerrar la connección con la base de datos */
-  public CloseConnection = async () => {
+  public async CloseConnection() {
     try {
       this._loggerManager.Activity("CloseDataBaseConnection");
 
@@ -199,8 +172,8 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
     }
     catch (err: any) {
       this._loggerManager.Error("FATAL", "CloseConnection", err);
-      
-      if(err instanceof ApplicationException){
+
+      if (err instanceof ApplicationException) {
         throw err;
       }
 
@@ -215,6 +188,35 @@ export default class SqlConnectionStrategy implements IDataBaseConnectionStrateg
       );
     }
   }
+
+  /** Prueba la conección a la base de datos */
+  // private TestConnection(): Promise<void> {
+
+  //   const connection = this.CreateConnection();
+
+  //   return new Promise((resolve, reject) => {
+
+  //     /** Iniciamos la coneccion */
+  //     connection.connect((err) => {
+  //       this._loggerManager.Message("INFO", "Testing connection to the database");
+  //       if (err) {
+  //         // Si ocurre un error al conectar, se rechaza la promesa
+  //         this._loggerManager.Message("FATAL", "Testing connection | Database Connection failed", err);
+
+  //         /** Si ocurre un error cerramos la coneccion */
+  //         connection.close();
+  //         reject(err);
+  //       } else {
+  //         // Si la conexión es exitosa, se resuelve la promesa
+  //         this._loggerManager.Message("INFO", "Testing connection | Database Connection established");
+
+  //         /** Si la conneccion es exitosa cerramos la conección */
+  //         connection.close();
+  //         resolve();
+  //       }
+  //     });
+  //   });
+  // }
 
 }
 

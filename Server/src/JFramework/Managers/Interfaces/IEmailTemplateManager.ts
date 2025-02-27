@@ -10,5 +10,5 @@ import { EmailTemplate } from "../Types/EmailManagerTypes";
 export interface IEmailTemplateManager  {
 
   /** Obtiene el template especificado */
-  GetTemplate : <TemplateData>(templateName:EmailTemplateType, templateData:TemplateData) => string;
+  GetTemplate <TemplateData>(templateName:EmailTemplateType, templateData:TemplateData) : string;
 }

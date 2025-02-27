@@ -197,12 +197,14 @@ export type FileProviderData = {
   maxFileSize: string;
 }
 
+/** Objeto de configuración de proveedores de email */
 export type EmailProviderConfig = {
   currentProvider: EmailProvider;
   currentProviderName: string;
   providers:EmailProvider[];
 }
 
+/** Objeto con los datos para el proveedor de emails */
 export type EmailProvider = {
   service: string;
   auth: {

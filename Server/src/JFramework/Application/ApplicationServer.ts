@@ -5,6 +5,7 @@ import express, { Application } from "express";
 import ServiceManager from "../Managers/ServiceManager";
 import ServerConfig from "../Configurations/ServerConfig";
 import IApplicationStart from "./types/IApplicationStart";
+import { AutoBind } from "../Decorators/AutoBind";
 
 
 interface IApplicationServerDependencies {
@@ -57,7 +58,7 @@ export default class ApplicationServer {
   }
 
   /** Este evento se ejecuta si algún error no fue manejado por la app */
-  private OnUncaughtException = () => {
+  private OnUncaughtException (){
     process.on("uncaughtException", (err: Error) => {
 
       this._logger.Error(LoggerTypes.FATAL, "OnUncaughtException", {
@@ -66,14 +67,14 @@ export default class ApplicationServer {
       });
 
       /** Se hace un cleanup de cualquier funcionalidad que se esté ejecutando  */
-      this._startup.OnApplicationCriticalException(err);
+      this._startup.OnApplicationCriticalException(err, this._serviceManager);
 
       this.CloseServer();
     })
   }
 
   /** Este evento se ejecuta si alguna promesa es rechazada y no fue manejada con un catch */
-  private OnUnhandledRejection = () => {
+  private OnUnhandledRejection (){
     process.on('unhandledRejection', (reason: any, promise: any) => {
       // Obtener más detalles de la razón del rechazo
       let reasonDetails;
@@ -94,14 +95,14 @@ export default class ApplicationServer {
       };
 
       this._logger.Error(LoggerTypes.FATAL, "OnUnhandledRejection", data);
-      this._startup.OnApplicationCriticalException(data);
+      this._startup.OnApplicationCriticalException(data, this._serviceManager);
       this.CloseServer();
     });
   }
 
 
   /** Permite cerrar el servidor */
-  private CloseServer = () => {
+  private CloseServer (){
     if (this._server) {
       /** Cerrar el servidor de manera controlada  */
       this._logger.Message(LoggerTypes.WARN, `El servidor procederá a cerrarse =>`);
@@ -117,7 +118,8 @@ export default class ApplicationServer {
   }
 
   /** Está función da inicio al servidor */
-  public Start = async () => {
+  @AutoBind
+  public async Start (){
     try {
       this._logger.Activity("START");
 

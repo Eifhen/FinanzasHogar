@@ -47,6 +47,7 @@ export const EN = {
   "database-exception": "An error has occurred in the database",
   "rate-limiter-invalid": "RateLimiter for {0} is not a function",
   "middleware-instance-type-exception": "The entered middleware must be an instance of ApplicationMiddleware",
+  "image-size-exception": "The Image size cannot be larger than {0}",
 
   // Limiters
   "generalLimiter": "You have reached the request limit. Please try again later after {0} {1}",

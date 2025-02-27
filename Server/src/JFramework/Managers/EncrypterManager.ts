@@ -32,7 +32,7 @@ export default class EncrypterManager implements IEncrypterManager {
   }
 
   /** Método que permite encryptar un valor string */
-  Encrypt = async (value:string) : Promise<string> => {
+  public async Encrypt (value:string) : Promise<string> {
     try {
       this._logger.Activity("Encrypt");
       const salt = await bcrypt.genSalt(this.saltRounds);
@@ -54,7 +54,7 @@ export default class EncrypterManager implements IEncrypterManager {
   }
 
   /** Función que permite comparar dos valores */
-  Compare = async (value: string, hashedValue: string) : Promise<boolean> => {
+  public async Compare (value: string, hashedValue: string) : Promise<boolean> {
     try {
       this._logger.Activity("Compare");
       return await bcrypt.compare(value, hashedValue);

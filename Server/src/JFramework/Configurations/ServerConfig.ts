@@ -15,13 +15,13 @@ export default class ServerConfig {
   }
 
   /** Método que maneja la respuesta JSON de la aplicación */
-  AddJsonResponse = (limit: string = "10mb") => {
+  public AddJsonResponse (limit: string = "10mb"){
     const json = express.json({ limit: limit });
     this._app.use(json);
   }
 
   /** Método que maneja los Cors de la aplicación */
-  public AddCors = async (options?: CorsOptions): Promise<void> => {
+  public async AddCors(options?: CorsOptions): Promise<void>{
     this._app.use(cors({
       origin: "*",
       methods: 'GET,PUT,POST,DELETE',

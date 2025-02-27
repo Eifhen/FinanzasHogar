@@ -54,7 +54,7 @@ export default class AuthenticationController {
   @route("/sign-up")
   @POST()
   @UseMiddleware([RateLimiter("generalLimiter")])
-  public SignUp:ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {
+  public async SignUp(req: ApplicationRequest, res: Response, next: NextFunction){
     try {
       this._logger.Activity("SignUp");
       const args = new ApplicationArgs<SignUpDTO>(req);
@@ -71,7 +71,7 @@ export default class AuthenticationController {
   @route("/sign-in")
   @POST()
   @UseMiddleware([RateLimiter("authLimiter")])
-  public SignIn: ApplicationRequestHandler = async (req: ApplicationRequest, res: Response, next: NextFunction) => {
+  public async SignIn (req: ApplicationRequest, res: Response, next: NextFunction){
     try {
       this._logger.Activity("SignIn");
       const args = new ApplicationArgs<SignInDTO>(req);

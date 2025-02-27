@@ -16,7 +16,6 @@ interface CloudinaryImageStrategyDependencies {
 
 export class CloudinaryImageStrategy implements IApplicationImageStrategy {
 
-
   /** Instancia del logger */
   private readonly _logger: ILoggerManager;
 
@@ -39,7 +38,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
   }
 
   /** Realiza la connección con cloudinary */
-  public Connect = async (): Promise<void> => {
+  public async Connect() : Promise<void> {
     try {
       this._logger.Activity("Connect");
       cloudinary.config(this.settings.fileProvider.currentProvider.data);
@@ -59,7 +58,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
   }
 
   /** Cierra la connección con el proveedor de imagenes */
-  public CloseConnection = async (): Promise<void> => {
+  public async CloseConnection() : Promise<void> {
     try {
       this._logger.Activity("CloseConnection");
       throw new Error("No Implementado")
@@ -83,7 +82,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
    @param folderId {string} - la carpeta donde se debe guardar la imagen
    @returns - Retorna la imagen que fue cargada exitosamente 
   */
-  public Upload = async (img: AppImage, folderId: string): IApplicationPromise<AppImage> => {
+  public async Upload(img: AppImage, folderId: string): IApplicationPromise<AppImage> {
     try {
       this._logger.Activity("Upload");
       return ApplicationPromise.Try(new Promise<AppImage>((resolve, reject) => {
@@ -124,7 +123,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
    * @param publicId {string} - El ID público de la imagen
    * @returns - La imagen solicitada 
   */
-  public Get = async (publicId: string): IApplicationPromise<AppImage> => {
+  public async Get(publicId: string): IApplicationPromise<AppImage> {
     try {
       this._logger.Activity("Get");
 
@@ -162,7 +161,7 @@ export class CloudinaryImageStrategy implements IApplicationImageStrategy {
  * @param publicId {string} - El ID público de la imagen
  * @returns - true si la imagen fue eliminada exitosamente
  */
-  public Delete = async (publicId: string): IApplicationPromise<boolean> => {
+  public async Delete(publicId: string): IApplicationPromise<boolean> {
     try {
       this._logger.Activity("Delete");
 

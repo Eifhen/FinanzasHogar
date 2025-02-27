@@ -65,7 +65,7 @@ export default class TestController {
 
   @route("/error")
   @GET()
-  public GetError = async (req: Request, res: Response, next: NextFunction) => {
+  public async GetError(req: Request, res: Response, next: NextFunction) {
     try {
       this._logger.Activity("GetError");
 
@@ -81,7 +81,7 @@ export default class TestController {
 
   @route("/error/promise")
   @GET()
-  public GetPromiseError = async (req: Request, res: Response, next: NextFunction) => {
+  public async GetPromiseError(req: Request, res: Response, next: NextFunction){
     try {
 
       this._logger.Activity("GetPromiseError");
@@ -100,7 +100,7 @@ export default class TestController {
 
   @route("/error/controled")
   @GET()
-  public GetControledError = (req: Request, res: Response, next: NextFunction) => {
+  public async GetControledError(req: Request, res: Response, next: NextFunction){
     try {
       this._logger.Activity("GetControledError");
 
@@ -124,7 +124,7 @@ export default class TestController {
 
   @route("/error/fatal")
   @GET()
-  public GetFatalError = (req: Request, res: Response, next: NextFunction) => {
+  public async GetFatalError(req: Request, res: Response, next: NextFunction){
     try {
       this._logger.Activity("GetFatalError");
 
@@ -186,7 +186,7 @@ export default class TestController {
 
   @route("/images")
   @POST()
-  public UploadImage = async (req: Request, res: Response, next: NextFunction) => {
+  public async UploadImage(req: Request, res: Response, next: NextFunction){
     try {
       this._logger.Activity("UploadImages");
       const result = await this._imageDirector.Upload(req.body, "casa_1");
@@ -211,7 +211,7 @@ export default class TestController {
 
   @route("/images")
   @GET()
-  public GetImage = async (req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction) => {
+  public async GetImage(req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction){
     try {
       this._logger.Activity("GetImage");
 
@@ -245,7 +245,7 @@ export default class TestController {
 
   @route("/translations")
   @GET()
-  public GetTranslations = async (req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction) => {
+  public async GetTranslations(req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction){
     try {
       this._logger.Activity("GetTranslations");
 
@@ -274,7 +274,7 @@ export default class TestController {
 
   @route("/activate-account/:token")
   @GET()
-  public ActivateAccount = async (req: ApplicationRequest<any>, res: Response, next: NextFunction) => {
+  public async ActivateAccount(req: ApplicationRequest<any>, res: Response, next: NextFunction){
     try {
       this._logger.Activity("ActivateAccount");
       const param = req.params.token;

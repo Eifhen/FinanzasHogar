@@ -1,4 +1,5 @@
-import { TimeUnit } from "../../Utils/types/CommonTypes";
+import { TimeUnit } from "../../Utils/TimeUnitConverter";
+
 
 export interface RateLimiterConfig {
   

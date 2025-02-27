@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { before, Constructor } from 'awilix-express';
-import { ApplicationRequestHandler, ApplicationMiddleware, isApplicationMiddleware } from '../Middlewares/types/MiddlewareTypes';
+import { ApplicationRequestHandler, ApplicationMiddleware, isMiddleware } from '../Middlewares/types/MiddlewareTypes';
 import { FunctionReturning } from 'awilix';
 import ApplicationContext from '../Application/ApplicationContext';
 import ApplicationRequest from '../Application/ApplicationRequest';
@@ -31,7 +31,7 @@ export default function UseMiddleware(middlewareFactory: MiddlewareFactory | Mid
         const applicationContext = container.resolve<ApplicationContext>("applicationContext");
         let resolvedMiddleware: ApplicationRequestHandler | ApplicationMiddleware;
 
-        if (isApplicationMiddleware(factory)) {
+        if (isMiddleware(factory)) {
           // console.log("Es ApplicationMiddleware =>", factory);
 
           // Resolvemos el middleware si se trata de una instancia de ApplicationMiddleware

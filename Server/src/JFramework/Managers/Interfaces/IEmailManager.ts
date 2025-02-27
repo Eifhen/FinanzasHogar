@@ -9,6 +9,6 @@ export default interface IEmailManager {
 
 
   /** Permite enviar un email */
-  SendEmail: <T>(data: EmailData<T>) => IApplicationPromise<void>; 
+  SendEmail <T>(data: EmailData<T>) : IApplicationPromise<void>; 
 
 }

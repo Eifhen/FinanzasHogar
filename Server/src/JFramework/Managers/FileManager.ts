@@ -27,7 +27,7 @@ export class FileManager implements IFileManager {
   }
 
   /** Función que permite leer un archivo html y devolverlo */
-  public ReadHTML = async (filePath: string) : Promise<string> => {
+  public async ReadHTML (filePath: string) : Promise<string> {
     try {
       const html = await fs.readFile(filePath, { encoding: 'utf-8' })
                            .catch(err => {

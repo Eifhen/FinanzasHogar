@@ -35,7 +35,7 @@ export default class TokenManager implements ITokenManager {
   }
 
   /** Permite generar un token jwt con un payload del tipo ingresado */
-  public GeneratePayloadToken = async <T>(payload: T): Promise<string> => {
+  public async GeneratePayloadToken <T>(payload: T): Promise<string> {
     try {
       this._logger.Activity("Generate");
       const data = { data: payload };
@@ -55,7 +55,7 @@ export default class TokenManager implements ITokenManager {
     }
   }
   /** Permite decodificar un token jwt ingresado */
-  public Decode = async (token: string): Promise<string | JwtPayload> => {
+  public async Decode (token: string): Promise<string | JwtPayload> {
     try {
       this._logger.Activity("Decode");
       const tk = token.split(" ")[1];  // quitamos el Bearer
@@ -78,7 +78,7 @@ export default class TokenManager implements ITokenManager {
  * Genera un token aleatorio y seguro (No JWT), y lo hashea usando bcrypt
  * @returns {Promise<string>} - El token hasheado generado
  */
-  public GenerateToken = async (): Promise<string> => {
+  public async GenerateToken (): Promise<string> {
     try {
       this._logger.Activity("GenerateToken");
       

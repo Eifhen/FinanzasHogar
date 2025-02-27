@@ -10,6 +10,7 @@ import { HttpStatusCode } from "../../Utils/HttpCodes";
 import { TimeUnitConverter } from "../../Utils/TimeUnitConverter";
 import { Limiters } from "./Limiters";
 import IsNullOrEmpty from '../../Utils/utils';
+import { AutoBind } from "../../Decorators/AutoBind";
 
 
 interface RateLimiterManagerDependencies {
@@ -28,8 +29,6 @@ export default class RateLimiterManager {
   /** Cliente de cache */
   private cacheClient: RedisClientType<any, any, any>;
 
-
-
   constructor(deps: RateLimiterManagerDependencies) {
     this.applicationContext = deps.applicationContext;
     this.cacheClient = deps.cacheClient;
@@ -42,7 +41,8 @@ export default class RateLimiterManager {
   }
 
   /** Agrega el RedisStore al objeto options del RateLimiter */
-  public BuildStore = (limiterName: Limiters, rateLimiterConfigOptions: Partial<Options>): Partial<Options> => {
+  @AutoBind
+  public BuildStore (limiterName: Limiters, rateLimiterConfigOptions: Partial<Options>): Partial<Options> {
     try {
       this.logger.Activity("BuildStore");
 
@@ -77,7 +77,8 @@ export default class RateLimiterManager {
    * solicitudes nuevamente esto se expresa en milisegundos
    * @description  Retorna el Middleware que será usado por el rateLimiter cuando 
    * se llegue al limite de peticiones */
-  private RequestLimiterHandler = (limiterName: Limiters, requestCooldownInMs: number = 0) => {
+  @AutoBind
+  private RequestLimiterHandler (limiterName: Limiters, requestCooldownInMs: number = 0) {
     return (req: Request, res: Response, next: NextFunction) => {
       try {
         this.logger.Activity("RequestLimiterHandler");
@@ -90,7 +91,7 @@ export default class RateLimiterManager {
 
         const messageData: ErrorMessageData = {
           message: IsNullOrEmpty(limiterName) ? "too-many-requests" : limiterName,
-          translateValues: [coolDown, unit]
+          args: [coolDown, unit]
         }
 
         return res.status(HttpStatusCode.TooManyRequests).send(new TooManyRequestsException(
