@@ -1,3 +1,4 @@
+
 import { Application, RequestHandler } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";
@@ -10,10 +11,9 @@ import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { ErrorRequestHandler } from "express-serve-static-core";
 import ApplicationContext from "../Application/ApplicationContext";
-import ICacheConnectionManager from "./Interfaces/ICacheConnectionManager";
 import CacheConnectionManager from "./CacheConnectionManager";
 import { RedisClientType } from "redis";
-import rateLimit, { Options, RateLimitRequestHandler } from "express-rate-limit";
+import rateLimit from "express-rate-limit";
 import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
 import { limiterConfig, Limiters } from '../Security/RateLimiter/Limiters';
 import { ApplicationErrorMiddleware, ApplicationMiddleware } from "../Middlewares/types/MiddlewareTypes";
@@ -38,8 +38,8 @@ export default class ServiceManager {
   /** Propiedad que contiene nuestro contenedor de dependencias */
   private _container: AwilixContainer;
 
-   /** Instancia del DatabaseStrategyDirector, el cual nos permite 
-   * manipular la conección con la base de datos */
+  /** Instancia del DatabaseStrategyDirector, el cual nos permite 
+  * manipular la conección con la base de datos */
   private _databaseManager: DatabaseStrategyDirector<any, any> | null = null;
 
   constructor(app: Application) {
@@ -64,7 +64,7 @@ export default class ServiceManager {
   public Resolve<T>(serviceName: string): T {
     try {
       this._logger.Message(LoggerTypes.INFO, `Resolviendo servicio: ${serviceName}`);
-      return this._container?.resolve<T>(serviceName) as T;
+      return this._container?.resolve<T>(serviceName);
     } catch (err: any) {
       this._logger.Error(LoggerTypes.FATAL, `No se pudo resolver el servicio: ${serviceName}`, err);
       throw new ApplicationException(
@@ -135,7 +135,7 @@ export default class ServiceManager {
 
   /** Permite registrar la instancia de una clase como singleton */
   public AddInstance<Clase>(name: string, implementation: ClassInstance<Clase>): void;
-  public AddInstance<Interface, Clase extends Interface>(name: string, implementation: ClassInstance<Clase>): void 
+  public AddInstance<Interface, Clase extends Interface>(name: string, implementation: ClassInstance<Clase>): void
   public AddInstance<Interface, Clase extends Interface>(name: string, implementation: ClassInstance<Clase>): void {
     try {
 
@@ -189,20 +189,20 @@ export default class ServiceManager {
   }
 
   /** Agrega un middleware a la aplicación */
-  public AddMiddleware(middleware: ApplicationMiddleware | ApplicationErrorMiddleware){
+  public AddMiddleware(middleware: ApplicationMiddleware | ApplicationErrorMiddleware) {
     this._logger.Activity(`AddMiddleware`);
     this._app.use(middleware.Init() as RequestHandler | ErrorRequestHandler);
   }
 
   /** Agrega middleware para validación del api */
-  public AddApiValidation(middleware: ApplicationMiddleware){
+  public AddApiValidation(middleware: ApplicationMiddleware) {
     this._logger.Activity(`AddApiValidation`);
     this.AddMiddleware(middleware);
   }
 
   /** Se conecta al servidor de caché y agrega un singleton 
    * con dicha conección al contenedor de dependencias*/
-  public async AddCacheClient(){
+  public async AddCacheClient() {
 
     const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
     const cacheManager = new CacheConnectionManager({ applicationContext });
@@ -213,7 +213,7 @@ export default class ServiceManager {
 
   /** Permite agregar una instancia del RateLimiter 
    * Middleware como singleton */
-  public AddRateLimiters(){
+  public AddRateLimiters() {
     const cacheClient = this.Resolve<RedisClientType<any, any, any>>("cacheClient");
     const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
     const manager = new RateLimiterManager({ cacheClient, applicationContext });
@@ -265,8 +265,8 @@ export default class ServiceManager {
    * @description - Reliza la connección a la base de datos en base a la estrategia 
    * definida y devuelve la instancia de la conección a la DB.
   */
-  public async AddDataBaseConnection <ConnectionType, InstanceType>(
-    strategyType: ClassConstructor<IDataBaseConnectionStrategy<ConnectionType, InstanceType>> 
+  public async AddDataBaseConnection<ConnectionType, InstanceType>(
+    strategyType: ClassConstructor<IDataBaseConnectionStrategy<ConnectionType, InstanceType>>
   ): Promise<void> {
     try {
       this._logger.Activity(`AddDataBaseConnection`);
@@ -312,14 +312,14 @@ export default class ServiceManager {
 
 
   /** Cierra la coneccion a la base de datos */
-  public async CloseDataBaseConnection() : Promise<void> {
+  public async CloseDataBaseConnection(): Promise<void> {
     try {
       this._logger.Activity("CloseDataBaseConnection");
       await this._databaseManager?.CloseConnection();
     }
-    catch(err:any){
+    catch (err: any) {
       this._logger.Error("FATAL", "CloseDataBaseConnection", err);
-      if(err instanceof ApplicationException){
+      if (err instanceof ApplicationException) {
         throw err;
       }
       throw new ApplicationException(

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import { z } from "zod";
 import EntitySchema from "./Data/EntitySchema";
 import SchemaProperty from "../Decorators/SchemaProperty";

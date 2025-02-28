@@ -48,7 +48,7 @@ export default interface ILoggerManager {
  * @param msg  - Mensaje u Objeto a imprimir
  * @param obj  - Objeto a imprimir
  */
-  Message (type: LoggerType, msg: string, obj?: any) : Promise<void>;
+  Message (type: LoggerType, msg: string, obj?: any) : void;
 
   /**
  * @description - Método para loggear una determinada actividad del sistema
@@ -58,7 +58,7 @@ export default interface ILoggerManager {
  * @param method - Método ejecutado
  * @param obj - Objeto que queremos mostrar en la actividad
  */
-  Activity (method?: string, obj?:any) : Promise<void>;
+  Activity (method?: string, obj?:any) : void;
 
   /**
    * @description - Similar a Activity, pero este nos permite definir el tipo de logg
@@ -67,7 +67,7 @@ export default interface ILoggerManager {
    * @param obj - objeto a imprimir si lo hay
    * @returns 
    */
-  Register (type: LoggerType, method: string, obj?:any) : Promise<void>;
+  Register (type: LoggerType, method: string, obj?:any) : void;
 
   /**
    * @description - Método para loguear una excepcióon dentro de la aplicación
@@ -75,6 +75,6 @@ export default interface ILoggerManager {
    * @param type - Tipo de error ( Fatal o Error)
    * @param obj = Objeto de error 
   */
-  Error (type: LoggErrorType, method?: string, obj?:any) : Promise<void>;
+  Error (type: LoggErrorType, method?: string, obj?:any) : void;
 
 }

@@ -3,7 +3,6 @@ import TestService from "../../Application/Services/TestService";
 import ServerConfig from "../../JFramework/Configurations/ServerConfig";
 import ServiceManager from "../../JFramework/Managers/ServiceManager";
 import SqlConnectionStrategy from "../../JFramework/Strategies/Database/SqlConnectionStrategy";
-import DatabaseStrategyDirector from "../../JFramework/Strategies/Database/DatabaseStrategyDirector";
 import IApplicationStart from "../../JFramework/Application/types/IApplicationStart";
 import ErrorHandlerMiddleware from "../../JFramework/ErrorHandling/ErrorHandlerMiddleware";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
@@ -144,3 +143,4 @@ export default class Startup implements IApplicationStart {
   }
 
 }
+

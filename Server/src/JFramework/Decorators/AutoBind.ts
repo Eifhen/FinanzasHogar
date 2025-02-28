@@ -1,6 +1,11 @@
+
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import { ClassConstructor } from "../Utils/types/CommonTypes";
-
-
 
 /** Decorador para hacer auto bind de todos los métodos de 
  * instancia (menos el constructor) */
@@ -9,7 +14,7 @@ export function AutoClassBinder<T extends ClassConstructor>(constructor: T) {
    * para hacer el binding de todas las propiedades */
   return class extends constructor {
     constructor(...args: any[]) {
-      super(...args);
+      super(...args); 
       // Obtener todos los nombres de propiedades definidas en el prototipo de la clase
       const propertyNames = Object.getOwnPropertyNames(constructor.prototype);
       for (const key of propertyNames) {
