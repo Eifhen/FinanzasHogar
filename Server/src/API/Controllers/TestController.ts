@@ -13,7 +13,7 @@ import ApplicationRequest from "../../JFramework/Application/ApplicationRequest"
 import { InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
 import RateLimiter from "../../JFramework/Security/RateLimiter/RateLimiter";
 import ExampleMiddleware from "../../JFramework/Middlewares/ExampleMiddleware";
-import UseMiddleware from '../../JFramework/Decorators/UseMiddleware';
+import Middleware from '../../JFramework/Decorators/UseMiddleware';
 
 
 interface TestControllerDependencies {
@@ -50,7 +50,7 @@ export default class TestController {
 
   @route("/")
   @GET() 
-  @UseMiddleware([ExampleMiddleware, RateLimiter("generalLimiter")])
+  @Middleware([ExampleMiddleware, RateLimiter("generalLimiter")])
   public async GetAll (req: Request, res: Response, next: NextFunction) {
     try {
       this._logger.Activity("GetAll");

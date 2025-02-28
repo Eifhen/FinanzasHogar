@@ -1,5 +1,6 @@
 
-
+/** Indica que T es una instancia de una clase y no un elemento callable */
+export type ClassInstance<T> = T extends (...args: any[]) => any ? never : T;
 
 
 /** 
@@ -22,8 +23,8 @@
 */
 export type ClassConstructor<T = any> = 
   (new (params?: any) => ClassInstance<T>) | 
-  {new (...args: any[]): ClassInstance<T>; } ;
+  (new (...args: any[]) => ClassInstance<T>);
 
 
-/** Indica que T es una instancia de una clase y no un elemento callable */
-export type ClassInstance<T> = T extends (...args: any[]) => any ? never : T;
+/** Indica una función */
+export type FunctionExpression<T> = () => T;

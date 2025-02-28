@@ -1,6 +1,5 @@
 
 import ServerConfig from "../../Configurations/ServerConfig";
-import { ApplicationResolver } from "../../Configurations/types/ServerTypes";
 import ServiceManager from "../../Managers/ServiceManager";
 
 

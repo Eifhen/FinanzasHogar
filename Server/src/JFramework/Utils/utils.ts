@@ -1,28 +1,34 @@
-import { Constructor } from "awilix-express";
+import { ClassConstructor } from "./types/CommonTypes";
+import { ARRAY_LENGTH_ENPTY } from "./const";
 
 
 
 
 /** Verifica si un elemento es null/undefined o si está vacío */
 export default function IsNullOrEmpty(value: any) {
-  // Verifica si es null, undefined, un string vacío, o un objeto vacío
-  if (value === null || value === undefined) {
-    return true;
-  }
+	// Verifica si es null, undefined, un string vacío, o un objeto vacío
+	if (value === null || value === undefined) {
+		return true;
+	}
 
-  if (typeof value === 'string' && value.trim() === '') {
-    return true;
-  }
+	if (typeof value === 'string' && value.trim() === '') {
+		return true;
+	}
 
-  if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
-    return true;
-  }
+	if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === ARRAY_LENGTH_ENPTY) {
+		return true;
+	}
 
-  return false;
+	return false;
 }
 
 
 /** Indica si una función es una instancia de una clase */
-export function isClassInstance(fn: any): fn is Constructor {
-  return (typeof fn === "function" && /^class\s/.test(fn.toString()));
+export function isClass(fn: unknown): fn is ClassConstructor {
+	if(typeof fn !== "function"){
+		return false;
+	}
+
+	return (/^class\s/.test(fn.toString()));
 }
+

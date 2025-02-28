@@ -11,7 +11,7 @@ import SignUpDTO from "../../Application/DTOs/SignUpDTO";
 import SignInDTO from "../../Application/DTOs/SignInDTO";
 import RateLimiter from "../../JFramework/Security/RateLimiter/RateLimiter";
 import { ApplicationRequestHandler } from "../../JFramework/Middlewares/types/MiddlewareTypes";
-import UseMiddleware from "../../JFramework/Decorators/UseMiddleware";
+import Middleware from "../../JFramework/Decorators/UseMiddleware";
 
 
 
@@ -53,7 +53,7 @@ export default class AuthenticationController {
   /** EndPoint que se encarga del registro del usuario en la aplicación */
   @route("/sign-up")
   @POST()
-  @UseMiddleware([RateLimiter("generalLimiter")])
+  @Middleware([RateLimiter("generalLimiter")])
   public async SignUp(req: ApplicationRequest, res: Response, next: NextFunction){
     try {
       this._logger.Activity("SignUp");
@@ -70,7 +70,7 @@ export default class AuthenticationController {
   /** EndPoint que se encarga del inicio de sesión a la aplicación */
   @route("/sign-in")
   @POST()
-  @UseMiddleware([RateLimiter("authLimiter")])
+  @Middleware([RateLimiter("authLimiter")])
   public async SignIn (req: ApplicationRequest, res: Response, next: NextFunction){
     try {
       this._logger.Activity("SignIn");

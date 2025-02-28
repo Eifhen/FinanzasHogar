@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import { Options } from "express-rate-limit";
 import { TimeUnitConverter } from "../../Utils/TimeUnitConverter";
 
 
 /** Limiters validos */
 export const ValidLimiters = {
-  generalLimiter: "generalLimiter",
-  authLimiter: "authLimiter",
-  resourceHeavyLimiter: "resourceHeavyLimiter",
+	generalLimiter: "generalLimiter",
+	authLimiter: "authLimiter",
+	resourceHeavyLimiter: "resourceHeavyLimiter",
 } as const;
 
 export type Limiters = (typeof ValidLimiters)[keyof typeof ValidLimiters];

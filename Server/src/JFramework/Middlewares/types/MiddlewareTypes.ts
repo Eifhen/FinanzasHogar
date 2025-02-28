@@ -1,4 +1,6 @@
-import { Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } from "express";
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
+import { Response, NextFunction, RequestHandler, ErrorRequestHandler } from "express";
 import ApplicationRequest from "../../Application/ApplicationRequest";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { ClassConstructor } from "../../Utils/types/CommonTypes";
@@ -13,10 +15,10 @@ export type ApplicationExceptionHandler = ((error: ApplicationException, req: Ap
 
 /** Función que representa un Middleware o RequestHandler de express */
 export type MiddleWareFunction =
-  | RequestHandler
-  | ErrorRequestHandler
-  | ApplicationRequestHandler
-  | ApplicationExceptionHandler;
+	| RequestHandler
+	| ErrorRequestHandler
+	| ApplicationRequestHandler
+	| ApplicationExceptionHandler;
 
 
 
@@ -24,32 +26,32 @@ export type MiddleWareFunction =
  * deben implementar esta clase abstracta */
 export abstract class ApplicationMiddleware {
 
-   /** Propiedad estática que marca a la clase como middleware.
-   * recordar que las propiedades estaticas 
-   * se agregan al constructor de la clase */
-  static __middleware = true;
+	/** Propiedad estática que marca a la clase como middleware.
+	* recordar que las propiedades estaticas 
+	* se agregan al constructor de la clase */
+	static __middleware = true;
 
-  /** Función que retorna un función de tipo middleware */
-  abstract Init(): MiddleWareFunction | Promise<MiddleWareFunction>;
+	/** Función que retorna un función de tipo middleware */
+	// abstract Init(): MiddleWareFunction | Promise<MiddleWareFunction>;
 
-  /** Middleware de intercepción de solicitudes*/
-  abstract Intercept(req: ApplicationRequest, res: Response, next: NextFunction): any;
+	/** Middleware de intercepción de solicitudes*/
+	abstract Intercept(req: ApplicationRequest, res: Response, next: NextFunction): any;
 
 }
 
 /** Todos los middlewares de manejo de errores de 
  * la aplicación deben implementar esta clase abstracta */
 export abstract class ApplicationErrorMiddleware {
-  /** Propiedad estática que marca a la clase como middleware.
-   * recordar que las propiedades estaticas 
-   * se agregan al constructor de la clase */
-  static __middleware = true;
+	/** Propiedad estática que marca a la clase como middleware.
+	 * recordar que las propiedades estaticas 
+	 * se agregan al constructor de la clase */
+	static __middleware = true;
 
-  /** Función que retorna un función de tipo middleware */
-  abstract Init(): MiddleWareFunction | Promise<MiddleWareFunction>;
+	/** Función que retorna un función de tipo middleware */
+	// abstract Init(): MiddleWareFunction | Promise<MiddleWareFunction>;
 
-  /** Middleware de intercepción de solicitudes de error */
-  abstract Intercept(error: ApplicationException, req: ApplicationRequest, res: Response, next: NextFunction): any;
+	/** Middleware de intercepción de solicitudes de error */
+	abstract Intercept(error: ApplicationException, req: ApplicationRequest, res: Response, next: NextFunction): any;
 }
 
 
@@ -58,7 +60,7 @@ export abstract class ApplicationErrorMiddleware {
  * en su definición y se evalua que la función tenga definida la propiedad estatica __middleware
 */
 export function isMiddleware(fn: any): fn is ClassConstructor<ApplicationMiddleware> {
-  return (typeof fn === "function" && /^class\s/.test(fn.toString()) && (fn.__middleware === true));
+	return (typeof fn === "function" && /^class\s/.test(fn.toString()) && (fn.__middleware === true));
 }
 
 

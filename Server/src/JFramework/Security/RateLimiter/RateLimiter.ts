@@ -8,12 +8,9 @@ import { RateLimitRequestHandler } from "express-rate-limit";
 import { ErrorMessageData, InternalServerException } from "../../ErrorHandling/Exceptions";
 
 
-
-
-
 // Define una interfaz base para las dependencias comunes
 interface CommonDependencies {
-  applicationContext: ApplicationContext;
+	applicationContext: ApplicationContext;
 }
 
 /**
@@ -24,10 +21,9 @@ interface CommonDependencies {
  * deseado, este se obtendrá del contenedor de dependencias y se 
  * inyectará en el middleware mediante el `inject()`  
 */
-type RateLimiterDependencies<LimiterName extends Limiters> = CommonDependencies & {
-  [key in LimiterName]: RateLimitRequestHandler;
-};
-
+type RateLimiterDependencies<LimiterName extends Limiters> =
+	CommonDependencies &
+	Record<LimiterName, RateLimitRequestHandler>;
 
 /** 
  * @param {string} limiterName - Nombre del limiter a ejecutar
@@ -36,48 +32,48 @@ type RateLimiterDependencies<LimiterName extends Limiters> = CommonDependencies 
  * devuelve el RateLimiter ingresado. El tipo de 
  * RateLimiter a ejecutar se define dinámicamente sacandolo del 
  * contenedor de dependencias dependiendo del nombre ingresado. */
-export default function RateLimiter<LimiterName extends Limiters>(limiterName: LimiterName){
-  
-  return function RateLimiterMiddleware (deps: RateLimiterDependencies<LimiterName>) {
-    /** Logger */
-    const logger = new LoggerManager({
-      entityCategory: LoggEntityCategorys.MIDDLEWARE,
-      entityName: "RateLimiter",
-      applicationContext: deps.applicationContext
-    });
+export default function RateLimiter<LimiterName extends Limiters>(limiterName: LimiterName) {
 
-    try {
-      logger.Activity();
+	return function RateLimiterMiddleware(deps: RateLimiterDependencies<LimiterName>) {
+		/** Logger */
+		const logger = new LoggerManager({
+			entityCategory: LoggEntityCategorys.MIDDLEWARE,
+			entityName: "RateLimiter",
+			applicationContext: deps.applicationContext
+		});
 
-      /** Obtenemos el limiter */
-      const rateLimiter:RateLimitRequestHandler = deps[limiterName];
-      
-      if(typeof rateLimiter !== "function"){
-        
-        const messageData: ErrorMessageData = {
-          message: "rate-limiter-invalid",
-          args: [limiterName]
-        };
+		try {
+			logger.Activity();
 
-        throw new InternalServerException(
-          "RateLimiter",
-          messageData,
-          deps.applicationContext,
-          __filename,
-        )
-      }
+			/** Obtenemos el limiter */
+			const rateLimiter: RateLimitRequestHandler = deps[limiterName];
 
-      return rateLimiter;
-    }
-    catch(err:any){
-      /** Si ocurre un error, lo loggeamos y simplemente devolvemos 
-       * un middleware que llame a next y le pasamos el error, 
-       * esto automáticamente hará que nuestro 
-       * middleware de manejo de errores se ejecute*/
-      logger.Error("ERROR", "RateLimiter", err);
-      return (req: Request, res:Response, next:NextFunction) => {
-        next(err);
-      }
-    }
-  }
+			if (typeof rateLimiter !== "function") {
+
+				const messageData: ErrorMessageData = {
+					message: "rate-limiter-invalid",
+					args: [limiterName]
+				};
+
+				throw new InternalServerException(
+					"RateLimiter",
+					messageData,
+					deps.applicationContext,
+					__filename,
+				)
+			}
+
+			return rateLimiter;
+		}
+		catch (err: any) {
+			/** Si ocurre un error, lo loggeamos y simplemente devolvemos 
+			 * un middleware que llame a next y le pasamos el error, 
+			 * esto automáticamente hará que nuestro 
+			 * middleware de manejo de errores se ejecute*/
+			logger.Error("ERROR", "RateLimiter", err);
+			return (req: Request, res: Response, next: NextFunction) => {
+				next(err);
+			}
+		}
+	}
 }

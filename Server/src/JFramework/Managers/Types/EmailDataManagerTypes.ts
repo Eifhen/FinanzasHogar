@@ -55,5 +55,5 @@ export interface EmailVerificationData {
 
 /** Interfaz EmailData para template del email de recuperación de contraseña */
 export interface EmailPasswordRecoveryData {
-
+  userName:string;
 }
