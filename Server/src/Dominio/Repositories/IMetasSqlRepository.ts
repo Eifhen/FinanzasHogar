@@ -1,4 +1,4 @@
-import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/IMssSqlGenericRepository";
+import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
 
 
 
@@ -7,6 +7,6 @@ import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic
 
 
 /** Interfaz para repositorio de metas */
-export default interface IMetasSqlRepository extends IMssSqlGenericRepository<"metas", "id"> {
+export default interface IMetasSqlRepository extends ISqlGenericRepository<"metas", "id"> {
 
 } 

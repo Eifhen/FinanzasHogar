@@ -20,7 +20,7 @@ export type QueryBuilderCallback<TableName extends keyof DataBase> = (
 >;
 
 /** Representa un repositorio genérico para trabajar con tablas de la base de datos */
-export default interface IMssSqlGenericRepository <
+export default interface ISqlGenericRepository <
   TableName extends keyof DataBase, 
   PrimaryKey extends keyof DataBase[TableName]
 > {

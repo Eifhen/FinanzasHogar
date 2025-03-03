@@ -8,6 +8,6 @@
 export interface ITestService {
 
 
-  GetAll: () => string[];
+  GetAll() : Promise<string[]>;
 
 }

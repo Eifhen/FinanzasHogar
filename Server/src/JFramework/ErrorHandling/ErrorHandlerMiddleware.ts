@@ -5,8 +5,9 @@ import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILog
 import LoggerManager from "../Managers/LoggerManager";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationRequest from "../Application/ApplicationRequest";
-import ServiceManager from "../Managers/ServiceManager";
+import ServiceManager from "../_Internal/ServiceManager";
 import { ApplicationErrorMiddleware } from "../Middlewares/types/MiddlewareTypes";
+import { AutoBind } from "../Decorators/AutoBind";
 
 
 /** Esta clase representa al middleware de manejo de errores de la aplicación */
@@ -15,18 +16,16 @@ export default class ErrorHandlerMiddleware implements ApplicationErrorMiddlewar
 	/** Instancia del logger */
 	private _logger: ILoggerManager;
 
-	private _serviceManager: ServiceManager;
-
-	constructor(services: ServiceManager){
+	constructor(){
 		this._logger = new LoggerManager({
 			entityCategory: LoggEntityCategorys.MIDDLEWARE,
 			entityName: "ErrorHandlerMiddleware"
 		});
 
-		this._serviceManager = services;
 	}
 
 	/** Middleware que permite interceptar los errores de la aplicación */
+	@AutoBind
 	public Intercept (error: ApplicationException|Error, req: ApplicationRequest, res: Response) : any {
 		this._logger.Register("WARN", "Intercept", error);
 		

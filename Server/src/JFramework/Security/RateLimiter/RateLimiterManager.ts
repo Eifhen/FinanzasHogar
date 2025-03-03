@@ -21,19 +21,19 @@ interface RateLimiterManagerDependencies {
 export default class RateLimiterManager {
 
 	/** Logger */
-	private logger: LoggerManager;
+	private _logger: LoggerManager;
 
 	/** Contexto de aplicación */
-	private applicationContext: ApplicationContext;
+	private _applicationContext: ApplicationContext;
 
 	/** Cliente de cache */
-	private cacheClient: RedisClientType<any, any, any>;
+	private _cacheClient: RedisClientType<any, any, any>;
 
 	constructor(deps: RateLimiterManagerDependencies) {
-		this.applicationContext = deps.applicationContext;
-		this.cacheClient = deps.cacheClient;
+		this._applicationContext = deps.applicationContext;
+		this._cacheClient = deps.cacheClient;
 
-		this.logger = new LoggerManager({
+		this._logger = new LoggerManager({
 			entityCategory: LoggEntityCategorys.MANAGER,
 			entityName: "RateLimiterManager",
 			applicationContext: deps.applicationContext
@@ -44,14 +44,14 @@ export default class RateLimiterManager {
 	@AutoBind
 	public BuildStore (limiterName: Limiters, rateLimiterConfigOptions: Partial<Options>): Partial<Options> {
 		try {
-			this.logger.Activity("BuildStore");
+			this._logger.Activity("BuildStore");
 
 			/** Agrega el store a las opciones de 
 			 * configuración del RateLimiter, el store es importante 
 			 * ya que allí se agregará la data persistente que el 
 			 * rateLimiter necesita como por ejemplo el conteo de requests */
 			rateLimiterConfigOptions.store = new RedisStore({
-				sendCommand: (...args: string[]) => this.cacheClient.sendCommand(args)
+				sendCommand: (...args: string[]) => this._cacheClient.sendCommand(args)
 			})
 
 			/** Agregamos el middleware a las opciones de configuracion */
@@ -60,11 +60,11 @@ export default class RateLimiterManager {
 			return rateLimiterConfigOptions;
 		}
 		catch (err: any) {
-			this.logger.Error("ERROR", "BuildStore", err);
+			this._logger.Error("ERROR", "BuildStore", err);
 			throw new InternalServerException(
 				"BuildStore",
 				err.message,
-				this.applicationContext,
+				this._applicationContext,
 				__filename,
 				err
 			);
@@ -81,7 +81,7 @@ export default class RateLimiterManager {
 	private RequestLimiterHandler (limiterName: Limiters, requestCooldownInMs: number = 0) {
 		return (req: Request, res: Response, next: NextFunction) => {
 			try {
-				this.logger.Activity("RequestLimiterHandler");
+				this._logger.Activity("RequestLimiterHandler");
 
 				/** Obtenemos la unidad de tiempo según los milisegundos */
 				const unit = TimeUnitConverter.MillisecondsToUnit(requestCooldownInMs);
@@ -97,16 +97,16 @@ export default class RateLimiterManager {
 				return res.status(HttpStatusCode.TooManyRequests).send(new TooManyRequestsException(
 					"RequestLimiterHandler",
 					messageData,
-					this.applicationContext,
+					this._applicationContext,
 					__filename,
 				));
 			}
 			catch (err: any) {
-				this.logger.Error("ERROR", "RequestLimiterHandler", err);
+				this._logger.Error("ERROR", "RequestLimiterHandler", err);
 				next(new InternalServerException(
 					"RequestLimiterHandler",
 					err.message,
-					this.applicationContext,
+					this._applicationContext,
 					__filename,
 					err
 				));

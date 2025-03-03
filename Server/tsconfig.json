@@ -108,7 +108,11 @@
   },
   "include":[
     "src/**/*.ts",
-    "./eslint.config.mjs"
+    "./eslint.config.mjs",
+    // "./ecosystem.config.mjs"
   ],
-  "exclude":["node_modules"],
+  "exclude":[
+    "node_modules",  
+    //"./ecosystem.config.js"
+  ],
 }

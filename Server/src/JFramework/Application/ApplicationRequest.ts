@@ -1,7 +1,5 @@
-
-
-import { AwilixContainer } from 'awilix';
 import { Request, Query } from 'express-serve-static-core'
+import IContainerManager from '../_Internal/types/IContainerManager';
 
 
 /** Función que extiende el funcionamiento de la clase Request de express */
@@ -16,6 +14,6 @@ export default interface ApplicationRequest<TBody = any, TQuery extends Query = 
   /** Body Type */
   body: TBody;
 
-  /** Container */
-  container: AwilixContainer;
+  /** Manejador del contenedor */
+  containerManager: IContainerManager;
 }

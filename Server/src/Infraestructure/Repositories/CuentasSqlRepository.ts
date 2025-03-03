@@ -3,31 +3,31 @@ import ApplicationContext from "../../JFramework/Application/ApplicationContext"
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import MssSqlGenericRepository from "./Generic/MssSqlGenericRepository";
+import SqlGenericRepository from "./Generic/SqlGenericRepository";
 
 
 
 
 interface ICuentasRepositoryDependencies {
-  database: ApplicationSQLDatabase;
-  applicationContext: ApplicationContext;
+	database: ApplicationSQLDatabase;
+	applicationContext: ApplicationContext;
 }
 
 /** Repositorio para la entidad cuentas */
-export default class CuentasSqlRepository extends MssSqlGenericRepository<"cuentas", "id"> implements ICuentasSqlRepository {
+export default class CuentasSqlRepository extends SqlGenericRepository<"cuentas", "id"> implements ICuentasSqlRepository {
 
-  /** Instancia del logger */
-  private _logger: ILoggerManager;
+	/** Instancia del logger */
+	private _logger: ILoggerManager;
 
-  constructor(deps: ICuentasRepositoryDependencies) {
-    super(deps.database, "cuentas", "id", deps.applicationContext);
+	constructor(deps: ICuentasRepositoryDependencies) {
+		super(deps.database, "cuentas", "id", deps.applicationContext);
 
-    // Instanciamos el logger
-    this._logger = new LoggerManager({
-      entityCategory: LoggEntityCategorys.REPOSITORY,
-      entityName: "CuentasSqlRepository",
-      applicationContext: deps.applicationContext
-    });
-  }
+		// Instanciamos el logger
+		this._logger = new LoggerManager({
+			entityCategory: LoggEntityCategorys.REPOSITORY,
+			entityName: "CuentasSqlRepository",
+			applicationContext: deps.applicationContext
+		});
+	}
 
 }

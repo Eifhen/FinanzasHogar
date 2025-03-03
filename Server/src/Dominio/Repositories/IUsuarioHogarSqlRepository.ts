@@ -1,8 +1,8 @@
-import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/IMssSqlGenericRepository";
+import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
 
 
 
 /** Interfaz para repositorio de Usuario Hogar*/
-export default interface IUsuarioHogarSqlRepository extends IMssSqlGenericRepository<"usuariosHogar", "id"> {
+export default interface IUsuarioHogarSqlRepository extends ISqlGenericRepository<"usuariosHogar", "id"> {
 
 } 

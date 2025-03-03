@@ -26,6 +26,7 @@ export default tseslint.config(
 				"SwitchCase": SWITCH_INDENT,
 				"MemberExpression": CHAINING_INDENT,
 				"ObjectExpression": OBJECT_INDENT,
+				"offsetTernaryExpressions": true,
 			}],
 			"default-param-last": "error",
 			"prefer-const": "error",
@@ -61,6 +62,7 @@ export default tseslint.config(
 			"@typescript-eslint/no-unsafe-argument": "off",
 			"@typescript-eslint/no-explicit-any": "off",
 			"@typescript-eslint/consistent-type-definitions": "off",
+			"@typescript-eslint/no-empty-object-type": "off",
 
 			"@typescript-eslint/no-unused-vars": "warn",
 			"@typescript-eslint/no-floating-promises": "warn",
@@ -79,6 +81,11 @@ export default tseslint.config(
 				"ignoreTypeIndexes": true
 			}],
 			"@typescript-eslint/no-this-alias": "error",
-		}
-	}
+		},
+	},
+	{
+		ignores: [
+			"ecosystem.config.js"
+		],
+	},
 );

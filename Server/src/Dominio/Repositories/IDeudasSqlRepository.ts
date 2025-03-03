@@ -1,4 +1,4 @@
-import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/IMssSqlGenericRepository";
+import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
 
 
 
@@ -7,7 +7,7 @@ import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic
 
 
 /** Interfaz para repositorio de deudas */
-export default interface IDeudasSqlRepository extends IMssSqlGenericRepository<"deudas", "id"> {
+export default interface IDeudasSqlRepository extends ISqlGenericRepository<"deudas", "id"> {
 
 } 
 

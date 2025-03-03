@@ -1,9 +1,9 @@
-import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/IMssSqlGenericRepository";
+import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
 
 
 
 
 /** Interfaz para repositorio de notificaciones*/
-export default interface INotificacionesSqlRepository extends IMssSqlGenericRepository<"notificaciones", "id_notificacion"> {
+export default interface INotificacionesSqlRepository extends ISqlGenericRepository<"notificaciones", "id_notificacion"> {
 
 } 

@@ -1,9 +1,9 @@
-import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/IMssSqlGenericRepository";
+import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
 
 
 
 
 /** Interfaz para repositorio de presupuesto categoria de Hogar*/
-export default interface IPresupuestoCategoriaSqlRepository extends IMssSqlGenericRepository<"presupuestoCategoria", "id"> {
+export default interface IPresupuestoCategoriaSqlRepository extends ISqlGenericRepository<"presupuestoCategoria", "id"> {
 
 } 

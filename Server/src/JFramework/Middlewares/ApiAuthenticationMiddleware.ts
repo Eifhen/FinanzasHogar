@@ -3,7 +3,7 @@ import ApplicationRequest from "../Application/ApplicationRequest";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
-import ServiceManager from "../Managers/ServiceManager";
+import ServiceManager from "../_Internal/ServiceManager";
 import ITokenManager from "../Managers/Interfaces/ITokenManager";
 import { ApplicationMiddleware } from "./types/MiddlewareTypes";
 

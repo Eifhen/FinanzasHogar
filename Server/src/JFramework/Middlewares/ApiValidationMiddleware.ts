@@ -7,24 +7,23 @@ import ApplicationException from '../ErrorHandling/ApplicationException';
 import { HttpStatusCode, HttpStatusName } from '../Utils/HttpCodes';
 import { v4 as uuidv4 } from 'uuid';
 import ApplicationContext from '../Application/ApplicationContext';
-import ServiceManager from '../Managers/ServiceManager';
+import ServiceManager from '../_Internal/ServiceManager';
 import ConfigurationSettings from '../Configurations/ConfigurationSettings';
 import { ApplicationLenguage, ApplicationLenguages } from '../Application/types/types';
 import { ApplicationMiddleware } from './types/MiddlewareTypes';
+import { AutoClassBinder } from '../Decorators/AutoBind';
 
 
 
 
 /** Middleware para manejo de la validación del api */
+@AutoClassBinder
 export default class ApiValidationMiddleware extends ApplicationMiddleware {
 
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
 
-	/** Manejador de servicios */
-	private readonly _serviceManager: ServiceManager;
-
-	constructor(services: ServiceManager){
+	constructor(){
 		super();
 		
 		// Instanciamos el logger
@@ -32,8 +31,7 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 			entityCategory: LoggEntityCategorys.MIDDLEWARE,
 			entityName: "ApiValidationMiddleware"
 		});
-
-		this._serviceManager = services;
+	
 	}
 
 	/** Obtiene la configuración de idioma de la requeste en curso */
@@ -54,7 +52,7 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 			const END_INDEX = 8;
 
 			/** Obtenemos el contexto de aplicación */
-			const applicationContext = this._serviceManager.Resolve<ApplicationContext>("applicationContext");
+			const applicationContext = req.containerManager.Resolve<ApplicationContext>("applicationContext");
 			
 			/** Data de aplicación */
 			const apiData = applicationContext.settings.apiData;
@@ -111,11 +109,5 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 			next(err);
 		}
 	}
-
-	/** Función que inicializa el middleware */
-	// public Init (): MiddleWareFunction {
-	//   this._logger.Activity("Init");
-	//   return this.Intercept;
-	// }
 
 }

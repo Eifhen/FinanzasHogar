@@ -110,7 +110,7 @@ export default class LoggerManager implements ILoggerManager {
 
 
 			if (this._applicationContext && this._applicationContext.requestID !== "") {
-				msg = `RequestId: ${this._applicationContext.requestID} | msg`;
+				msg = `RequestId: ${this._applicationContext.requestID} | ${msg}`;
 			}
 
 			// agregar request ID desde el context
@@ -141,7 +141,7 @@ export default class LoggerManager implements ILoggerManager {
 			let msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`;
 
 			if (this._applicationContext?.requestID) {
-				msg = `RequestId: ${this._applicationContext.requestID} | msg`;
+				msg = `RequestId: ${this._applicationContext.requestID} | ${msg}`;
 			}
 
 			this.Message(type, msg, obj);
@@ -174,7 +174,7 @@ export default class LoggerManager implements ILoggerManager {
 
 			// Agregar request id desde el context si lo hay
 			if (this._applicationContext && this._applicationContext.requestID != "") {
-				msg = `RequestId: ${this._applicationContext.requestID} | msg`;
+				msg = `RequestId: ${this._applicationContext.requestID} | ${msg}`;
 			}
 
 			this.Message(type, msg, obj);

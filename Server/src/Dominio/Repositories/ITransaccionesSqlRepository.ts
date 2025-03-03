@@ -1,7 +1,7 @@
-import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/IMssSqlGenericRepository";
+import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
 
 
 /** Interfaz para repositorio de transacciones de Hogar*/
-export default interface ITransaccionesSqlRepository extends IMssSqlGenericRepository<"transacciones", "id"> {
+export default interface ITransaccionesSqlRepository extends ISqlGenericRepository<"transacciones", "id"> {
 
 } 

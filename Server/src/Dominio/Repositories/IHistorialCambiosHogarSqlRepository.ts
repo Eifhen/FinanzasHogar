@@ -1,4 +1,4 @@
-import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/IMssSqlGenericRepository";
+import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
 
 
 
@@ -7,6 +7,6 @@ import IMssSqlGenericRepository from "../../Infraestructure/Repositories/Generic
 
 
 /** Interfaz para repositorio de historial cambios hogar */
-export default interface IHistorialCambiosHogarSqlRepository extends IMssSqlGenericRepository<"historialCambiosHogar", "id_historial"> {
+export default interface IHistorialCambiosHogarSqlRepository extends ISqlGenericRepository<"historialCambiosHogar", "id_historial"> {
 
 } 

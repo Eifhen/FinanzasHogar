@@ -1,5 +1,5 @@
 import { ClassConstructor } from "./types/CommonTypes";
-import { ARRAY_LENGTH_ENPTY } from "./const";
+import { ARRAY_LENGTH_EMPTY } from "./const";
 
 
 
@@ -15,7 +15,7 @@ export default function IsNullOrEmpty(value: any) {
 		return true;
 	}
 
-	if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === ARRAY_LENGTH_ENPTY) {
+	if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === ARRAY_LENGTH_EMPTY) {
 		return true;
 	}
 

@@ -28,3 +28,6 @@ export type ClassConstructor<T = any> =
 
 /** Indica una función */
 export type FunctionExpression<T> = () => T;
+
+/** Indica una función factory*/
+export type FactoryFunction<T> = (...args: any[]) => T;

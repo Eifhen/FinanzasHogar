@@ -31,10 +31,8 @@ export abstract class ApplicationMiddleware {
 	* se agregan al constructor de la clase */
 	static __middleware = true;
 
-	/** Función que retorna un función de tipo middleware */
-	// abstract Init(): MiddleWareFunction | Promise<MiddleWareFunction>;
-
-	/** Middleware de intercepción de solicitudes*/
+	/** Middleware de intercepción de solicitudes. 
+	 * Es necesario siempre hacer un binding de esta implementación*/
 	abstract Intercept(req: ApplicationRequest, res: Response, next: NextFunction): any;
 
 }
@@ -47,10 +45,8 @@ export abstract class ApplicationErrorMiddleware {
 	 * se agregan al constructor de la clase */
 	static __middleware = true;
 
-	/** Función que retorna un función de tipo middleware */
-	// abstract Init(): MiddleWareFunction | Promise<MiddleWareFunction>;
-
-	/** Middleware de intercepción de solicitudes de error */
+	/** Middleware de intercepción de solicitudes de error.
+	 * Es necesario siempre hacer un binding de esta implementación*/
 	abstract Intercept(error: ApplicationException, req: ApplicationRequest, res: Response, next: NextFunction): any;
 }
 

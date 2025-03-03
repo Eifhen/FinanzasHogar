@@ -22,4 +22,8 @@ export const DEFAULT_JSON_RESPONSE_LIMIT:string = "10mb";
 /** Define la indentación por defecto */
 export const DEFAULT_INDENT = 2;
 
-export const ARRAY_LENGTH_ENPTY = 0;
+/** Representa el length de un array vacio*/
+export const ARRAY_LENGTH_EMPTY = 0;
+
+/** Representa el valor default de un numero */
+export const DEFAULT_NUMBER = 0;

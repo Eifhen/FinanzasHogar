@@ -2,8 +2,9 @@ import { Application } from "express";
 import express from 'express';
 import cors, { CorsOptions } from 'cors';
 import { DEFAULT_JSON_RESPONSE_LIMIT } from "../Utils/const";
+import { AutoClassBinder } from "../Decorators/AutoBind";
 
-
+@AutoClassBinder
 export default class ServerConfig {
 
 	/** Instancia de express */
@@ -22,7 +23,7 @@ export default class ServerConfig {
 	}
 
 	/** Método que maneja los Cors de la aplicación */
-	public async AddCors(options?: CorsOptions): Promise<void>{
+	public AddCors(options?: CorsOptions): void {
 		this._app.use(cors({
 			origin: "*",
 			methods: 'GET,PUT,POST,DELETE',
