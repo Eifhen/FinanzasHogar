@@ -24,8 +24,8 @@ export default class ApplicationContext {
 	/** Tranductor */
 	public translator: TranslatorHandler;
 	
-	constructor(){
+	constructor(settings: ConfigurationSettings){
 		this.translator = new TranslatorHandler({ applicationContext: this })
-		this.settings = new ConfigurationSettings();
+		this.settings = settings;
 	}
 }

@@ -52,7 +52,7 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 			const END_INDEX = 8;
 
 			/** Obtenemos el contexto de aplicación */
-			const applicationContext = req.containerManager.Resolve<ApplicationContext>("applicationContext");
+			const applicationContext = req.container.Resolve<ApplicationContext>("applicationContext");
 			
 			/** Data de aplicación */
 			const apiData = applicationContext.settings.apiData;

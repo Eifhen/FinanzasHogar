@@ -82,6 +82,7 @@ export const HttpStatusName = {
 
 	// Database Custom Errors
 	DatabaseConnectionException: "DatabaseConnectionException",
+	DatabaseDisconnectException: "DatabaseDisconnectException",
 	DatabaseNoInstanceException: "DatabaseNoInstanceException",
 	DatabaseNoDialectException: "DatabaseNoDialectException",
 	DatabaseTransactionException: "DatabaseTransactionException",

@@ -19,7 +19,6 @@ import { DEFAULT_NUMBER } from "../../JFramework/Utils/const";
 
 interface TestControllerDependencies {
 	testService: ITestService;
-	// context: ApplicationContext;
 	usuariosRepository: IUsuariosSqlRepository;
 	imageDirector: ImageStrategyDirector;
 	applicationContext: ApplicationContext;
@@ -29,7 +28,6 @@ interface TestControllerDependencies {
 export default class TestController {
 
 	private readonly _testService: ITestService;
-	// private readonly _context: ApplicationContext;
 	private readonly _logger: ILoggerManager;
 	private readonly _usuariosRepository: IUsuariosSqlRepository;
 	private readonly _imageDirector: ImageStrategyDirector;
@@ -37,12 +35,10 @@ export default class TestController {
 
 	constructor(deps: TestControllerDependencies) {
 		this._testService = deps.testService;
-		//  this._context = deps.context;
 		this._usuariosRepository = deps.usuariosRepository;
 		this._imageDirector = deps.imageDirector;
 		this._applicationContext = deps.applicationContext;
 		this._logger = new LoggerManager({
-			//  context: this._context,
 			entityName: "TestController",
 			entityCategory: LoggEntityCategorys.CONTROLLER,
 			applicationContext: deps.applicationContext
@@ -161,13 +157,17 @@ export default class TestController {
 			//   currentPage: 1,
 			// });
 
-			const [err, data] = await this._usuariosRepository.GetAll();
-
-			if (err) {
-				throw err;
+			if(this._usuariosRepository){
+				const [err, data] = await this._usuariosRepository.GetAll();
+	
+				if (err) {
+					throw err;
+				}
+	
+				return res.status(HttpStatusCode.OK).send(data);
 			}
 
-			return res.status(HttpStatusCode.OK).send(data);
+			throw new Error("No instance");
 		}
 		catch (err: any) {
 			this._logger.Error("ERROR", "GetUsuarios");
@@ -192,7 +192,7 @@ export default class TestController {
 	public async UploadImage(req: Request, res: Response, next: NextFunction){
 		try {
 			this._logger.Activity("UploadImages");
-			const result = await this._imageDirector.Upload(req.body, "casa_1");
+			const result = await this._imageDirector?.Upload(req.body, "casa_1");
 			return res.status(HttpStatusCode.OK).send(result);
 		}
 		catch (err: any) {
@@ -220,13 +220,17 @@ export default class TestController {
 
 			const args = new ApplicationArgs<any, { id: string }>(req);
 			const id = args.query?.id ?? "";
-			const [error, result] = await this._imageDirector.Get(id);
-
-			if (error) {
-				throw new Error("No encontrado")
+			if(this._imageDirector){
+				const [error, result] = await this._imageDirector.Get(id);
+	
+				if (error) {
+					throw new Error("No encontrado")
+				}
+	
+				return res.status(HttpStatusCode.OK).send(result);
 			}
 
-			return res.status(HttpStatusCode.OK).send(result);
+			throw new Error("no instance");
 		}
 		catch (err: any) {
 			this._logger.Error("ERROR", "GetImage");

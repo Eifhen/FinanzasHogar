@@ -29,24 +29,22 @@ export default function Middleware(middlewareFactory: MiddlewareFactory | Middle
 		const wrappedMiddlewares = factories.map((factory) => {
 			return (req: ApplicationRequest, res: Response, next: NextFunction) => {
 				// Obtenemos el contenedor inyectado en la request (awilix-express se encarga de asignarlo)
-				const container = req.containerManager;
-				const applicationContext = container.Resolve<ApplicationContext>("applicationContext");
+				const applicationContext = req.container.Resolve<ApplicationContext>("applicationContext");
 				let resolvedMiddleware: ApplicationRequestHandler | ApplicationMiddleware;
 
 				if (isMiddleware(factory)) {
-					// console.log("Es ApplicationMiddleware =>", factory);
+					//console.log("Es ApplicationMiddleware =>", factory);
 
 					// Resolvemos el middleware si se trata de una instancia de ApplicationMiddleware
-					resolvedMiddleware = container.ResolveClass(factory as ClassConstructor<ApplicationMiddleware>);
+					resolvedMiddleware = req.container.ResolveClass(factory as ClassConstructor<ApplicationMiddleware>);
 
 					// Si es un objeto que implementa ApplicationMiddleware, intentamos invocar su método Intercept.
 					return resolvedMiddleware.Intercept(req, res, next);
 				}
 				else if (typeof factory === 'function') {
-					// console.log("Es Middleware Funcion =>", factory);
 
 					// Resolvemos el middleware si se trata de una funcion
-					resolvedMiddleware = container.ResolveFactory(factory);
+					resolvedMiddleware = req.container.ResolveFactory(factory);
 					return resolvedMiddleware(req, res, next);
 				}
 				else {

@@ -32,7 +32,7 @@ import SolicitudHogarSqlRepository from "../../Infraestructure/Repositories/Soli
 import TransaccionesSqlRepository from "../../Infraestructure/Repositories/TransaccionesSqlRepository";
 import UsuarioHogarSqlRepository from "../../Infraestructure/Repositories/UsuarioHogarSqlRepository";
 import UsuariosSqlRepository from "../../Infraestructure/Repositories/UsuariosSqlRepository";
-import ServiceManager from "../../JFramework/_Internal/ServiceManager";
+import IServiceManager from "../../JFramework/_Internal/types/IServiceManager";
 import IStartup from "../../JFramework/_Internal/types/IStartup";
 import ServerConfig from "../../JFramework/Configurations/ServerConfig";
 import ILoggerManager from "../../JFramework/Managers/Interfaces/ILoggerManager";
@@ -44,7 +44,6 @@ export default class Startup implements IStartup {
 
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
-	
 
 	constructor() {
 		/** Instancia logger */
@@ -55,7 +54,7 @@ export default class Startup implements IStartup {
 	}
 
 	/** Administramos la configuración inicial del servidor */
-	public async AddConfiguration(services: ServiceManager, config: ServerConfig): Promise<void> {
+	public async AddConfiguration(services: IServiceManager, config: ServerConfig): Promise<void> {
 		try {
 			this._logger.Activity("AddConfiguration");
 
@@ -82,20 +81,20 @@ export default class Startup implements IStartup {
 	}
 
 	/** Implementa los servicios de configuración de seguridad */
-	public async AddSecurityConfiguration(services: ServiceManager): Promise<void> {
+	public async AddSecurityConfiguration(services: IServiceManager): Promise<void> {
 		try {
 			this._logger.Activity("AddSecurityConfiguration");
 
 			services.AddRateLimiters();
 
 		} catch (err: any) {
-			this._logger.Error("FATAL", "AddConfiguration", err);
+			this._logger.Error("FATAL", "AddSecurityConfiguration", err);
 			throw err;
 		}
 	}
 
 	/** Implementa los middlewares globales de la aplicación */
-	public async AddBusinessMiddlewares(services: ServiceManager): Promise<void> {
+	public async AddBusinessMiddlewares(services: IServiceManager): Promise<void> {
 		try {
 			this._logger.Activity("AddBusinessMiddlewares");
 
@@ -106,48 +105,48 @@ export default class Startup implements IStartup {
 			services.AddControllers();
 
 		} catch (err: any) {
-			this._logger.Error("FATAL", "AddConfiguration", err);
+			this._logger.Error("FATAL", "AddBusinessMiddlewares", err);
 			throw err;
 		}
 	}
 
 	/** Agrega los repositorios de la aplicación */
-	public async AddBusinessRepositories(services: ServiceManager): Promise<void> {
+	public async AddBusinessRepositories(services: IServiceManager): Promise<void> {
 		try {
-			this._logger.Activity("AddBusinessRepositorys");
+			this._logger.Activity("AddBusinessRepositories");
 
-			services.container.AddService<IAhorrosSqlRepository, AhorrosSqlRepository>("ahorrosRepository", AhorrosSqlRepository);
-			services.container.AddService<ICategoriasSqlRepository, CategoriasSqlRepository>("categoriasRepository", CategoriasSqlRepository);
-			services.container.AddService<ICuentasSqlRepository, CuentasSqlRepository>("cuentasRepository", CuentasSqlRepository);
-			services.container.AddService<IDeudasSqlRepository, DeudasSqlRepository>("deudasRepository", DeudasSqlRepository);
-			services.container.AddService<IHistorialCambiosHogarSqlRepository, HistorialCambiosHogarSqlRepository>("historialCambiosHogarRepository", HistorialCambiosHogarSqlRepository);
-			services.container.AddService<IHogaresSqlRepository, HogaresSqlRepository>("hogaresRepository", HogaresSqlRepository);
-			services.container.AddService<IMetasSqlRepository, MetasSqlRepository>("metasRepository", MetasSqlRepository);
-			services.container.AddService<INotificacionesSqlRepository, NotificacionesSqlRepository>("notificacionesRepository", NotificacionesSqlRepository);
-			services.container.AddService<IPagosDeudaSqlRepository, PagosDeudaSqlRepository>("pagosDeudaRepository", PagosDeudaSqlRepository);
-			services.container.AddService<IPresupuestoCategoriaSqlRepository, PresupuestoCategoriaSqlRepository>("presupuestoCategoriaRepository", PresupuestoCategoriaSqlRepository);
-			services.container.AddService<IRolesSqlRepository, RolesSqlRepository>("rolesRepository", RolesSqlRepository);
-			services.container.AddService<ISolicitudHogarSqlRepository, SolicitudHogarSqlRepository>("solicitudHogarRepository", SolicitudHogarSqlRepository);
-			services.container.AddService<ITransaccionesSqlRepository, TransaccionesSqlRepository>("transaccionesRepository", TransaccionesSqlRepository);
-			services.container.AddService<IUsuarioHogarSqlRepository, UsuarioHogarSqlRepository>("usuarioHogarRepository", UsuarioHogarSqlRepository);
-			services.container.AddService<IUsuariosSqlRepository, UsuariosSqlRepository>("usuariosRepository", UsuariosSqlRepository);
+			services.AddService<IAhorrosSqlRepository, AhorrosSqlRepository>("ahorrosRepository", AhorrosSqlRepository);
+			services.AddService<ICategoriasSqlRepository, CategoriasSqlRepository>("categoriasRepository", CategoriasSqlRepository);
+			services.AddService<ICuentasSqlRepository, CuentasSqlRepository>("cuentasRepository", CuentasSqlRepository);
+			services.AddService<IDeudasSqlRepository, DeudasSqlRepository>("deudasRepository", DeudasSqlRepository);
+			services.AddService<IHistorialCambiosHogarSqlRepository, HistorialCambiosHogarSqlRepository>("historialCambiosHogarRepository", HistorialCambiosHogarSqlRepository);
+			services.AddService<IHogaresSqlRepository, HogaresSqlRepository>("hogaresRepository", HogaresSqlRepository);
+			services.AddService<IMetasSqlRepository, MetasSqlRepository>("metasRepository", MetasSqlRepository);
+			services.AddService<INotificacionesSqlRepository, NotificacionesSqlRepository>("notificacionesRepository", NotificacionesSqlRepository);
+			services.AddService<IPagosDeudaSqlRepository, PagosDeudaSqlRepository>("pagosDeudaRepository", PagosDeudaSqlRepository);
+			services.AddService<IPresupuestoCategoriaSqlRepository, PresupuestoCategoriaSqlRepository>("presupuestoCategoriaRepository", PresupuestoCategoriaSqlRepository);
+			services.AddService<IRolesSqlRepository, RolesSqlRepository>("rolesRepository", RolesSqlRepository);
+			services.AddService<ISolicitudHogarSqlRepository, SolicitudHogarSqlRepository>("solicitudHogarRepository", SolicitudHogarSqlRepository);
+			services.AddService<ITransaccionesSqlRepository, TransaccionesSqlRepository>("transaccionesRepository", TransaccionesSqlRepository);
+			services.AddService<IUsuarioHogarSqlRepository, UsuarioHogarSqlRepository>("usuarioHogarRepository", UsuarioHogarSqlRepository);
+			services.AddService<IUsuariosSqlRepository, UsuariosSqlRepository>("usuariosRepository", UsuariosSqlRepository);
 
 		} catch (err: any) {
-			this._logger.Error("FATAL", "AddConfiguration", err);
+			this._logger.Error("FATAL", "AddBusinessRepositories", err);
 			throw err;
 		}
 	}
 
 	/** Agrega los servicios del negocio */
-	public async AddBusinessServices(services: ServiceManager): Promise<void> {
+	public async AddBusinessServices(services: IServiceManager): Promise<void> {
 		try {
 			this._logger.Activity("AddBusinessServices");
 
-			services.container.AddService<ITestService, TestService>("testService", TestService);
-			services.container.AddService<IAuthenticationService, AuthenticationService>("authenticationService", AuthenticationService);
-
+			services.AddService<ITestService, TestService>("testService", TestService);
+			services.AddService<IAuthenticationService, AuthenticationService>("authenticationService", AuthenticationService);
+ 
 		} catch (err: any) {
-			this._logger.Error("FATAL", "AddConfiguration", err);
+			this._logger.Error("FATAL", "AddBusinessServices", err);
 			throw err;
 		}
 	}

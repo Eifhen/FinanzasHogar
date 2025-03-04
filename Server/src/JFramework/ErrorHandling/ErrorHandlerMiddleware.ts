@@ -1,11 +1,10 @@
 
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import ApplicationException from "./ApplicationException";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationRequest from "../Application/ApplicationRequest";
-import ServiceManager from "../_Internal/ServiceManager";
 import { ApplicationErrorMiddleware } from "../Middlewares/types/MiddlewareTypes";
 import { AutoBind } from "../Decorators/AutoBind";
 
@@ -21,12 +20,11 @@ export default class ErrorHandlerMiddleware implements ApplicationErrorMiddlewar
 			entityCategory: LoggEntityCategorys.MIDDLEWARE,
 			entityName: "ErrorHandlerMiddleware"
 		});
-
 	}
 
 	/** Middleware que permite interceptar los errores de la aplicación */
 	@AutoBind
-	public Intercept (error: ApplicationException|Error, req: ApplicationRequest, res: Response) : any {
+	public Intercept (error: ApplicationException|Error, req: ApplicationRequest, res: Response, next:NextFunction) : any {
 		this._logger.Register("WARN", "Intercept", error);
 		
 		const status = error instanceof ApplicationException && error.status ? error.status : HttpStatusCode.InternalServerError;

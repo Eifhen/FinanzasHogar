@@ -1,5 +1,6 @@
 import ServerConfig from "../../Configurations/ServerConfig";
-import ServiceManager from "../ServiceManager";
+import IServiceManager from "./IServiceManager";
+
 
 
 
@@ -8,18 +9,18 @@ export default interface IStartup {
 
   /** Agrega la configuración del servidor
   * Se encarga de inicializar el ApplicationContext */
-  AddConfiguration(services:ServiceManager, config?:ServerConfig) : Promise<void>;
+  AddConfiguration(services:IServiceManager, config?:ServerConfig) : Promise<void>;
 
   /** Agrega la configuración de seguridad del servidor */
-  AddSecurityConfiguration(services:ServiceManager) : Promise<void>;
+  AddSecurityConfiguration(services:IServiceManager) : Promise<void>;
 
   /** Agrega los middlewares globales del negocio */
-  AddBusinessMiddlewares(services:ServiceManager) : Promise<void>;
+  AddBusinessMiddlewares(services:IServiceManager) : Promise<void>;
 
   /** Se agregan los repositorios del negocio */
-  AddBusinessRepositories(services:ServiceManager) : Promise<void>;
+  AddBusinessRepositories(services:IServiceManager) : Promise<void>;
 
   /** Se agregan los servicos del negocio */
-  AddBusinessServices(services:ServiceManager) : Promise<void>;
+  AddBusinessServices(services:IServiceManager) : Promise<void>;
 
 }

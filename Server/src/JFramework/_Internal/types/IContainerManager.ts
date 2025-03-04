@@ -7,6 +7,9 @@ import { ClassConstructor, ClassInstance, FactoryFunction } from '../../Utils/ty
 
 export default interface IContainerManager {
 
+  /** Permite identificar un contenedor */
+  _identifier_:string;
+
   /** Permite resolver una dependencia según su nombre */
   Resolve<T>(serviceName: string): T;
 
@@ -17,12 +20,9 @@ export default interface IContainerManager {
   /** Método que permite resolver las dependencias de una función factory */
   ResolveFactory<Factory>(factory: FactoryFunction<Factory>) : Factory;
 
-  /** Permite agregar un servicio al contenedor de dependencias */
-  AddService<Class>(name: string, service: ClassConstructor<Class>, lifetime?: LifetimeType): void;
-  AddService<Interface, Class extends Interface>(name: string, service: ClassConstructor<Class>, lifetime?: LifetimeType): void;
-
-  /** Permite agregar una estrategia al contenedor de dependencias */
-  AddStrategy<Director, Strategy>(name: string, director: ClassConstructor<Director>, strategyType: ClassConstructor<Strategy>): void;
+  /** Permite agregar una clase al contenedor de dependencias */
+  AddClass<Class>(name: string, service: ClassConstructor<Class>, lifetime?: LifetimeType): void;
+  AddClass<Interface, Class extends Interface>(name: string, service: ClassConstructor<Class>, lifetime?: LifetimeType): void;
 
   /** Sobrecarga 1: sin restricción adicional de tipo */
   AddInstance<Clase>(name: string, implementation: ClassInstance<Clase>): void;
@@ -43,6 +43,10 @@ export default interface IContainerManager {
 
   /** Obtiene el contenedor de dependencias */
   GetContainer() : AwilixContainer;
+
+  /** Revisa si el registro indicado existe dentro 
+	 * del contenedor de dependencias */
+	CheckRegistration(name:string) : boolean
 
   /** Crea una instancia de ContainerManager usando un scope del contenedor */
   CreateScopedManager() : IContainerManager 

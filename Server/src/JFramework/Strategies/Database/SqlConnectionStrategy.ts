@@ -3,7 +3,7 @@
 import { Kysely, MssqlDialect, TediousConnection } from "kysely";
 import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
-import IDataBaseConnectionStrategy from "./IDataBaseConnectionStrategy";
+import IDatabaseConnectionStrategy from "./IDatabaseConnectionStrategy";
 import * as tarn from 'tarn';
 import * as tedious from 'tedious';
 import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
@@ -25,7 +25,7 @@ interface ISqlStrategyDependencies {
 
 /** Estrategia de conección a SQL usandoy Kysely */
 @AutoClassBinder
-export default class SqlConnectionStrategy implements IDataBaseConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
+export default class SqlConnectionStrategy implements IDatabaseConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
 
 	/** Logger Manager Instance */
 	private _loggerManager: ILoggerManager;

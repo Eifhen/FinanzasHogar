@@ -1,4 +1,5 @@
-import { asClass, asValue, AwilixContainer, createContainer, InjectionMode, Lifetime, LifetimeType } from "awilix";
+
+import { asClass, asValue, AwilixContainer, BuildResolverOptions, ClassOrFunctionReturning, createContainer, InjectionMode, Lifetime, LifetimeType, Resolver } from "awilix";
 import IContainerManager from "./types/IContainerManager";
 import ILoggerManager, { LoggerTypes } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
@@ -7,8 +8,10 @@ import ApplicationException from "../ErrorHandling/ApplicationException";
 import { NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
 import { ClassInstance, ClassConstructor, FactoryFunction } from "../Utils/types/CommonTypes";
+import { AutoClassBinder } from "../Decorators/AutoBind";
 
 
+@AutoClassBinder
 export default class ContainerManager implements IContainerManager {
 
 	/** Propiedad que contiene nuestro contenedor de dependencias */
@@ -16,6 +19,9 @@ export default class ContainerManager implements IContainerManager {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;
+
+	/** Identificador */
+	public _identifier_: string = "PARENT";
 
 	constructor(container?: AwilixContainer, logger?: ILoggerManager) {
 		// Instanciamos el logger
@@ -53,6 +59,7 @@ export default class ContainerManager implements IContainerManager {
 	public ResolveClass<Class>(implementation: ClassConstructor<Class>): ClassInstance<Class> {
 		try {
 			this._logger.Message(LoggerTypes.INFO, `Resolviendo clase: ${implementation.name}`);
+
 			const resolve = this._container.build(implementation);
 			return resolve;
 		}
@@ -70,9 +77,10 @@ export default class ContainerManager implements IContainerManager {
 	}
 
 	/** Método que permite resolver las dependencias de una función factory */
-	public ResolveFactory<Factory>(factory: FactoryFunction<Factory>) : Factory {
+	public ResolveFactory<Factory>(factory: FactoryFunction<Factory>): Factory {
 		try {
 			this._logger.Message(LoggerTypes.INFO, `Resolviendo Factory: ${factory.name}`);
+
 			const resolve = this._container.build(factory);
 			return resolve;
 		}
@@ -90,9 +98,9 @@ export default class ContainerManager implements IContainerManager {
 	}
 
 	/** Método que permite agregar un servicio al contenedor */
-	public AddService<Interface, Class extends Interface>(name: string, service: ClassConstructor<Class>, lifetime: LifetimeType = Lifetime.SCOPED) {
+	public AddClass<Interface, Class extends Interface>(name: string, service: ClassConstructor<Class>, lifetime: LifetimeType = Lifetime.SCOPED) {
 		try {
-			// this._logger.Activity(`AddService`);
+			this._logger.Message("INFO",`Añadiendo clase ${name}`);
 
 			// Registrar la implementación asociada a la interfaz
 			this._container?.register(name, asClass<Class>(service, { lifetime }));
@@ -116,12 +124,13 @@ export default class ContainerManager implements IContainerManager {
 	public AddInstance<Interface, Clase extends Interface>(name: string, implementation: ClassInstance<Clase>): void
 	public AddInstance<Interface, Clase extends Interface>(name: string, implementation: ClassInstance<Clase>): void {
 		try {
-
+			this._logger.Message("INFO",`Añadiendo instancia ${name}`);
+			
 			// Registrar la implementación asociada a la interfaz
 			this._container?.register(name, asValue(implementation));
 
 		} catch (err: any) {
-			this._logger.Error(LoggerTypes.FATAL, "AddService", err);
+			this._logger.Error(LoggerTypes.FATAL, "AddInstance", err);
 			throw new ApplicationException(
 				"AddInstance",
 				HttpStatusName.InternalServerError,
@@ -139,7 +148,7 @@ export default class ContainerManager implements IContainerManager {
 	public AddSingleton<Interface, Class extends Interface>(name: string, implementation: ClassConstructor<Class>): void
 	public AddSingleton<Interface, Class extends Interface>(name: string, implementation: ClassConstructor<Class>): void {
 		try {
-			// this._logger.Activity(`AddInstance`);
+			this._logger.Message("INFO",`Añadiendo singleton ${name}`);
 			let instance;
 			const contextExists = this._container.hasRegistration("applicationContext");
 
@@ -169,6 +178,8 @@ export default class ContainerManager implements IContainerManager {
 	/** Permite agregar un valor como singleton */
 	public AddValue<ValueType>(name: string, value: ValueType): void {
 		try {
+			this._logger.Message("INFO",`Añadiendo objeto ${name}`);
+
 			// Registrar la implementación asociada a la interfaz
 			this._container?.register(name, asValue(value));
 
@@ -176,31 +187,6 @@ export default class ContainerManager implements IContainerManager {
 			this._logger.Error(LoggerTypes.FATAL, "AddService", err);
 			throw new ApplicationException(
 				"AddInstance",
-				HttpStatusName.InternalServerError,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
-				__filename,
-				err
-			);
-		}
-	}
-
-	/** Método que permite agregar un director de estrategias */
-	public AddStrategy<Director, Strategy>(name: string, director: ClassConstructor<Director>, strategy: ClassConstructor<Strategy>): void {
-		try {
-			this._logger.Activity(`AddStrategy`);
-			const applicationContext = this.Resolve<ApplicationContext>("applicationContext");
-			const strategyImplementation = new strategy({ applicationContext })
-			const classImplementation = new director({ strategyImplementation, applicationContext });
-
-			this.AddInstance<Director>(name, classImplementation);
-		}
-		catch (err: any) {
-			this._logger.Error("FATAL", "AddStrategy", err);
-
-			throw new ApplicationException(
-				"AddStrategy",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
@@ -238,6 +224,8 @@ export default class ContainerManager implements IContainerManager {
 		try {
 			this._logger.Activity(`CreateScopedManager`);
 			const scopedContainer = this._container.createScope();
+			console.log("Scoped container =>", scopedContainer);
+
 			return new ContainerManager(scopedContainer, this._logger);
 		}
 		catch (err: any) {
@@ -245,6 +233,65 @@ export default class ContainerManager implements IContainerManager {
 
 			throw new ApplicationException(
 				"CreateScopedManager",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
+	}
+
+	/** Revisa si el registro indicado existe dentro 
+	 * del contenedor de dependencias */
+	public CheckRegistration(name:string) : boolean {
+		try {
+			this._logger.Activity(`CheckRegistration`);
+			return this._container.hasRegistration(name);
+		}
+		catch (err: any) {
+			this._logger.Error("FATAL", "CheckRegistration", err);
+
+			throw new ApplicationException(
+				"CheckRegistration",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
+	}
+
+
+	/** Reescribimos la implementación del método build de awilix,
+	 * esta implementación de build es llamada por la función `loadControllers`,
+	 * awilix utiliza build para resolver sus dependencias internas al 
+	 * momento de resolver los controladores, en este caso estamos pasando 
+	 * una instancia de ContainerManager al objeto request (ver interfaz ApplicationRequest)
+	 * por esta razón necesitamos implementar nosotros el método build, para poder entonces
+	 * pasar una instancia del ContainerManager al objeto request en lugar de una instancia
+	 * directa del contenedor de awilix
+	 */
+	public build<Factory>(
+		targetOrResolver: ClassOrFunctionReturning<Factory> | Resolver<Factory>,
+		opts?: BuildResolverOptions<Factory>
+	): Factory {
+		try {
+			this._logger.Activity("Build");
+			this._logger.Message("INFO", `Resolviendo`, {
+				targetOrResolver,
+				opts
+			});
+			
+			return this._container.build(targetOrResolver, opts);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.FATAL, "Build", err);
+			throw new ApplicationException(
+				"Build",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,

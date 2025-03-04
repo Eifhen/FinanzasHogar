@@ -65,11 +65,11 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 			});
 
 			redisClient.on("connect", (data) => {
-				this._logger.Message("INFO", "RedisClient Connected =>", data);
+				this._logger.Message("INFO", "RedisClient Connected", data);
 			})
 
 			redisClient.connect().catch(err=> {
-				this._logger.Error("ERROR", "Connect", err);
+				this._logger.Error("ERROR", "RedisClient Connection", err);
 			});
 
 			return redisClient;

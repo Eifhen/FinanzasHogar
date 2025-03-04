@@ -20,17 +20,12 @@ export default class ExampleMiddleware extends ApplicationMiddleware {
 
 	public async Intercept (req: ApplicationRequest, res: Response, next: NextFunction) : Promise<any> {
 		try {
-			console.log("Prueba Example =>");
+			console.log("Prueba Example");
 			return next();
 		}
 		catch(err:any){
 			return next(err);
 		}
 	}
-
-	
-	// public Init () : MiddleWareFunction | Promise<MiddleWareFunction> {
-	//   return this.Intercept;
-	// } 
 
 }

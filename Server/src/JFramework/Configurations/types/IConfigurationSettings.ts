@@ -1,5 +1,6 @@
 import { ConnectionConfiguration } from "tedious";
 import { Environment } from "../../Utils/Environment";
+import { DatabaseType } from "../../Strategies/Database/DatabaseType";
 
 
 
@@ -95,6 +96,10 @@ export type DatabaseConnectionConfig = {
 
 /** Objeto de configuración de conección a base de datos */
 export type DatabaseConnectionData = {
+
+  /** Tipo de base de datos o a Aqué */
+  type: DatabaseType;
+
   /** Nombre de usuario de la base de datos */
   userName: string;
 

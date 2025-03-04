@@ -16,11 +16,8 @@ import LoggerManager from "../Managers/LoggerManager";
 import TokenManager from "../Managers/TokenManager";
 import { CloudinaryImageStrategy } from "../Strategies/Image/CloudinaryImageStrategy";
 import ImageStrategyDirector from "../Strategies/Image/ImageStrategyDirector";
-import ServiceManager from "./ServiceManager";
 import IInternalServiceManager from "./types/IInternalServiceManager";
-
-
-
+import IServiceManager from "./types/IServiceManager";
 
 
 export class InternalServiceManager implements IInternalServiceManager {
@@ -30,9 +27,9 @@ export class InternalServiceManager implements IInternalServiceManager {
 	private readonly _logger: ILoggerManager;
 
 	/** Manejador de servicios */
-	private readonly _serviceManager: ServiceManager;
+	private readonly _serviceManager: IServiceManager;
 
-	constructor(serviceManager: ServiceManager) {
+	constructor(serviceManager: IServiceManager) {
 		/** Instancia logger */
 		this._logger = new LoggerManager({
 			entityCategory: "MANAGER",
@@ -46,7 +43,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 	public async AddInternalStrategies(): Promise<void> {
 		try {
 			this._logger.Activity("AddInternalStrategies");
-			this._serviceManager.container.AddStrategy("imageDirector", ImageStrategyDirector, CloudinaryImageStrategy);
+			this._serviceManager.AddStrategy("imageDirector", ImageStrategyDirector, CloudinaryImageStrategy);
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalStrategies", err);
@@ -59,13 +56,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 		try {
 			this._logger.Activity("AddInternalManagers");
 
-			this._serviceManager.container.AddService<SqlTransactionManager>("sqlTransactionManager", SqlTransactionManager);
-			this._serviceManager.container.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);
-			this._serviceManager.container.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
-			this._serviceManager.container.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
-			this._serviceManager.container.AddService<IEmailDataManager, EmailDataManager>("emailDataManager", EmailDataManager);
-			this._serviceManager.container.AddService<IEmailTemplateManager, EmailTemplateManager>("emailTemplateManager", EmailTemplateManager);
-			this._serviceManager.container.AddService<IFileManager, FileManager>("fileManager", FileManager);
+			this._serviceManager.AddService<SqlTransactionManager>("sqlTransactionManager", SqlTransactionManager);
+			this._serviceManager.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);
+			this._serviceManager.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
+			this._serviceManager.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
+			this._serviceManager.AddService<IEmailDataManager, EmailDataManager>("emailDataManager", EmailDataManager);
+			this._serviceManager.AddService<IEmailTemplateManager, EmailTemplateManager>("emailTemplateManager", EmailTemplateManager);
+			this._serviceManager.AddService<IFileManager, FileManager>("fileManager", FileManager);
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalManagers", err);

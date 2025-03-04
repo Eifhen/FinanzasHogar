@@ -44,7 +44,7 @@ export default class RateLimiterManager {
 	@AutoBind
 	public BuildStore (limiterName: Limiters, rateLimiterConfigOptions: Partial<Options>): Partial<Options> {
 		try {
-			this._logger.Activity("BuildStore");
+			this._logger.Activity(`BuildStore | ${limiterName}`);
 
 			/** Agrega el store a las opciones de 
 			 * configuración del RateLimiter, el store es importante 
@@ -81,7 +81,7 @@ export default class RateLimiterManager {
 	private RequestLimiterHandler (limiterName: Limiters, requestCooldownInMs: number = 0) {
 		return (req: Request, res: Response, next: NextFunction) => {
 			try {
-				this._logger.Activity("RequestLimiterHandler");
+				this._logger.Activity(`RequestLimiterHandler | ${limiterName}`);
 
 				/** Obtenemos la unidad de tiempo según los milisegundos */
 				const unit = TimeUnitConverter.MillisecondsToUnit(requestCooldownInMs);

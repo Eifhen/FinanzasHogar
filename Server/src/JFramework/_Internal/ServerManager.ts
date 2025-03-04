@@ -12,6 +12,10 @@ import ContainerManager from "./ContainerManager";
 import ServerConfig from "../Configurations/ServerConfig";
 import IInternalServiceManager from "./types/IInternalServiceManager";
 import { InternalServiceManager } from "./InternalServiceManager";
+import IServiceManager from "./types/IServiceManager";
+import IDatabaseConnectionManager from "./types/IDatabaseConnectionManager";
+import DatabaseConnectionManager from "./DatabaseConnectionManager";
+import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 
 
 interface ServerManagerDependencies {
@@ -42,11 +46,17 @@ export default class ServerManager {
 	private readonly _internalServiceManager: IInternalServiceManager;
 	
 	/** Manejador de servicios */
-	private readonly _serviceManager: ServiceManager;
+	private readonly _serviceManager: IServiceManager;
 
 	/**  Manejador de configuración del servidor */
 	private readonly _serverConfig: ServerConfig;
 
+	/** Manejador de conección a la base de datos */
+	private readonly _databaseConnecctionManager: IDatabaseConnectionManager;
+
+	/** Objeto de configuración del sistema */
+	private readonly _configurationSettings: ConfigurationSettings;
+	
 	
 	constructor(deps: ServerManagerDependencies) {
 		// Instanciamos el logger
@@ -61,13 +71,16 @@ export default class ServerManager {
 		// Instanciamos el Startup
 		this._startup = deps.startup;
 
+		this._configurationSettings = new ConfigurationSettings();
+
 		/** Agregamos el manejador de contenedores */
 		this._containerManager = new ContainerManager();
 
 		// Instanciamos el manejador de servicios
 		this._serviceManager = new ServiceManager({
 			app: this._app,
-			containerManager: this._containerManager
+			containerManager: this._containerManager,
+			configurationSettings: this._configurationSettings
 		});
 
 		// Instanciamos la configuración del server
@@ -75,6 +88,12 @@ export default class ServerManager {
 
 		/** Agregamos el manejador de servicios internos */
 		this._internalServiceManager = new InternalServiceManager(this._serviceManager);
+
+		/** Agregamos el manejador de conección */
+		this._databaseConnecctionManager = new DatabaseConnectionManager({
+			containerManager: this._containerManager,
+			configurationSettings: this._configurationSettings
+		})
 	}
 
 	/** Este evento se ejecuta si algún error no fue manejado por la app */
@@ -87,8 +106,9 @@ export default class ServerManager {
 			});
 
 			/** Se hace un cleanup de cualquier funcionalidad que se esté ejecutando  */
-			// this._startup.OnApplicationCriticalException(err, this._serviceManager);
-			// this.CloseServer();
+			this.CloseServer().catch(err => {
+				this._logger.Error("FATAL", "CloseServer", err);
+			});
 		})
 	}
 
@@ -114,8 +134,10 @@ export default class ServerManager {
 			};
 
 			this._logger.Error("FATAL", "OnUnhandledRejection", data);
-			// this._startup.OnApplicationCriticalException(data, this._serviceManager);
-			/// this.CloseServer();
+			
+			this.CloseServer().catch(err => {
+				this._logger.Error("FATAL", "CloseServer", err);
+			});
 		});
 	}
 
@@ -125,7 +147,7 @@ export default class ServerManager {
 			this._logger.Activity("CloseServer");
 
 			// Cerramos la conección con la base de datos
-			await this._serviceManager.CloseDataBaseConnection();
+			await this._databaseConnecctionManager.Disconnect();
 
 			if (this._server) {
 				/** Cerrar el servidor de manera controlada  */
@@ -159,9 +181,18 @@ export default class ServerManager {
 			this.OnUncaughtException();
 			this.OnUnhandledRejection();
 
-			// await this._serviceManager.AddDataBaseConnection(SqlConnectionStrategy);
+			/** Agregamos la configuración inicial */
 			await this._startup.AddConfiguration(this._serviceManager, this._serverConfig);
+			
+			/** Realizamos la conección a la base de datos */
+			await this._databaseConnecctionManager.Connect();
+
+			/** Realiza conección con el cliente de caché (Redis) */
+
+			/** Agregamos la configuración de seguridad */
 			await this._startup.AddSecurityConfiguration(this._serviceManager);
+
+			/** Agregamos los middleware del negocio */
 			await this._startup.AddBusinessMiddlewares(this._serviceManager);
 
 			/** A partir de aquí ya no se agregan middlewares, 

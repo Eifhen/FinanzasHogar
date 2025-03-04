@@ -38,7 +38,7 @@ export default class SqlTransactionManager {
 		this._logger = new LoggerManager({
 			applicationContext: deps.applicationContext,
 			entityCategory: LoggEntityCategorys.BUILDER,
-			entityName: "MssSqlTransactionBuilder"
+			entityName: "SqlTransactionManager"
 		});
 
 		this._applicationContext = deps.applicationContext;

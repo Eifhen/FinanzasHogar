@@ -39,8 +39,8 @@ export default class ApiAuthenticationMiddleware extends ApplicationMiddleware {
 			/** Token que ingresa en la solicitud */
 			const token = req.headers.authorization;
 			
-			const tokenManager = this._serviceManager.Resolve<ITokenManager>("tokenManager");
-			const userRepository = this._serviceManager.Resolve<IUsuariosSqlRepository>("usuariosRepository");
+			const tokenManager = this._serviceManager._containerManager.Resolve<ITokenManager>("tokenManager");
+			const userRepository = this._serviceManager._containerManager.Resolve<IUsuariosSqlRepository>("usuariosRepository");
 			
 			const [err, data] = await userRepository.GetAll();
 
@@ -60,9 +60,4 @@ export default class ApiAuthenticationMiddleware extends ApplicationMiddleware {
 		}
 	}
 
-	/** Inicialización del middleware  */
-	// public Init (): MiddleWareFunction {
-	//   this._logger.Activity("Init");
-	//   return this.Intercept;
-	// }
 }
