@@ -34,7 +34,7 @@ import UsuarioHogarSqlRepository from "../../Infraestructure/Repositories/Usuari
 import UsuariosSqlRepository from "../../Infraestructure/Repositories/UsuariosSqlRepository";
 import IServiceManager from "../../JFramework/_Internal/types/IServiceManager";
 import IStartup from "../../JFramework/_Internal/types/IStartup";
-import ServerConfig from "../../JFramework/Configurations/ServerConfig";
+import ServerConfig from "../../JFramework/_Internal/ServerConfig";
 import ILoggerManager from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
@@ -69,9 +69,6 @@ export default class Startup implements IStartup {
 
 			/** Parsea la respuesta a json */
 			config.AddJsonResponse();
-
-			/** Se agrega cliente caché */
-			services.AddCacheClient();
 
 		}
 		catch (err: any) {

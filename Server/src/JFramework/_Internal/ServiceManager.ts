@@ -8,7 +8,6 @@ import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { ErrorRequestHandler } from "express-serve-static-core";
 import ApplicationContext from "../Application/ApplicationContext";
-import CacheConnectionManager from "../Managers/CacheConnectionManager";
 import { RedisClientType } from "redis";
 import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
 import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
@@ -128,16 +127,6 @@ export default class ServiceManager implements IServiceManager {
 	public AddMiddlewareInstance(instance: ClassInstance<ApplicationMiddleware | ApplicationErrorMiddleware>): void {
 		this._logger.Activity(`AddMiddlewareInstance`);
 		this._app.use(instance.Intercept as RequestHandler | ErrorRequestHandler);
-	}
-
-	/** Se conecta al servidor de caché y agrega un singleton 
-	 * con dicha conección al contenedor de dependencias*/
-	public AddCacheClient(): void {
-		const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
-		const cacheManager = new CacheConnectionManager({ applicationContext });
-		const cacheClient = cacheManager.Connect();
-
-		this._containerManager.AddInstance<RedisClientType<any, any, any>>("cacheClient", cacheClient);
 	}
 
 	/** Permite agregar una instancia del RateLimiter 

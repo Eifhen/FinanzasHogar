@@ -1,4 +1,4 @@
-import ServerConfig from "../../Configurations/ServerConfig";
+import ServerConfig from "../ServerConfig";
 import IServiceManager from "./IServiceManager";
 
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 
-import { z, ZodObject, ZodSchema, ZodTypeAny } from "zod";
+import { z, ZodObject, ZodSchema } from "zod";
 import { fromZodError } from "zod-validation-error";
 
 interface ValidationResult {

@@ -1,21 +1,23 @@
 import { Application } from "express";
-import { DEFAULT_PORT } from "../Utils/const";
 import IStartup from "./types/IStartup"
 import { Server } from "http";
 import express from 'express';
 import LoggerManager from "../Managers/LoggerManager";
 import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
-import { EXIT_CODE_UNCAUGHT_FATAL_EXCEPTION } from "../Utils/exit_codes";
+import { EXIT_CODES } from "../Utils/exit_codes";
 import ServiceManager from "./ServiceManager";
 import IContainerManager from "./types/IContainerManager";
 import ContainerManager from "./ContainerManager";
-import ServerConfig from "../Configurations/ServerConfig";
+import ServerConfig from "./ServerConfig";
 import IInternalServiceManager from "./types/IInternalServiceManager";
 import { InternalServiceManager } from "./InternalServiceManager";
 import IServiceManager from "./types/IServiceManager";
 import IDatabaseConnectionManager from "./types/IDatabaseConnectionManager";
 import DatabaseConnectionManager from "./DatabaseConnectionManager";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
+import ICacheConnectionManager from './types/ICacheConnectionManager';
+import CacheConnectionManager from "./CacheConnectionManager";
+
 
 
 interface ServerManagerDependencies {
@@ -30,21 +32,18 @@ export default class ServerManager {
 	/** Instancia de express */
 	private readonly _app: Application;
 
-	/** Puerto de ejecución */
-	private readonly _PORT: number = Number(process.env.PORT ?? DEFAULT_PORT);
-
 	/** Instancia del startup */
 	private readonly _startup: IStartup;
 
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
-	
+
 	/** Manejador de contenedores */
 	private readonly _containerManager: IContainerManager;
-	
+
 	/** Manejador de servicios internos */
 	private readonly _internalServiceManager: IInternalServiceManager;
-	
+
 	/** Manejador de servicios */
 	private readonly _serviceManager: IServiceManager;
 
@@ -54,10 +53,13 @@ export default class ServerManager {
 	/** Manejador de conección a la base de datos */
 	private readonly _databaseConnecctionManager: IDatabaseConnectionManager;
 
+	/** Manejador de conección a servidor caché */
+	private readonly _cacheConnectionManager: ICacheConnectionManager;
+
 	/** Objeto de configuración del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
-	
-	
+
+
 	constructor(deps: ServerManagerDependencies) {
 		// Instanciamos el logger
 		this._logger = new LoggerManager({
@@ -94,6 +96,12 @@ export default class ServerManager {
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings
 		})
+
+		/** Agregamos el manejador de conección caché */
+		this._cacheConnectionManager = new CacheConnectionManager({
+			containerManager: this._containerManager,
+			configurationSettings: this._configurationSettings
+		})
 	}
 
 	/** Este evento se ejecuta si algún error no fue manejado por la app */
@@ -106,7 +114,7 @@ export default class ServerManager {
 			});
 
 			/** Se hace un cleanup de cualquier funcionalidad que se esté ejecutando  */
-			this.CloseServer().catch(err => {
+			this.CloseServer(EXIT_CODES.UNCAUGHT_FATAL_EXCEPTION).catch(err => {
 				this._logger.Error("FATAL", "CloseServer", err);
 			});
 		})
@@ -134,37 +142,86 @@ export default class ServerManager {
 			};
 
 			this._logger.Error("FATAL", "OnUnhandledRejection", data);
-			
-			this.CloseServer().catch(err => {
+
+			this.CloseServer(EXIT_CODES.UNCAUGHT_FATAL_EXCEPTION).catch(err => {
 				this._logger.Error("FATAL", "CloseServer", err);
 			});
 		});
 	}
 
+	/** Este se ejecuta cuando ocurre una señal de terminación */
+	private OnTerminationSignal() {
+
+		/** SIGINT (Signal Interrupt)
+		 * Se envía cuando el usuario interrumpe el proceso de forma manual 
+		 * (por ejemplo, presionando Ctrl+C en la terminal). */
+		process.on("SIGINT", () => {
+			this.CloseServer(EXIT_CODES.SUCCESS).catch(err => {
+				this._logger.Error("FATAL", "CloseServer", err);
+			});
+		});
+
+		/** SIGTERM (Signal Terminate):
+		 * Es una señal de terminación "suave" enviada por el sistema o por 
+		 * otros procesos (por ejemplo, mediante un comando kill o en 
+		 * entornos de orquestación de contenedores). */
+		process.on("SIGTERM", () => {
+			this.CloseServer(EXIT_CODES.SIGTERM_EXIT).catch(err => {
+				this._logger.Error("FATAL", "CloseServer", err);
+			});
+		});
+	}
+
+	/** Maneja los eventos de termino de proceso */
+	private OnProcessEnds() {
+		/** Eliminar listeners existentes para evitar duplicados */
+		process.removeAllListeners("uncaughtException");
+		process.removeAllListeners("unhandledRejection");
+		process.removeAllListeners("SIGINT");
+		process.removeAllListeners("SIGTERM");
+
+		/** Registrar eventos nuevamente */
+		this.OnUncaughtException();
+		this.OnUnhandledRejection();
+		this.OnTerminationSignal();
+
+	}
+
+	/** Cierra el servidor */
+	private Close(exitCode: EXIT_CODES){
+		if (this._server) {
+			/** Cerrar el servidor de manera controlada  */
+			this._logger.Message("WARN", `El servidor procederá a cerrarse =>`);
+			this._server.close(() => {
+				this._logger.Message("WARN", `El servidor ha sido cerrado =>`);
+				process.exit(exitCode); // Salir del proceso con código de error
+			});
+		} else {
+			/** Si no hay servidor, simplemente terminamos el proceso */
+			this._logger.Message("WARN", `Cerrando Proceso =>`);
+			process.exit(exitCode);
+		}
+	}
+
 	/** Permite cerrar el servidor */
-	private async CloseServer() {
+	private async CloseServer(exitCode: EXIT_CODES) {
 		try {
 			this._logger.Activity("CloseServer");
 
-			// Cerramos la conección con la base de datos
+			/** Cerramos la conección con la base de datos */
 			await this._databaseConnecctionManager.Disconnect();
 
-			if (this._server) {
-				/** Cerrar el servidor de manera controlada  */
-				this._logger.Message("WARN", `El servidor procederá a cerrarse =>`);
-				this._server.close(() => {
-					this._logger.Message("WARN", `El servidor ha sido cerrado =>`);
-					process.exit(EXIT_CODE_UNCAUGHT_FATAL_EXCEPTION); // Salir del proceso con código de error
-				});
-			} else {
-				/** Si no hay servidor, simplemente terminamos el proceso */
-				this._logger.Message("WARN", `Cerrando Proceso =>`);
-				process.exit(EXIT_CODE_UNCAUGHT_FATAL_EXCEPTION);
-			}
+			/** Cerramos la conección con el servidor caché */
+			await this._cacheConnectionManager.Disconnect();
+
+			/** Cerramos el servidor */
+			this.Close(exitCode);
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "CloseServer", err);
-			throw err;
+			
+			/** Cerramos el servidor */
+			this.Close(exitCode);
 		}
 	}
 
@@ -173,21 +230,17 @@ export default class ServerManager {
 		try {
 			this._logger.Activity("OnServerStart");
 
-			// Eliminar listeners existentes para evitar duplicados
-			process.removeAllListeners("uncaughtException");
-			process.removeAllListeners("unhandledRejection");
-
-			// Registrar eventos nuevamente
-			this.OnUncaughtException();
-			this.OnUnhandledRejection();
+			/** Maneja los eventos que terminan el proceso */
+			this.OnProcessEnds();
 
 			/** Agregamos la configuración inicial */
 			await this._startup.AddConfiguration(this._serviceManager, this._serverConfig);
-			
+
 			/** Realizamos la conección a la base de datos */
 			await this._databaseConnecctionManager.Connect();
 
 			/** Realiza conección con el cliente de caché (Redis) */
+			await this._cacheConnectionManager.Connect();
 
 			/** Agregamos la configuración de seguridad */
 			await this._startup.AddSecurityConfiguration(this._serviceManager);
@@ -206,8 +259,8 @@ export default class ServerManager {
 			await this._internalServiceManager.AddExceptionManager();
 
 			/** Iniciamos el servidor */
-			this._server = this._app.listen(this._PORT, () => {
-				this._logger.Message("INFO", `El servidor está corriendo en el puerto ${this._PORT}`);
+			this._server = this._app.listen(this._configurationSettings.port, () => {
+				this._logger.Message("INFO", `El servidor está corriendo en el puerto ${this._configurationSettings.port}`);
 			});
 
 		} catch (err: any) {
@@ -224,7 +277,7 @@ export default class ServerManager {
 			this._logger.Error("FATAL", "OnServerStart", err);
 
 			/** Cerramos el servidor */
-			this.CloseServer().catch(err => {
+			this.CloseServer(EXIT_CODES.FATAL_ERROR).catch(err => {
 				/** Si ocurre un error cerrando el servidor */
 				this._logger.Error("FATAL", "CloseServer", err);
 			});

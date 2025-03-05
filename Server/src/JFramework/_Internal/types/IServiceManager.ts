@@ -26,10 +26,6 @@ export default interface IServiceManager {
   /** Agrega la instancia de un middleware directamente  */
   AddMiddlewareInstance(instance: ClassInstance<ApplicationMiddleware | ApplicationErrorMiddleware>): void;
 
-  /** Se conecta al servidor de caché y agrega un singleton 
-  * con dicha conección al contenedor de dependencias*/
-  AddCacheClient(): void;
-
   /** Permite agregar una instancia del RateLimiter 
    * Middleware como singleton */
   AddRateLimiters(): void;

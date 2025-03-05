@@ -5,12 +5,13 @@
 export default interface IApplicationResponse<T> {
 
   /** Id del request */
-  requestID: string,
+  requestID: string;
   /** Data a devolver */
-  data?: T,
+  data?: T;
+
   /** Mensaje de respuesta */
-  message: string,
+  message: string;
 
   /** Ruta de redirección si la hay */
-  redirectionRoute?: string,
+  redirectionRoute?: string;
 }
