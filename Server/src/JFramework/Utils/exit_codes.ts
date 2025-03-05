@@ -1,6 +1,4 @@
 
-
-
 export const EXIT_CODES = {
 	/** Indica que el programa terminó sin errores */
 	SUCCESS: 0,

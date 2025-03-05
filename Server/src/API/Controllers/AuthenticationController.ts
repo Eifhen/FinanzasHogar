@@ -25,7 +25,6 @@ interface IAuthenticationDependencies {
 @route("/auth")
 export default class AuthenticationController {
 
-
 	/** Instancia del Servicio de autenticación de usuario */
 	private authenticationService: IAuthenticationService;
 

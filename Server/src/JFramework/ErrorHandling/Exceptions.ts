@@ -1,5 +1,5 @@
 import ApplicationContext from "../Application/ApplicationContext";
-import { HttpStatusCode, HttpStatusName, HttpStatusNames } from "../Utils/HttpCodes";
+import { HttpStatusCode, HttpStatusName, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "./ApplicationException";
 import { EN } from '../Translations/en_US';
 
@@ -20,7 +20,7 @@ export type ErrorMessageData = {
 export class BaseException extends ApplicationException {
 	constructor(
 		methodName: string,
-		errorName: HttpStatusNames,
+		errorName: HttpStatusName,
 		messageData: string | ErrorMessageData,
 		applicationContext: ApplicationContext,
 		path?: string,

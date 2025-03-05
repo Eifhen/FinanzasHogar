@@ -23,8 +23,6 @@ export const HttpStatusCode = {
 	ServiceUnavailable : 503,
 } as const;
 
-
-
 export const HttpStatusMessage = {
 	// Información
 	OK : "ok-result",
@@ -50,7 +48,6 @@ export const HttpStatusMessage = {
 	ServiceUnavailable : "service-unavailable",
 
 } as const;
-
 
 export const HttpStatusName = {
 	// Información
@@ -91,8 +88,8 @@ export const HttpStatusName = {
 } as const
 
 
-export type HttpStatusNames = (typeof HttpStatusName)[keyof typeof HttpStatusName];
+export type HttpStatusName = (typeof HttpStatusName)[keyof typeof HttpStatusName];
 
-export type HttpStatusCodes = (typeof HttpStatusCode)[keyof typeof HttpStatusCode];
+export type HttpStatusCode = (typeof HttpStatusCode)[keyof typeof HttpStatusCode];
 
-export type HttpStatusMessages = (typeof HttpStatusMessage)[keyof typeof HttpStatusMessage];
+export type HttpStatusMessage = (typeof HttpStatusMessage)[keyof typeof HttpStatusMessage];

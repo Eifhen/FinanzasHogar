@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 export const EnvironmentStatus = {
 	DEVELOPMENT:"DEVELOPMENT",
 	PRODUCTION:"PRODUCTION",
