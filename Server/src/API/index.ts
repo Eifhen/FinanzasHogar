@@ -5,4 +5,4 @@ import Startup from "./Server/Startup";
 
 
 /** Inicializa el servidor */
-new ServerManager({ startup: new Startup() }).Start();
+new ServerManager({ startup: Startup }).Start();

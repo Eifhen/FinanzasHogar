@@ -1,6 +1,7 @@
 import { ConnectionConfiguration } from "tedious";
 import { Environment } from "../../Utils/Environment";
-import { DatabaseType } from "../../Strategies/Database/DatabaseType";
+import { DatabaseType } from "../../DataBases/SQL/Types/DatabaseType";
+import { CloudStorageProviders } from "../../CloudStorage/Types/CloudStorageProviders";
 
 
 
@@ -39,7 +40,7 @@ export type EmailProviderConfig = {
 }
 
 /** Objeto con datos relevantes para acceder al proveedr de cloudinary */
-export type FileProviderData = {
+export type CloudProviderData = {
   
   /** Nombre de usuario */
   cloud_name: string;
@@ -67,25 +68,25 @@ export type FileProviderData = {
 }
 
 /** Representa un FileProvider */
-export type FileProvider = {
+export type CloudProvider = {
   /** Nombre del proveedor */
-  name: string;
+  name: CloudStorageProviders | "";
 
   /** Datos del proveedor */
-  data: FileProviderData;
+  data: CloudProviderData;
 }
 
 /** Objeto de configuración de proveedores de archivos */
-export type FileProviderConfig = {
+export type CloudProviderConfig = {
 
   /** Nombre del actual proveedor */
   currentProviderName: string;
 
   /** Proveedor actual */
-  currentProvider: FileProvider;
+  currentProvider: CloudProvider;
 
   /** Proveedores */
-  providers: FileProvider[];
+  providers: CloudProvider[];
 }
 
 /** Objeto de connección a base de datos */
@@ -120,6 +121,9 @@ export type DatabaseConnectionData = {
 
   /** Nombre de la instancia */
   instance: string;
+
+  /** Cadena de conección */
+  connectionString: string;
 
   /** Timeout de conección */
   connectionTimeout: number;
@@ -229,7 +233,7 @@ export default interface IConfigurationSettings {
   emailProviderConfig: EmailProviderConfig;
 
   /** Proveedores para almacenamiento de archivos */
-  fileProvider: FileProviderConfig
+  cloudProvider: CloudProviderConfig
 
   /** Configuracion de cache */
   cacheConfig: CacheClientConfig;

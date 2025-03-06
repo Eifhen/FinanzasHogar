@@ -1,5 +1,5 @@
 import { RedisClientType } from "redis";
-import ApplicationContext from "../../Application/ApplicationContext";
+import ApplicationContext from "../../Context/ApplicationContext";
 import { Options } from "express-rate-limit";
 import LoggerManager from "../../Managers/LoggerManager";
 import { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";

@@ -1,5 +1,5 @@
-import ApplicationContext from "../Application/ApplicationContext";
-import { ApplicationPromise, IApplicationPromise } from "../Application/ApplicationPromise";
+import ApplicationContext from "../Context/ApplicationContext";
+import { ApplicationPromise, IApplicationPromise } from "../Helpers/ApplicationPromise";
 import IEmailManager from "./Interfaces/IEmailManager";
 import ILoggerManager, { LoggEntityCategorys } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";

@@ -1,5 +1,5 @@
 
-import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContext from "../Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategory, LoggErrorType, LoggerType, LoggerTypes, LogLevels } from "./Interfaces/ILoggerManager";
 import Line from "./LinePrinterManager";
 import { InternalServerException } from "../ErrorHandling/Exceptions";

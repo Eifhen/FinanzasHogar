@@ -1,11 +1,11 @@
 import { Response, NextFunction } from "express";
-import ApplicationRequest from "../Application/ApplicationRequest";
-import { ApplicationMiddleware } from "./types/MiddlewareTypes";
-import IContainerManager from "../_Internal/types/IContainerManager";
+import ApplicationRequest from "../Helpers/ApplicationRequest";
+import { ApplicationMiddleware } from "./Types/MiddlewareTypes";
+import IContainerManager from "../_Internal/Interfaces/IContainerManager";
 import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import { AutoBind } from "../Decorators/AutoBind";
-import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContext from "../Context/ApplicationContext";
 
 
 interface AttachContainerMiddlewareDependencices {

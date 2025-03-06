@@ -1,4 +1,4 @@
-import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContext from "../Context/ApplicationContext";
 import { EN } from "../Translations/en_US";
 import { NO_REQUEST_ID } from "../Utils/const";
 import { EnvironmentStatus } from "../Utils/Environment";

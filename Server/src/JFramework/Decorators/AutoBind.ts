@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { ClassConstructor } from "../Utils/types/CommonTypes";
+import { ClassConstructor } from "../Utils/Types/CommonTypes";
 
 /** Función auxiliar para copiar propiedades estáticas y metadata */
 export function PreserveClassMetaData(source: any, target: any): void {

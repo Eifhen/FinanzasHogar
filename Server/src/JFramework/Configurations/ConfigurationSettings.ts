@@ -2,7 +2,7 @@ import { AutoClassBinder } from "../Decorators/AutoBind";
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { DEFAULT_API_VERSION, DEFAULT_DATABASE_TIMEOUT, DEFAULT_PORT } from "../Utils/const";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
-import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, FileProviderConfig, EmailProvider, ApplicationStyleConfig, FileProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig } from "./types/IConfigurationSettings";
+import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, CloudProviderConfig, EmailProvider, ApplicationStyleConfig, CloudProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig } from "./Types/IConfigurationSettings";
 
 
 /** Objeto de configuración */
@@ -34,7 +34,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	emailProviderConfig: EmailProviderConfig;
 
 	/** Proveedores de almacenamiento de archivos */
-	fileProvider: FileProviderConfig
+	cloudProvider: CloudProviderConfig
 
 	/** Configuracion de cache */
 	cacheConfig: CacheClientConfig;
@@ -46,7 +46,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		this.environment = process.env.NODE_ENV?.toUpperCase() as Environment ?? EnvironmentStatus.DEVELOPMENT;
 		this.apiData = this.GetApiData();
 		this.emailProviderConfig = this.GetEmailProviders();
-		this.fileProvider = this.GetFileProviders();
+		this.cloudProvider = this.GetCloudProviders();
 		this.databaseConnectionData = this.GetDataBaseConnectionData();
 		this.databaseConnectionConfig = this.GetDatabaseConnectionConfig();
 		this.cacheConfig = this.GetCacheConfig();
@@ -167,14 +167,14 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Obtiene los proveedores de manejo de archivo */
-	private GetFileProviders (): FileProviderConfig {
-		const fileProvidersData = JSON.parse(process.env.FILE_PROVIDERS ?? "");
+	private GetCloudProviders (): CloudProviderConfig {
+		const fileProvidersData = JSON.parse(process.env.CLOUD_PROVIDERS ?? "");
 		const currentProviderName = fileProvidersData.currentProvider;
-		const providers = fileProvidersData.providers as FileProvider[];
+		const providers = fileProvidersData.providers as CloudProvider[];
 
-		const getCurrentProvider = (): FileProvider => {
+		const getCurrentProvider = (): CloudProvider => {
 			const find = providers.find(m => m.name === currentProviderName);
-			const empty: FileProvider = {
+			const empty: CloudProvider = {
 				name: "",
 				data: {
 					cloud_name: "",
@@ -194,7 +194,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			currentProvider: getCurrentProvider(),
 			currentProviderName,
 			providers
-		} as FileProviderConfig;
+		} as CloudProviderConfig;
 	}
 
 	/** Obtiene los datos de connección a la base de datos */
@@ -202,6 +202,10 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		const dbConfig = JSON.parse(process.env.DATABASE ?? "");
 
 		return {
+			
+			/** Tipo de base de datos */
+			type:  dbConfig.TYPE,
+
 			/** Nombre de usuario de la base de datos */
 			userName: dbConfig.USERNAME,
 
@@ -222,6 +226,9 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 
 			/** Nombre de la instancia */
 			instance: dbConfig.INSTANCE,
+
+			/** Cadena de conección */
+			connectionString: dbConfig.CONNECTION_STRING,
 
 			/** Timeout de conección */
 			connectionTimeout: dbConfig.CONNECTION_TIMEOUT,

@@ -1,5 +1,5 @@
-import ApplicationContext from "../Application/ApplicationContext";
-import { ApplicationLenguages } from "../Application/types/types";
+import ApplicationContext from "../Context/ApplicationContext";
+import { ApplicationLenguages } from "../Context/Types/types";
 import { AutoBind, AutoClassBinder } from "../Decorators/AutoBind";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";

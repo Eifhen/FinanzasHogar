@@ -1,9 +1,10 @@
 import IAhorrosSqlRepository from "../../Dominio/Repositories/IAhorrosSqlRepository";
-import ApplicationContext from "../../JFramework/Application/ApplicationContext";
+import ApplicationContext from "../../JFramework/Context/ApplicationContext";
+import SqlGenericRepository from "../../JFramework/DataBases/SQL/Generic/SqlGenericRepository";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepository from "./Generic/SqlGenericRepository";
+
 
 
 interface IAhorrosRepositoryDependencies {

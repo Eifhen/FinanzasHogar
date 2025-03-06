@@ -1,13 +1,13 @@
 
 import { asClass, asValue, AwilixContainer, BuildResolverOptions, ClassOrFunctionReturning, createContainer, InjectionMode, Lifetime, LifetimeType, Resolver } from "awilix";
-import IContainerManager from "./types/IContainerManager";
+import IContainerManager from "./Interfaces/IContainerManager";
 import ILoggerManager, { LoggerTypes } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
-import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContext from "../Context/ApplicationContext";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
-import { ClassInstance, ClassConstructor, FactoryFunction } from "../Utils/types/CommonTypes";
+import { ClassInstance, ClassConstructor, FactoryFunction } from "../Utils/Types/CommonTypes";
 import { AutoClassBinder } from "../Decorators/AutoBind";
 
 

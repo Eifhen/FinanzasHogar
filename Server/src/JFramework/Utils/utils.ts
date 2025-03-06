@@ -1,4 +1,4 @@
-import { ClassConstructor } from "./types/CommonTypes";
+import { ClassConstructor } from "./Types/CommonTypes";
 import { ARRAY_LENGTH_EMPTY } from "./const";
 
 

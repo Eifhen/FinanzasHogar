@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
 import { Response, NextFunction, RequestHandler, ErrorRequestHandler } from "express";
-import ApplicationRequest from "../../Application/ApplicationRequest";
+import ApplicationRequest from "../../Helpers/ApplicationRequest";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
-import { ClassConstructor } from "../../Utils/types/CommonTypes";
+import { ClassConstructor } from "../../Utils/Types/CommonTypes";
 
 
 

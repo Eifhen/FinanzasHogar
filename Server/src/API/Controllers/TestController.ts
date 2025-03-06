@@ -4,16 +4,16 @@ import { NextFunction, Request, Response } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { HttpStatusCode } from "../../JFramework/Utils/HttpCodes";
-import ApplicationContext from "../../JFramework/Application/ApplicationContext";
+import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
-import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
-import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
-import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
+import ImageStrategyDirector from "../../JFramework/CloudStorage/ImageStrategyDirector";
+import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
+import ApplicationRequest from "../../JFramework/Helpers/ApplicationRequest";
 import { InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
-import RateLimiter from "../../JFramework/Security/RateLimiter/RateLimiter";
+import RateLimiterMiddleware from "../../JFramework/Security/RateLimiter/RateLimiterMiddleware";
 import ExampleMiddleware from "../../JFramework/Middlewares/ExampleMiddleware";
-import Middleware from '../../JFramework/Decorators/UseMiddleware';
+import Middlewares from '../../JFramework/Decorators/Middlewares';
 import { DEFAULT_NUMBER } from "../../JFramework/Utils/const";
 
 
@@ -47,7 +47,7 @@ export default class TestController {
 
 	@route("/")
 	@GET() 
-	@Middleware([ExampleMiddleware, RateLimiter("generalLimiter")])
+	@Middlewares([ExampleMiddleware, RateLimiterMiddleware("generalLimiter")])
 	public async GetAll (req: Request, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetAll");
@@ -147,7 +147,7 @@ export default class TestController {
 
 	@route("/usuarios")
 	@GET()
-	@Middleware([RateLimiter("generalLimiter")])
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
 	public async GetUsuarios (req: Request, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetUsuarios");

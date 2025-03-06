@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
-import ApplicationRequest from "../Application/ApplicationRequest";
+import ApplicationRequest from "../Helpers/ApplicationRequest";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ServiceManager from "../_Internal/ServiceManager";
 import ITokenManager from "../Managers/Interfaces/ITokenManager";
-import { ApplicationMiddleware } from "./types/MiddlewareTypes";
+import { ApplicationMiddleware } from "./Types/MiddlewareTypes";
 
 
 /** Middleware de autenticación */

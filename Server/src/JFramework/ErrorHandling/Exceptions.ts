@@ -1,4 +1,4 @@
-import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContext from "../Context/ApplicationContext";
 import { HttpStatusCode, HttpStatusName, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "./ApplicationException";
 import { EN } from '../Translations/en_US';

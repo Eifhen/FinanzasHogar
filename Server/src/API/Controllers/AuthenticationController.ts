@@ -1,16 +1,16 @@
 import {  POST, route } from "awilix-express";
 import { NextFunction, Response } from "express";
-import ApplicationRequest from "../../JFramework/Application/ApplicationRequest";
+import ApplicationRequest from "../../JFramework/Helpers/ApplicationRequest";
 import IAuthenticationService from "../../Application/Services/Interfaces/IAuthenticationService";
-import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
+import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
 import { HttpStatusCode } from "../../JFramework/Utils/HttpCodes";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import ApplicationContext from "../../JFramework/Application/ApplicationContext";
+import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import SignUpDTO from "../../Application/DTOs/SignUpDTO";
 import SignInDTO from "../../Application/DTOs/SignInDTO";
-import RateLimiter from "../../JFramework/Security/RateLimiter/RateLimiter";
-import Middleware from "../../JFramework/Decorators/UseMiddleware";
+import RateLimiterMiddleware from "../../JFramework/Security/RateLimiter/RateLimiterMiddleware";
+import Middlewares from "../../JFramework/Decorators/Middlewares";
 
 
 
@@ -51,7 +51,7 @@ export default class AuthenticationController {
 	/** EndPoint que se encarga del registro del usuario en la aplicación */
 	@route("/sign-up")
 	@POST()
-	@Middleware([RateLimiter("generalLimiter")])
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
 	public async SignUp(req: ApplicationRequest, res: Response, next: NextFunction){
 		try {
 			this._logger.Activity("SignUp");
@@ -68,7 +68,7 @@ export default class AuthenticationController {
 	/** EndPoint que se encarga del inicio de sesión a la aplicación */
 	@route("/sign-in")
 	@POST()
-	@Middleware([RateLimiter("authLimiter")])
+	@Middlewares([RateLimiterMiddleware("authLimiter")])
 	public async SignIn (req: ApplicationRequest, res: Response, next: NextFunction){
 		try {
 			this._logger.Activity("SignIn");

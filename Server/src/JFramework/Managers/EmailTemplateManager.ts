@@ -1,4 +1,4 @@
-import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContext from "../Context/ApplicationContext";
 import { NotFoundException } from "../ErrorHandling/Exceptions";
 import { EmailTemplateType, EmailTemplateTypes } from "./Types/EmailTemplates";
 import { IEmailTemplateManager } from "./Interfaces/IEmailTemplateManager";

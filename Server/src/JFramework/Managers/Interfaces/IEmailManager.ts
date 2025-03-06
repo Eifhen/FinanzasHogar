@@ -1,4 +1,4 @@
-import { IApplicationPromise } from "../../Application/ApplicationPromise";
+import { IApplicationPromise } from "../../Helpers/ApplicationPromise";
 import { EmailData } from "../Types/EmailManagerTypes";
 
 

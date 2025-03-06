@@ -7,17 +7,12 @@ import { NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { ErrorRequestHandler } from "express-serve-static-core";
-import ApplicationContext from "../Application/ApplicationContext";
-import { RedisClientType } from "redis";
-import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
-import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
-import { limiterConfig, Limiters } from '../Security/RateLimiter/Limiters';
-import { ApplicationErrorMiddleware, ApplicationMiddleware } from "../Middlewares/types/MiddlewareTypes";
-import { ClassConstructor, ClassInstance } from "../Utils/types/CommonTypes";
-import IContainerManager from "./types/IContainerManager";
-import AttachContainerMiddleware from "../Middlewares/AttachContainerMiddleware";
+import ApplicationContext from "../Context/ApplicationContext";
+import { ApplicationErrorMiddleware, ApplicationMiddleware } from "../Middlewares/Types/MiddlewareTypes";
+import { ClassConstructor, ClassInstance } from "../Utils/Types/CommonTypes";
+import IContainerManager from "./Interfaces/IContainerManager";
 import { Lifetime, LifetimeType } from "awilix";
-import IServiceManager from "./types/IServiceManager";
+import IServiceManager from "./Interfaces/IServiceManager";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 
 
@@ -31,6 +26,8 @@ interface IServiceManagerDependencies {
  *  ya sea a la cadena de middlewares o al contenedor de dependencias */
 export default class ServiceManager implements IServiceManager {
 
+	/** Instancia del logger */
+	private readonly _logger: ILoggerManager;
 
 	/** Instancia de express */
 	private readonly _app: Application;
@@ -38,17 +35,15 @@ export default class ServiceManager implements IServiceManager {
 	/** Manejador de contenedor */
 	private readonly _containerManager: IContainerManager;
 
-	/** Ruta base de la aplicación */
-	private readonly _api_route: string = process.env.API_BASE_ROUTE ?? "";
-
-	/** Ruta de los controladores */
-	private readonly _controllers_route: string = process.env.CONTROLLERS ?? "";
-
-	/** Instancia del logger */
-	private readonly _logger: ILoggerManager;
-
 	/** Objeto de configuración del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
+
+	/** Ruta base de la aplicación */
+	private readonly _api_route: string;
+
+	/** Ruta de los controladores */
+	private readonly _controllers_route: string;
+
 
 	constructor(deps: IServiceManagerDependencies) {
 		/** Instanciamos el logger */
@@ -65,33 +60,12 @@ export default class ServiceManager implements IServiceManager {
 
 		/** Agregamos el objeto de configuración del sistema */
 		this._configurationSettings = deps.configurationSettings;
-	}
 
-	/** Agrega el contenedor de dependencias */
-	public AddContainer(): void {
-		try {
-			// this._app.use(scopePerRequest(this._containerManager.GetContainer()));
-			this._logger.Activity("AddContainer");
-			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
-			const attachContainer = new AttachContainerMiddleware({
-				containerManager: this._containerManager,
-				applicationContext
-			});
+		/** Agregamos la ruta de los controladores */
+		this._controllers_route = this._configurationSettings.apiData.controllersPath;
 
-			this.AddMiddlewareInstance(attachContainer);
-		}
-		catch (err: any) {
-			this._logger.Error(LoggerTypes.FATAL, "AddContainer", err);
-			throw new ApplicationException(
-				"AddContainer",
-				HttpStatusName.InternalServerError,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
-				__filename,
-				err
-			);
-		}
+		/** Agregamos la ruta base de la app */
+		this._api_route = this._configurationSettings.apiData.baseRoute
 	}
 
 	/** Agrega los controladores a la aplicación de express */
@@ -119,37 +93,66 @@ export default class ServiceManager implements IServiceManager {
 
 	/** Agrega un middleware a la aplicación */
 	public AddMiddleware(middleware: ClassConstructor<ApplicationMiddleware | ApplicationErrorMiddleware>): void {
-		this._logger.Activity(`AddMiddleware`);
-		const instance = this._containerManager.ResolveClass(middleware);
-		this._app.use(instance.Intercept as RequestHandler | ErrorRequestHandler);
+		try {
+			this._logger.Activity(`AddMiddleware`);
+			const instance = this._containerManager.ResolveClass(middleware);
+			this._app.use(instance.Intercept as RequestHandler | ErrorRequestHandler);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.FATAL, "AddMiddleware", err);
+			throw new ApplicationException(
+				"AddMiddleware",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
 	}
 
+	/** Agrega un middleware a la aplicación */
 	public AddMiddlewareInstance(instance: ClassInstance<ApplicationMiddleware | ApplicationErrorMiddleware>): void {
-		this._logger.Activity(`AddMiddlewareInstance`);
-		this._app.use(instance.Intercept as RequestHandler | ErrorRequestHandler);
+		try {
+			this._logger.Activity(`AddMiddlewareInstance`);
+			this._app.use(instance.Intercept as RequestHandler | ErrorRequestHandler);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.FATAL, "AddMiddlewareInstance", err);
+			throw new ApplicationException(
+				"AddMiddlewareInstance",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
 	}
 
-	/** Permite agregar una instancia del RateLimiter 
-	 * Middleware como singleton */
-	public AddRateLimiters(): void {
-		const cacheClient = this._containerManager.Resolve<RedisClientType<any, any, any>>("cacheClient");
-		const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
-		const manager = new RateLimiterManager({ cacheClient, applicationContext });
-
-		/** Registramos los limiters según la configuración */
-		Object.entries(limiterConfig).forEach(([limiterName, options]) => {
-			manager.BuildStore(limiterName as Limiters, options);
-			this._containerManager.AddValue<RateLimitRequestHandler>(limiterName, rateLimit(options));
-		});
-	}
- 
 	/** Permite configurar el contexto de la aplicación */
 	public AddAplicationContext(): void {
-		this._logger.Activity(`AddAplicationContext`);
-		this._containerManager.AddInstance<ApplicationContext>(
-			"applicationContext", 
-			new ApplicationContext(this._configurationSettings)
-		);
+		try {
+			this._logger.Activity(`AddAplicationContext`);
+			this._containerManager.AddInstance<ApplicationContext>(
+				"applicationContext",
+				new ApplicationContext(this._configurationSettings)
+			);
+
+		} catch (err: any) {
+			this._logger.Error(LoggerTypes.FATAL, "AddAplicationContext", err);
+			throw new ApplicationException(
+				"AddAplicationContext",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
 	}
 
 	/** Método que permite agregar un servicio al contenedor */
@@ -189,6 +192,35 @@ export default class ServiceManager implements IServiceManager {
 
 			throw new ApplicationException(
 				"AddStrategy",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
+	}
+
+	/** Permite agregar un manager que maneja sus propias estrategias 
+   * Para esto el método inyecta el contenedor de dependencias directamente al manager */
+	public AddStrategyManager<Class>(name:string, classManager: ClassConstructor<Class>) : void {
+		try {
+			this._logger.Activity(`AddStrategyManager`);
+			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
+			
+			const classImplementation = new classManager({ 
+				containerManager: this._containerManager, 
+				applicationContext 
+			});
+
+			this._containerManager.AddInstance<Class>(name, classImplementation);
+		}
+		catch (err: any) {
+			this._logger.Error("FATAL", "AddStrategyManager", err);
+
+			throw new ApplicationException(
+				"AddStrategyManager",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,

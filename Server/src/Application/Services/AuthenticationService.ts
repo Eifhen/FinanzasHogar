@@ -1,34 +1,35 @@
-import ApplicationArgs from "../../JFramework/Application/ApplicationArgs";
-import { ApplicationResponse } from "../../JFramework/Application/ApplicationResponse";
-import IAuthenticationService from "./Interfaces/IAuthenticationService";
-import IUsuariosSqlRepository from '../../Dominio/Repositories/IUsuariosSqlRepository';
-import { HttpStatusMessage } from '../../JFramework/Utils/HttpCodes';
-import IsNullOrEmpty from '../../JFramework/Utils/utils';
-import ApplicationContext from "../../JFramework/Application/ApplicationContext";
-import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
-import IEncrypterManager from "../../JFramework/Managers/Interfaces/IEncrypterManager";
-import ITokenManager from "../../JFramework/Managers/Interfaces/ITokenManager";
 import { CreateUsuarios } from "../../Dominio/Entities/Usuarios";
-import { EstadosUsuario } from "../../JFramework/Utils/estados";
-import SqlTransactionManager from "../../Infraestructure/Repositories/Generic/SqlTransactionManager";
-import ImageStrategyDirector from "../../JFramework/Strategies/Image/ImageStrategyDirector";
-import { BadRequestException, InternalServerException, RecordAlreadyExistsException } from '../../JFramework/ErrorHandling/Exceptions';
-import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
-import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
-import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
-import { EmailVerificationData } from "../../JFramework/Managers/Types/EmailDataManagerTypes";
-import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
+import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
+import CloudStorageManager from "../../JFramework/CloudStorage/CloudStorageManager";
+import ApplicationContext from "../../JFramework/Context/ApplicationContext";
+import SqlTransactionManager from "../../JFramework/DataBases/SQL/Generic/SqlTransactionManager";
 import AppImage from "../../JFramework/DTOs/AppImage";
-import SignUpDTO from "../DTOs/SignUpDTO";
+import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
+import { BadRequestException, InternalServerException, RecordAlreadyExistsException } from "../../JFramework/ErrorHandling/Exceptions";
+import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
+import { ApplicationResponse } from "../../JFramework/Helpers/ApplicationResponse";
+import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
+import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
+import IEncrypterManager from "../../JFramework/Managers/Interfaces/IEncrypterManager";
+import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
+import ITokenManager from "../../JFramework/Managers/Interfaces/ITokenManager";
+import LoggerManager from "../../JFramework/Managers/LoggerManager";
+import { EmailVerificationData } from "../../JFramework/Managers/Types/EmailDataManagerTypes";
+import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
+import { EstadosUsuario } from "../../JFramework/Utils/estados";
+import { HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
+import IsNullOrEmpty from "../../JFramework/Utils/utils";
 import SignInDTO from "../DTOs/SignInDTO";
+import SignUpDTO from "../DTOs/SignUpDTO";
+import IAuthenticationService from "./Interfaces/IAuthenticationService";
+
 
 interface IAuthenticationServiceDependencies {
 	usuariosRepository: IUsuariosSqlRepository;
 	applicationContext: ApplicationContext;
 	encrypterManager: IEncrypterManager;
 	tokenManager: ITokenManager;
-	imageDirector: ImageStrategyDirector;
+	cloudStorageManager: CloudStorageManager;
 	emailManager: IEmailManager;
 	emailDataManager: IEmailDataManager;
 	sqlTransactionManager: SqlTransactionManager;
@@ -57,7 +58,7 @@ export default class AuthenticationService implements IAuthenticationService {
 	private readonly _transaction: SqlTransactionManager;
 
 	/** Manejador de imagenes */
-	private readonly _imageDirector: ImageStrategyDirector;
+	private readonly _cloudStorageManager: CloudStorageManager;
 
 	/** Manejador de emails */
 	private readonly _emailManager: IEmailManager;
@@ -76,7 +77,7 @@ export default class AuthenticationService implements IAuthenticationService {
 		this._applicationContext = deps.applicationContext;
 		this._encrypterManager = deps.encrypterManager;
 		this._tokenManager = deps.tokenManager;
-		this._imageDirector = deps.imageDirector;
+		this._cloudStorageManager = deps.cloudStorageManager;
 		this._emailManager = deps.emailManager;
 		this._emailDataManager = deps.emailDataManager;
 		this._transaction = deps.sqlTransactionManager;
@@ -142,7 +143,7 @@ export default class AuthenticationService implements IAuthenticationService {
 				__filename,
 				err
 			);
-		} 
+		}
 	}
 
 	/** Valida la data del objeto recibido y devuelve un objeto `CreateUsuarios` */
@@ -188,9 +189,9 @@ export default class AuthenticationService implements IAuthenticationService {
 		if (AppImage.Validate(data.foto).isValid) {
 
 			/** Cargamos la imagen al proveedor */
-			const [imageErr, imageData] = await this._imageDirector.Upload(
+			const [imageErr, imageData] = await this._cloudStorageManager.Upload(
 				data.foto,
-				this._applicationContext.settings.fileProvider.currentProvider.data.usersFolder
+				this._applicationContext.settings.cloudProvider.currentProvider.data.usersFolder
 			);
 
 			if (imageErr) throw imageErr;
@@ -207,7 +208,7 @@ export default class AuthenticationService implements IAuthenticationService {
 	private DeleteUploadedImage = async (imageId: string): Promise<void> => {
 		// Si ocurre un error en la transacción eliminamos la imagen
 		if (!IsNullOrEmpty(imageId)) {
-			const [deleteErr] = await this._imageDirector.Delete(imageId);
+			const [deleteErr] = await this._cloudStorageManager.Delete(imageId);
 
 			if (deleteErr) {
 				throw deleteErr;

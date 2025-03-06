@@ -1,16 +1,16 @@
 import { NextFunction, Response } from 'express';
-import ApplicationRequest from '../Application/ApplicationRequest';
+import ApplicationRequest from '../Helpers/ApplicationRequest';
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from '../Managers/Interfaces/ILoggerManager';
 import LoggerManager from '../Managers/LoggerManager';
 import IsNullOrEmpty from '../Utils/utils';
 import ApplicationException from '../ErrorHandling/ApplicationException';
 import { HttpStatusCode, HttpStatusName } from '../Utils/HttpCodes';
 import { v4 as uuidv4 } from 'uuid';
-import ApplicationContext from '../Application/ApplicationContext';
+import ApplicationContext from '../Context/ApplicationContext';
 import ServiceManager from '../_Internal/ServiceManager';
 import ConfigurationSettings from '../Configurations/ConfigurationSettings';
-import { ApplicationLenguage, ApplicationLenguages } from '../Application/types/types';
-import { ApplicationMiddleware } from './types/MiddlewareTypes';
+import { ApplicationLenguage, ApplicationLenguages } from '../Context/Types/types';
+import { ApplicationMiddleware } from './Types/MiddlewareTypes';
 import { AutoClassBinder } from '../Decorators/AutoBind';
 
 

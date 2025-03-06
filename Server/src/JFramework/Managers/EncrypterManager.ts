@@ -1,4 +1,4 @@
-import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContext from "../Context/ApplicationContext";
 import { BaseException } from "../ErrorHandling/Exceptions";
 import { HttpStatusName } from "../Utils/HttpCodes";
 import IEncrypterManager from "./Interfaces/IEncrypterManager";

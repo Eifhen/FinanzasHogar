@@ -4,8 +4,8 @@ import ApplicationException from "./ApplicationException";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
-import ApplicationRequest from "../Application/ApplicationRequest";
-import { ApplicationErrorMiddleware } from "../Middlewares/types/MiddlewareTypes";
+import ApplicationRequest from "../Helpers/ApplicationRequest";
+import { ApplicationErrorMiddleware } from "../Middlewares/Types/MiddlewareTypes";
 import { AutoBind } from "../Decorators/AutoBind";
 
 

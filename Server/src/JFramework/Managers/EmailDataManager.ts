@@ -1,4 +1,4 @@
-import ApplicationContext from "../Application/ApplicationContext";
+import ApplicationContext from "../Context/ApplicationContext";
 import { IEmailDataManager } from "./Interfaces/IEmailDataManager";
 import ILoggerManager, { LoggEntityCategorys } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";

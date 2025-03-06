@@ -85,6 +85,11 @@ export const HttpStatusName = {
 	DatabaseTransactionException: "DatabaseTransactionException",
 	DatabaseException: "DatabaseException",
 
+	// Cloud Errors
+	CloudStorageConnectionException: "CloudStorageConnectionException",
+	CloudStorageDisconnectException: "CloudStorageDisconnectException",
+	CloudStorageNoInstanceException: "CloudStorageNoInstanceException",
+
 } as const
 
 

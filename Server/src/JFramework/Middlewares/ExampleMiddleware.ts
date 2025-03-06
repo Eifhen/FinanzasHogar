@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
-import ApplicationRequest from "../Application/ApplicationRequest";
-import { ApplicationMiddleware } from "./types/MiddlewareTypes";
-import ApplicationContext from '../Application/ApplicationContext';
+import ApplicationRequest from "../Helpers/ApplicationRequest";
+import { ApplicationMiddleware } from "./Types/MiddlewareTypes";
+import ApplicationContext from '../Context/ApplicationContext';
 
 
 
