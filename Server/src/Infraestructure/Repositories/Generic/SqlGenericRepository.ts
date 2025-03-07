@@ -4,13 +4,13 @@ import { Transaction, Selectable, ReferenceExpression, SelectQueryBuilder, Inser
 import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
 import { UpdateObjectExpression } from "kysely/dist/cjs/parser/update-set-parser";
 import { DrainOuterGeneric } from "kysely/dist/cjs/util/type-utils";
-import { DataBase, ApplicationSQLDatabase } from "../../../../Infraestructure/DataBase";
-import ApplicationContext from "../../../Context/ApplicationContext";
-import { ApplicationPromise, IApplicationPromise } from "../../../Helpers/ApplicationPromise";
-import IPaginationArgs from "../../../Helpers/Interfaces/IPaginationArgs";
-import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
-import { DEFAULT_NUMBER } from "../../../Utils/const";
-import ISqlGenericRepository, { QueryBuilderCallback } from "../Interfaces/ISqlGenericRepository";
+import ApplicationContext from "../../../JFramework/Context/ApplicationContext";
+import { ApplicationPromise, IApplicationPromise } from "../../../JFramework/Helpers/ApplicationPromise";
+import IPaginationArgs from "../../../JFramework/Helpers/Interfaces/IPaginationArgs";
+import IPaginationResult from "../../../JFramework/Helpers/Interfaces/IPaginationResult";
+import { DEFAULT_NUMBER } from "../../../JFramework/Utils/const";
+import { DataBase, ApplicationSQLDatabase } from "../../DataBase";
+import ISqlGenericRepository, { QueryBuilderCallback } from "./ISqlGenericRepository";
 
 
 

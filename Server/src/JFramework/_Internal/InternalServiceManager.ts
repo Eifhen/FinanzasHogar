@@ -21,8 +21,8 @@ import ICacheConnectionManager from "../DataBases/Cache/Interfaces/ICacheConnect
 import IDatabaseConnectionManager from "../DataBases/SQL/Interfaces/IDatabaseConnectionManager";
 import CacheConnectionManager from "../DataBases/Cache/CacheConnectionManager";
 import DatabaseConnectionManager from "../DataBases/SQL/DatabaseConnectionManager";
-import SqlTransactionManager from "../DataBases/SQL/Generic/SqlTransactionManager";
 import { CloudinaryStorageStrategy } from "../CloudStorage/Strategies/CloudinaryStorageStrategy";
+import SqlTransactionManager from "../../Infraestructure/Repositories/Generic/SqlTransactionManager";
 
 
 interface InternalServiceManagerDependencies {
@@ -31,7 +31,7 @@ interface InternalServiceManagerDependencies {
 	containerManager: IContainerManager;
 }
 
-export class InternalServiceManager implements IInternalServiceManager {
+export class InternalServiceManager<DataBaseEntity> implements IInternalServiceManager {
 
 
 	/** Instancia del logger */
@@ -64,7 +64,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 		this._containerManager = deps.containerManager;
 
 		/** Agregamos el manejador de conección */
-		this._databaseConnecctionManager = new DatabaseConnectionManager({
+		this._databaseConnecctionManager = new DatabaseConnectionManager<DataBaseEntity>({
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings
 		});

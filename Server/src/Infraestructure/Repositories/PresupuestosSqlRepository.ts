@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 import IPresupuestosSqlRepository from "../../Dominio/Repositories/IPresupuestosSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";

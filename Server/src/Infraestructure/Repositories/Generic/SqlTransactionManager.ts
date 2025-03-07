@@ -1,14 +1,15 @@
 import { Transaction } from "kysely";
-import { ApplicationSQLDatabase, DataBase } from "../../../../Infraestructure/DataBase";
-import ApplicationContext from "../../../Context/ApplicationContext";
-import { IApplicationPromise, ApplicationPromise } from "../../../Helpers/ApplicationPromise";
-import ApplicationException from "../../../ErrorHandling/ApplicationException";
-import { DatabaseTransactionException, BaseException } from "../../../ErrorHandling/Exceptions";
-import ILoggerManager, { LoggEntityCategorys } from "../../../Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../../../Managers/LoggerManager";
-import { ARRAY_LENGTH_EMPTY } from "../../../Utils/const";
-import { HttpStatusName } from "../../../Utils/HttpCodes";
-import ISqlGenericRepository from "../Interfaces/ISqlGenericRepository";
+import ApplicationContext from "../../../JFramework/Context/ApplicationContext";
+import ApplicationException from "../../../JFramework/ErrorHandling/ApplicationException";
+import { DatabaseTransactionException, BaseException } from "../../../JFramework/ErrorHandling/Exceptions";
+import { IApplicationPromise, ApplicationPromise } from "../../../JFramework/Helpers/ApplicationPromise";
+import ILoggerManager, { LoggEntityCategorys } from "../../../JFramework/Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../../JFramework/Managers/LoggerManager";
+import { ARRAY_LENGTH_EMPTY } from "../../../JFramework/Utils/const";
+import { HttpStatusName } from "../../../JFramework/Utils/HttpCodes";
+import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
+import ISqlGenericRepository from "./ISqlGenericRepository";
+
 
 
 

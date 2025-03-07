@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 import ITransaccionesSqlRepository from "../../Dominio/Repositories/ITransaccionesSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";

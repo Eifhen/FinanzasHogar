@@ -1,10 +1,11 @@
-import { Insertable, InsertResult, Selectable, SelectQueryBuilder, Transaction, Updateable } from "kysely";
-import { IApplicationPromise } from "../../../Helpers/ApplicationPromise";
-import IPaginationArgs from "../../../Helpers/Interfaces/IPaginationArgs";
-import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
+import { SelectQueryBuilder, Selectable, Insertable, InsertResult, Updateable, Transaction } from "kysely";
 import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
 import { DrainOuterGeneric } from "kysely/dist/cjs/util/type-utils";
-import { DataBase } from "../../../../Infraestructure/DataBase";
+import { IApplicationPromise } from "../../../JFramework/Helpers/ApplicationPromise";
+import IPaginationArgs from "../../../JFramework/Helpers/Interfaces/IPaginationArgs";
+import IPaginationResult from "../../../JFramework/Helpers/Interfaces/IPaginationResult";
+import { DataBase } from "../../DataBase";
+
 
 
 export type QueryBuilderCallback<TableName extends keyof DataBase> = (

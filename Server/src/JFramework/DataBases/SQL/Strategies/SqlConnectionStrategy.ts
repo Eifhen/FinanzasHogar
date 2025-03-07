@@ -7,7 +7,6 @@ import * as tarn from 'tarn';
 import * as tedious from 'tedious';
 import { HttpStatusCode, HttpStatusName } from "../../../Utils/HttpCodes";
 import ApplicationException from "../../../ErrorHandling/ApplicationException";
-import { ApplicationSQLDatabase, DataBase } from "../../../../Infraestructure/DataBase";
 import ApplicationContext from "../../../Context/ApplicationContext";
 import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException } from "../../../ErrorHandling/Exceptions";
 import { AutoBind, AutoClassBinder } from "../../../Decorators/AutoBind";
@@ -25,7 +24,7 @@ interface ISqlStrategyDependencies {
 
 /** Estrategia de conección a SQL usandoy Kysely */
 @AutoClassBinder
-export default class SqlConnectionStrategy implements IDatabaseConnectionStrategy<MssqlDialect, ApplicationSQLDatabase> {
+export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseConnectionStrategy<MssqlDialect, Kysely<DataBaseEntity>> {
 
 	/** Logger Manager Instance */
 	private _loggerManager: ILoggerManager;
@@ -34,7 +33,7 @@ export default class SqlConnectionStrategy implements IDatabaseConnectionStrateg
 	private _dialect: MssqlDialect | null = null;
 
 	/** Instancia de sql */
-	private _instance: ApplicationSQLDatabase | null = null;
+	private _instance: Kysely<any> | null = null;
 
 	/** Contexto de applicación */
 	private _applicationContext: ApplicationContext;
@@ -138,7 +137,7 @@ export default class SqlConnectionStrategy implements IDatabaseConnectionStrateg
 				throw new DatabaseNoDialectException("GetInstance", this._applicationContext, __filename);
 			}
 
-			this._instance = new Kysely<DataBase>({
+			this._instance = new Kysely<DataBaseEntity>({
 				dialect: this._dialect
 			});
 

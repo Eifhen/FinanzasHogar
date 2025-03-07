@@ -2,10 +2,6 @@ import { ClassInstance } from "../../../Utils/Types/CommonTypes";
 
 
 
-
-
-
-
 export default interface IDatabaseConnectionStrategy<ConnectionType, InstanceType> {
   /** Método que ejecuta la connección con la base de datos */
   Connect() : Promise<ConnectionType>;

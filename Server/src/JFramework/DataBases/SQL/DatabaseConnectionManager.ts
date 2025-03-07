@@ -17,7 +17,7 @@ interface DatabaseConnectionManagerDependencies {
 	configurationSettings: ConfigurationSettings;
 }
 
-export default class DatabaseConnectionManager implements IDatabaseConnectionManager {
+export default class DatabaseConnectionManager<DataBaseEntity> implements IDatabaseConnectionManager {
 
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
@@ -51,7 +51,7 @@ export default class DatabaseConnectionManager implements IDatabaseConnectionMan
 		 * especificado en la configuración */
 		switch (this._configurationSettings.databaseConnectionData.type) {
 			case DatabaseType.ms_sql_database:
-				this._strategy = this._containerManager.ResolveClass(SqlConnectionStrategy);
+				this._strategy = this._containerManager.ResolveClass(SqlConnectionStrategy<DataBaseEntity>);
 				break;
 			case DatabaseType.mongo_database:
 				throw new Error("Estrategía de conección No implementada");

@@ -1,11 +1,11 @@
 import ApplicationContext from "../Context/ApplicationContext";
-import { ApplicationLenguages } from "../Context/Types/types";
 import { AutoBind, AutoClassBinder } from "../Decorators/AutoBind";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import { EN } from "./en_US";
 import { ES } from "./es_DO";
 import { ITranslatorHandler } from "./Interfaces/ITranslatorHandler";
+import { ApplicationLenguages } from "./Types/ApplicationLenguages";
 
 
 
