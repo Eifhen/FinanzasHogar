@@ -1,8 +1,8 @@
 import { CreateUsuarios } from "../../Dominio/Entities/Usuarios";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
+import SqlTransactionManager from "../../Infraestructure/Repositories/Generic/SqlTransactionManager";
 import CloudStorageManager from "../../JFramework/CloudStorage/CloudStorageManager";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
-import SqlTransactionManager from "../../JFramework/DataBases/SQL/Generic/SqlTransactionManager";
 import AppImage from "../../JFramework/DTOs/AppImage";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 import { BadRequestException, InternalServerException, RecordAlreadyExistsException } from "../../JFramework/ErrorHandling/Exceptions";

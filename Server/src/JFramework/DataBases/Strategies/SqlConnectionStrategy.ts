@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 
 import { Kysely, MssqlDialect, TediousConnection } from "kysely";
-import ILoggerManager, { LoggEntityCategorys } from "../../../Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../../../Managers/LoggerManager";
+import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../Managers/LoggerManager";
 import * as tarn from 'tarn';
 import * as tedious from 'tedious';
-import { HttpStatusCode, HttpStatusName } from "../../../Utils/HttpCodes";
-import ApplicationException from "../../../ErrorHandling/ApplicationException";
-import ApplicationContext from "../../../Context/ApplicationContext";
-import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException } from "../../../ErrorHandling/Exceptions";
-import { AutoBind, AutoClassBinder } from "../../../Decorators/AutoBind";
+import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
+import ApplicationException from "../../ErrorHandling/ApplicationException";
+import ApplicationContext from "../../Context/ApplicationContext";
+import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException } from "../../ErrorHandling/Exceptions";
+import { AutoBind, AutoClassBinder } from "../../Decorators/AutoBind";
 import IDatabaseConnectionStrategy from "../Interfaces/IDatabaseConnectionStrategy";
 
 

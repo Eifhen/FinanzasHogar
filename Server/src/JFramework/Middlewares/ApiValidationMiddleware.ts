@@ -7,11 +7,10 @@ import ApplicationException from '../ErrorHandling/ApplicationException';
 import { HttpStatusCode, HttpStatusName } from '../Utils/HttpCodes';
 import { v4 as uuidv4 } from 'uuid';
 import ApplicationContext from '../Context/ApplicationContext';
-import ServiceManager from '../_Internal/ServiceManager';
 import ConfigurationSettings from '../Configurations/ConfigurationSettings';
-import { ApplicationLenguage, ApplicationLenguages } from '../Context/Types/types';
 import { ApplicationMiddleware } from './Types/MiddlewareTypes';
 import { AutoClassBinder } from '../Decorators/AutoBind';
+import { ApplicationLenguages, ApplicationLenguage } from '../Translations/Types/ApplicationLenguages';
 
 
 

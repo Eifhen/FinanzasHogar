@@ -17,12 +17,12 @@ import IInternalServiceManager from "./Interfaces/IInternalServiceManager";
 import IServiceManager from "./Interfaces/IServiceManager";
 import ConfigurationSettings from '../Configurations/ConfigurationSettings';
 import IContainerManager from "./Interfaces/IContainerManager";
-import ICacheConnectionManager from "../DataBases/Cache/Interfaces/ICacheConnectionManager";
-import IDatabaseConnectionManager from "../DataBases/SQL/Interfaces/IDatabaseConnectionManager";
-import CacheConnectionManager from "../DataBases/Cache/CacheConnectionManager";
-import DatabaseConnectionManager from "../DataBases/SQL/DatabaseConnectionManager";
-import { CloudinaryStorageStrategy } from "../CloudStorage/Strategies/CloudinaryStorageStrategy";
+import CacheConnectionManager from "../Managers/CacheConnectionManager";
+import DatabaseConnectionManager from "../DataBases/DatabaseConnectionManager";
 import SqlTransactionManager from "../../Infraestructure/Repositories/Generic/SqlTransactionManager";
+import CloudStorageManager from "../CloudStorage/CloudStorageManager";
+import IDatabaseConnectionManager from "../DataBases/Interfaces/IDatabaseConnectionManager";
+import ICacheConnectionManager from "../Managers/Interfaces/ICacheConnectionManager";
 
 
 interface InternalServiceManagerDependencies {
@@ -31,7 +31,7 @@ interface InternalServiceManagerDependencies {
 	containerManager: IContainerManager;
 }
 
-export class InternalServiceManager<DataBaseEntity> implements IInternalServiceManager {
+export class InternalServiceManager implements IInternalServiceManager {
 
 
 	/** Instancia del logger */
@@ -64,7 +64,7 @@ export class InternalServiceManager<DataBaseEntity> implements IInternalServiceM
 		this._containerManager = deps.containerManager;
 
 		/** Agregamos el manejador de conección */
-		this._databaseConnecctionManager = new DatabaseConnectionManager<DataBaseEntity>({
+		this._databaseConnecctionManager = new DatabaseConnectionManager({
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings
 		});
@@ -80,7 +80,7 @@ export class InternalServiceManager<DataBaseEntity> implements IInternalServiceM
 	public async AddInternalStrategies(): Promise<void> {
 		try {
 			this._logger.Activity("AddInternalStrategies");
-			this._serviceManager.AddStrategyManager<CloudinaryStorageStrategy>("cloudStorageManager", CloudinaryStorageStrategy);
+			this._serviceManager.AddStrategyManager<CloudStorageManager>("cloudStorageManager", CloudStorageManager);
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalStrategies", err);

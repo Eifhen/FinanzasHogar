@@ -39,8 +39,8 @@ export default class ApiAuthenticationMiddleware extends ApplicationMiddleware {
 			/** Token que ingresa en la solicitud */
 			const token = req.headers.authorization;
 			
-			const tokenManager = this._serviceManager._containerManager.Resolve<ITokenManager>("tokenManager");
-			const userRepository = this._serviceManager._containerManager.Resolve<IUsuariosSqlRepository>("usuariosRepository");
+			const tokenManager = req.container.Resolve<ITokenManager>("tokenManager");
+			const userRepository =req.container.Resolve<IUsuariosSqlRepository>("usuariosRepository");
 			
 			const [err, data] = await userRepository.GetAll();
 

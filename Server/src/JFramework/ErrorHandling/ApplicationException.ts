@@ -2,7 +2,7 @@ import ApplicationContext from "../Context/ApplicationContext";
 import { EN } from "../Translations/en_US";
 import { NO_REQUEST_ID } from "../Utils/const";
 import { EnvironmentStatus } from "../Utils/Environment";
-import { HttpStatusCode, HttpStatusCode, HttpStatusMessage, HttpStatusName, HttpStatusName } from "../Utils/HttpCodes";
+import { HttpStatusName, HttpStatusCode, HttpStatusMessage } from "../Utils/HttpCodes";
 import IsNullOrEmpty from "../Utils/utils";
 import { ErrorMessageData } from "./Exceptions";
 

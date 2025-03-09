@@ -1,4 +1,5 @@
-import ISqlGenericRepository from '../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository';
+import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/ISqlGenericRepository";
+
 
 
 

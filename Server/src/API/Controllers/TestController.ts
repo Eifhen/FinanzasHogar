@@ -7,7 +7,6 @@ import { HttpStatusCode } from "../../JFramework/Utils/HttpCodes";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
-import ImageStrategyDirector from "../../JFramework/CloudStorage/ImageStrategyDirector";
 import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
 import ApplicationRequest from "../../JFramework/Helpers/ApplicationRequest";
 import { InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
@@ -15,12 +14,13 @@ import RateLimiterMiddleware from "../../JFramework/Security/RateLimiter/RateLim
 import ExampleMiddleware from "../../JFramework/Middlewares/ExampleMiddleware";
 import Middlewares from '../../JFramework/Decorators/Middlewares';
 import { DEFAULT_NUMBER } from "../../JFramework/Utils/const";
+import ICloudStorageManager from "../../JFramework/CloudStorage/Interfaces/ICloudStorageManager";
 
 
 interface TestControllerDependencies {
 	testService: ITestService;
 	usuariosRepository: IUsuariosSqlRepository;
-	imageDirector: ImageStrategyDirector;
+	cloudStorageManager: ICloudStorageManager;
 	applicationContext: ApplicationContext;
 }
 
@@ -30,13 +30,13 @@ export default class TestController {
 	private readonly _testService: ITestService;
 	private readonly _logger: ILoggerManager;
 	private readonly _usuariosRepository: IUsuariosSqlRepository;
-	private readonly _imageDirector: ImageStrategyDirector;
+	private readonly _cloudStorageManager: ICloudStorageManager;
 	private readonly _applicationContext: ApplicationContext;
 
 	constructor(deps: TestControllerDependencies) {
 		this._testService = deps.testService;
 		this._usuariosRepository = deps.usuariosRepository;
-		this._imageDirector = deps.imageDirector;
+		this._cloudStorageManager = deps.cloudStorageManager;
 		this._applicationContext = deps.applicationContext;
 		this._logger = new LoggerManager({
 			entityName: "TestController",
@@ -192,7 +192,7 @@ export default class TestController {
 	public async UploadImage(req: Request, res: Response, next: NextFunction){
 		try {
 			this._logger.Activity("UploadImages");
-			const result = await this._imageDirector?.Upload(req.body, "casa_1");
+			const result = await this._cloudStorageManager?.Upload(req.body, "casa_1");
 			return res.status(HttpStatusCode.OK).send(result);
 		}
 		catch (err: any) {
@@ -220,8 +220,8 @@ export default class TestController {
 
 			const args = new ApplicationArgs<any, { id: string }>(req);
 			const id = args.query?.id ?? "";
-			if(this._imageDirector){
-				const [error, result] = await this._imageDirector.Get(id);
+			if(this._cloudStorageManager){
+				const [error, result] = await this._cloudStorageManager.Get(id);
 	
 				if (error) {
 					throw new Error("No encontrado")

@@ -1,6 +1,6 @@
 import { ConnectionConfiguration } from "tedious";
 import { Environment } from "../../Utils/Environment";
-import { DatabaseType } from "../../DataBases/SQL/Types/DatabaseType";
+import { DatabaseType } from "../../DataBases/Types/DatabaseType";
 import { CloudStorageProviders } from "../../CloudStorage/Types/CloudStorageProviders";
 
 

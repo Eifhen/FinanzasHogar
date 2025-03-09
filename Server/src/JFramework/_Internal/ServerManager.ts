@@ -23,7 +23,7 @@ interface ServerManagerDependencies {
 	startup: ClassConstructor<IStartup>;
 }
 
-export default class ServerManager<DataBaseEntity> {
+export default class ServerManager {
 
 	/** Objeto server, este objeto nos sirve para manipular nuestro servidor*/
 	private _server?: Server;
