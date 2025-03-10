@@ -6,31 +6,40 @@ import { ClassInstance } from "../../Utils/Types/CommonTypes";
 
 
 
-/** Definición para repositorio genérico */
+
+
+/** Definición interfaz para repositorio genérico */
 export default interface IGenericRepository<
-  DataBaseEntity,
-  TableName extends keyof DataBaseEntity,
-  PrimaryKey extends keyof DataBaseEntity[TableName]
+  DataBaseEntity extends object, // Esquema subyacente (p.ej. MyDbSchema)
+  TableName extends Extract<keyof DataBaseEntity, string>,
+  PrimaryKey extends Extract<keyof DataBaseEntity[TableName], string>,
+  InsertType,
+  InsertOutput,
+  UpdateType,
+  UpdateOutput,
+  DeleteOutput,
+  OutputEntity,
+  TransactionType
 > {
 
   /** Obtiene todos los elementos de una colección */
-  GetAll(): IApplicationPromise<DataBaseEntity[TableName][]>;
+  GetAll(): IApplicationPromise<OutputEntity[]>;
 
   /** Permite buscar un elemento por su id */
-  FindById(id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<DataBaseEntity[TableName]>
+  FindById(id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<OutputEntity>
 
   /** Permite crear un registro */
-  Create(record: DataBaseEntity[TableName]): IApplicationPromise<DataBaseEntity[TableName]>;
+  Create(record: InsertType): IApplicationPromise<InsertOutput>;
 
   /** Permite actualizar un registro */
-  Update(id: DataBaseEntity[TableName][PrimaryKey], record: DataBaseEntity[TableName]): IApplicationPromise<DataBaseEntity[TableName]>;
+  Update(id: DataBaseEntity[TableName][PrimaryKey], record: UpdateType): IApplicationPromise<UpdateOutput>;
 
   /** Permite eliminar un registro */
-  Delete(id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<number>;
+  Delete(id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<DeleteOutput>;
 
   /** Permite paginar la data buscada en base a los argumentos de paginación */
-  Paginate(params: IPaginationArgs, filter?: Partial<DataBaseEntity[TableName]>): IApplicationPromise<IPaginationResult<DataBaseEntity[TableName]>>;
+  Paginate(params: IPaginationArgs, filter?: Partial<OutputEntity>): IApplicationPromise<IPaginationResult<OutputEntity>>;
 
   /** Setea la transacción en el repositorio */
-  SetTransaction(transaction: ClassInstance<DataBaseEntity>) : Promise<void>;
+  SetTransaction(transaction: TransactionType | null) : Promise<void>;
 }

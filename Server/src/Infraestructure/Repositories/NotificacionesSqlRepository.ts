@@ -5,7 +5,7 @@ import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepository from "./Generic/SqlGenericRepository";
+import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
 
 
 
@@ -20,7 +20,7 @@ interface INotificacionesRepositoryDependencies {
 }
 
 /** Repositorio para la entidad notificaciones */
-export default class NotificacionesSqlRepository extends SqlGenericRepository<"notificaciones", "id_notificacion"> implements INotificacionesSqlRepository {
+export default class NotificacionesSqlRepository extends SqlGenericRepositoryStrategy<"notificaciones", "id_notificacion"> implements INotificacionesSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

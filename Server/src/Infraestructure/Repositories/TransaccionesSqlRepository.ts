@@ -5,7 +5,7 @@ import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepository from "./Generic/SqlGenericRepository";
+import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
 
 
 interface ITransaccionesRepositoryDependencies {
@@ -14,7 +14,7 @@ interface ITransaccionesRepositoryDependencies {
 }
 
 /** Repositorio para la entidad Transacciones */
-export default class TransaccionesSqlRepository extends SqlGenericRepository<"transacciones", "id"> implements ITransaccionesSqlRepository {
+export default class TransaccionesSqlRepository extends SqlGenericRepositoryStrategy<"transacciones", "id"> implements ITransaccionesSqlRepository {
 
 
 	/** Instancia del logger */

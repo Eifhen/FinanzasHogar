@@ -5,7 +5,7 @@ import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepository from "./Generic/SqlGenericRepository";
+import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
 
 
 
@@ -17,7 +17,7 @@ interface IPagosDeudaRepositoryDependencies {
 }
 
 /** Repositorio para la entidad pagos deuda */
-export default class PagosDeudaSqlRepository extends SqlGenericRepository<"pagosDeuda", "id"> implements IPagosDeudaSqlRepository {
+export default class PagosDeudaSqlRepository extends SqlGenericRepositoryStrategy<"pagosDeuda", "id"> implements IPagosDeudaSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

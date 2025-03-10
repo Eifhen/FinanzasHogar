@@ -5,7 +5,7 @@ import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepository from "./Generic/SqlGenericRepository";
+import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
 
 
 
@@ -17,7 +17,7 @@ interface IPresupuestoCategoriaRepositoryDependencies {
 }
 
 /** Repositorio para la entidad presupuesto categoria */
-export default class PresupuestoCategoriaSqlRepository extends SqlGenericRepository<"presupuestoCategoria", "id"> implements IPresupuestoCategoriaSqlRepository {
+export default class PresupuestoCategoriaSqlRepository extends SqlGenericRepositoryStrategy<"presupuestoCategoria", "id"> implements IPresupuestoCategoriaSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

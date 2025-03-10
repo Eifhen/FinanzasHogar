@@ -1,14 +1,14 @@
 import { Transaction } from "kysely";
-import ApplicationContext from "../../../JFramework/Context/ApplicationContext";
-import ApplicationException from "../../../JFramework/ErrorHandling/ApplicationException";
-import { DatabaseTransactionException, BaseException } from "../../../JFramework/ErrorHandling/Exceptions";
-import { IApplicationPromise, ApplicationPromise } from "../../../JFramework/Helpers/ApplicationPromise";
-import ILoggerManager, { LoggEntityCategorys } from "../../../JFramework/Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../../../JFramework/Managers/LoggerManager";
-import { ARRAY_LENGTH_EMPTY } from "../../../JFramework/Utils/const";
-import { HttpStatusName } from "../../../JFramework/Utils/HttpCodes";
-import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
-import ISqlGenericRepository from "./ISqlGenericRepository";
+import ApplicationContext from "../../Context/ApplicationContext";
+import ApplicationException from "../../ErrorHandling/ApplicationException";
+import { DatabaseTransactionException, BaseException } from "../../ErrorHandling/Exceptions";
+import { IApplicationPromise, ApplicationPromise } from "../../Helpers/ApplicationPromise";
+import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../Managers/LoggerManager";
+import { ARRAY_LENGTH_EMPTY } from "../../Utils/const";
+import { HttpStatusName } from "../../Utils/HttpCodes";
+import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
+
 
 
 
@@ -19,7 +19,7 @@ interface MssSqlTransactionBuilderDependencies {
 }
 
 /** Clase para generar transacciones sql */
-export default class SqlTransactionManager {
+export default class SqlTransactionStrategy {
 
 	// ApplicationSQLDatabase es de tipo ApplicationSQLDatabase = Kysely<DataBase>;
 	private _database: ApplicationSQLDatabase;
@@ -48,7 +48,7 @@ export default class SqlTransactionManager {
 
 
 	/** Inicia una nueva transacción */
-	public Start = async <T>(action: (builder: SqlTransactionManager, trx: Transaction<DataBase>) => Promise<T>): IApplicationPromise<T> => {
+	public Start = async <T>(action: (builder: SqlTransactionStrategy, trx: Transaction<DataBase>) => Promise<T>): IApplicationPromise<T> => {
 		this._logger.Activity("Start");
 
 		return ApplicationPromise.Try<T>(new Promise<T>((resolve, reject) => {

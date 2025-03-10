@@ -5,7 +5,7 @@ import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepository from "./Generic/SqlGenericRepository";
+import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
 
 
 
@@ -15,7 +15,7 @@ interface IMetasRepositoryDependencies {
 }
 
 /** Repositorio para la entidad metas */
-export default class MetasSqlRepository extends SqlGenericRepository<"metas", "id"> implements IMetasSqlRepository {
+export default class MetasSqlRepository extends SqlGenericRepositoryStrategy<"metas", "id"> implements IMetasSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

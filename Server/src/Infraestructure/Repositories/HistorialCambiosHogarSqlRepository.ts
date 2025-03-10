@@ -5,7 +5,7 @@ import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepository from "./Generic/SqlGenericRepository";
+import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
 
 
 
@@ -17,7 +17,7 @@ interface IHistorialCambiosHogarRepositoryDependencies {
 }
 
 /** Repositorio para la entidad historial cambios hogar */
-export default class HistorialCambiosHogarSqlRepository extends SqlGenericRepository<"historialCambiosHogar", "id_historial"> implements IHistorialCambiosHogarSqlRepository {
+export default class HistorialCambiosHogarSqlRepository extends SqlGenericRepositoryStrategy<"historialCambiosHogar", "id_historial"> implements IHistorialCambiosHogarSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

@@ -1,6 +1,6 @@
 import { CreateUsuarios } from "../../Dominio/Entities/Usuarios";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
-import SqlTransactionManager from "../../Infraestructure/Repositories/Generic/SqlTransactionManager";
+import SqlTransactionStrategy from "../../JFramework/DataBases/Generic/SqlTransactionStrategy";
 import CloudStorageManager from "../../JFramework/CloudStorage/CloudStorageManager";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import AppImage from "../../JFramework/DTOs/AppImage";
@@ -32,7 +32,7 @@ interface IAuthenticationServiceDependencies {
 	cloudStorageManager: CloudStorageManager;
 	emailManager: IEmailManager;
 	emailDataManager: IEmailDataManager;
-	sqlTransactionManager: SqlTransactionManager;
+	sqlTransactionManager: SqlTransactionStrategy;
 }
 
 
@@ -55,7 +55,7 @@ export default class AuthenticationService implements IAuthenticationService {
 	private readonly _encrypterManager: IEncrypterManager;
 
 	/** Manejador de transacciones */
-	private readonly _transaction: SqlTransactionManager;
+	private readonly _transaction: SqlTransactionStrategy;
 
 	/** Manejador de imagenes */
 	private readonly _cloudStorageManager: CloudStorageManager;

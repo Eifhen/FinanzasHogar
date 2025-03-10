@@ -5,7 +5,7 @@ import ApplicationContext from '../../JFramework/Context/ApplicationContext';
 import ILoggerManager, { LoggEntityCategorys } from '../../JFramework/Managers/Interfaces/ILoggerManager';
 import LoggerManager from '../../JFramework/Managers/LoggerManager';
 import { ApplicationSQLDatabase } from '../DataBase';
-import SqlGenericRepository from './Generic/SqlGenericRepository';
+import SqlGenericRepositoryStrategy from '../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy';
 
 
 
@@ -16,7 +16,7 @@ interface IUsuariosRepositoryDependencies {
 }
 
 /** Repositorio para la entidad Usuarios */
-export default class UsuariosSqlRepository extends SqlGenericRepository<"usuarios", "id_usuario"> implements IUsuariosSqlRepository {
+export default class UsuariosSqlRepository extends SqlGenericRepositoryStrategy<"usuarios", "id_usuario"> implements IUsuariosSqlRepository {
 
 
 	/** Instancia del logger */

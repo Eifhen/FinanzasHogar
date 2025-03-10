@@ -5,7 +5,7 @@ import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepository from "./Generic/SqlGenericRepository";
+import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
 
 
 
@@ -15,7 +15,7 @@ interface IRolesRepositoryDependencies {
 }
 
 /** Repositorio para la entidad roles */
-export default class RolesSqlRepository extends SqlGenericRepository<"roles", "id_rol"> implements IRolesSqlRepository {
+export default class RolesSqlRepository extends SqlGenericRepositoryStrategy<"roles", "id_rol"> implements IRolesSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;
