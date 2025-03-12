@@ -8,7 +8,7 @@ import { ClassConstructor, ClassInstance, FactoryFunction } from '../../Utils/Ty
 export default interface IContainerManager {
 
   /** Permite identificar un contenedor */
-  _identifier_:string;
+  _identifier:string;
 
   /** Permite resolver una dependencia según su nombre */
   Resolve<T>(serviceName: string): T;
@@ -49,6 +49,6 @@ export default interface IContainerManager {
 	CheckRegistration(name:string) : boolean
 
   /** Crea una instancia de ContainerManager usando un scope del contenedor */
-  CreateScopedManager() : IContainerManager 
+  CreateScopedContainer() : IContainerManager 
 
 }

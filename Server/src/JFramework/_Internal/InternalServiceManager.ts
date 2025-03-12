@@ -19,10 +19,11 @@ import ConfigurationSettings from '../Configurations/ConfigurationSettings';
 import IContainerManager from "./Interfaces/IContainerManager";
 import CacheConnectionManager from "../Managers/CacheConnectionManager";
 import DatabaseConnectionManager from "../DataBases/DatabaseConnectionManager";
-import SqlTransactionStrategy from "../DataBases/Generic/SqlTransactionStrategy";
+import SqlTransactionManager from "../DataBases/Generic/SqlTransactionManager";
 import CloudStorageManager from "../CloudStorage/CloudStorageManager";
 import IDatabaseConnectionManager from "../DataBases/Interfaces/IDatabaseConnectionManager";
 import ICacheConnectionManager from "../Managers/Interfaces/ICacheConnectionManager";
+import ISqlTransactionManager from "../DataBases/Interfaces/ISqlTransactionManager";
 
 
 interface InternalServiceManagerDependencies {
@@ -93,7 +94,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 		try {
 			this._logger.Activity("AddInternalManagers");
 
-			this._serviceManager.AddService<SqlTransactionStrategy>("sqlTransactionManager", SqlTransactionStrategy);
+			this._serviceManager.AddService<ISqlTransactionManager<any>, SqlTransactionManager>("sqlTransactionManager", SqlTransactionManager);
 			this._serviceManager.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);
 			this._serviceManager.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
 			this._serviceManager.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);

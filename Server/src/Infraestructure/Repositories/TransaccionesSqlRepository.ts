@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import ITransaccionesSqlRepository from "../../Dominio/Repositories/ITransaccionesSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 interface ITransaccionesRepositoryDependencies {
@@ -14,7 +12,7 @@ interface ITransaccionesRepositoryDependencies {
 }
 
 /** Repositorio para la entidad Transacciones */
-export default class TransaccionesSqlRepository extends SqlGenericRepositoryStrategy<"transacciones", "id"> implements ITransaccionesSqlRepository {
+export default class TransaccionesSqlRepository extends SqlGenericRepository<DataBase, "transacciones", "id"> implements ITransaccionesSqlRepository {
 
 
 	/** Instancia del logger */

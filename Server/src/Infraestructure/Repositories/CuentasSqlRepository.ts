@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import ICuentasSqlRepository from "../../Dominio/Repositories/ICuentasSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 
@@ -16,7 +14,7 @@ interface ICuentasRepositoryDependencies {
 }
 
 /** Repositorio para la entidad cuentas */
-export default class CuentasSqlRepository extends SqlGenericRepositoryStrategy<"cuentas", "id"> implements ICuentasSqlRepository {
+export default class CuentasSqlRepository extends SqlGenericRepository<DataBase, "cuentas", "id"> implements ICuentasSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

@@ -5,7 +5,7 @@ import { fromZodError } from "zod-validation-error";
 
 interface ValidationResult {
 	isValid: boolean;
-	error: string;
+	errorMessage: string;
 }
 
 /** Hemos convertido EntitySchema en una clase abstracta, ya que no será 
@@ -35,9 +35,19 @@ export default abstract class EntitySchema {
 	public static Validate(instance: any): ValidationResult {
 		const zodSchema = this.createSchema();
 		const validation = zodSchema.safeParse(instance);
-		return {
-			isValid: validation.success,
-			error: validation.success ? "" : fromZodError(validation.error).toString()
-		} as ValidationResult;
+
+		if(validation.success){
+			return {
+				isValid: true,
+				errorMessage: ""
+			}
+		} else {
+			console.log("issues =>", validation.error.issues);
+
+			return {
+				isValid: false,
+				errorMessage: fromZodError(validation.error).toString()
+			} as ValidationResult;
+		}
 	}
 }

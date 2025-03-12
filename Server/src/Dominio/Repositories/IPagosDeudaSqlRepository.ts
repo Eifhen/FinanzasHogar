@@ -1,11 +1,11 @@
-import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
-
+import { DataBase } from "../../Infraestructure/DataBase";
+import ISqlGenericRepository from "../../JFramework/DataBases/Interfaces/ISqlGenericRepository";
 
 
 
 
 
 /** Interfaz para repositorio de pagos deuda*/
-export default interface IPagosDeudaSqlRepository extends ISqlGenericRepository<"pagosDeuda", "id"> {
+export default interface IPagosDeudaSqlRepository extends ISqlGenericRepository<DataBase, "pagosDeuda", "id"> {
 
 } 

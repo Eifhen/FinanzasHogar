@@ -1,12 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import ISolicitudHogarSqlRepository from "../../Dominio/Repositories/ISolicitudHogarSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
-
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 
@@ -16,7 +13,7 @@ interface ISolicitudHogarRepositoryDependencies {
 }
 
 /** Repositorio para la entidad Transacciones */
-export default class SolicitudHogarSqlRepository extends SqlGenericRepositoryStrategy<"solicitudHogar", "id_solicitud"> implements ISolicitudHogarSqlRepository {
+export default class SolicitudHogarSqlRepository extends SqlGenericRepository<DataBase, "solicitudHogar", "id_solicitud"> implements ISolicitudHogarSqlRepository {
 
 
 	/** Instancia del logger */

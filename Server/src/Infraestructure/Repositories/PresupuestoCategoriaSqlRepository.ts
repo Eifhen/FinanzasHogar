@@ -1,14 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import IPresupuestoCategoriaSqlRepository from "../../Dominio/Repositories/IPresupuestoCategoriaSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
-
-
-
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 interface IPresupuestoCategoriaRepositoryDependencies {
@@ -17,7 +12,7 @@ interface IPresupuestoCategoriaRepositoryDependencies {
 }
 
 /** Repositorio para la entidad presupuesto categoria */
-export default class PresupuestoCategoriaSqlRepository extends SqlGenericRepositoryStrategy<"presupuestoCategoria", "id"> implements IPresupuestoCategoriaSqlRepository {
+export default class PresupuestoCategoriaSqlRepository extends SqlGenericRepository<DataBase, "presupuestoCategoria", "id"> implements IPresupuestoCategoriaSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

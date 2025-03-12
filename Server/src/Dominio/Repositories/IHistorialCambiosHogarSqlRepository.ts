@@ -1,4 +1,6 @@
-import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
+import { DataBase } from "../../Infraestructure/DataBase";
+import ISqlGenericRepository from "../../JFramework/DataBases/Interfaces/ISqlGenericRepository";
+
 
 
 
@@ -7,6 +9,6 @@ import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/In
 
 
 /** Interfaz para repositorio de historial cambios hogar */
-export default interface IHistorialCambiosHogarSqlRepository extends ISqlGenericRepository<"historialCambiosHogar", "id_historial"> {
+export default interface IHistorialCambiosHogarSqlRepository extends ISqlGenericRepository<DataBase, "historialCambiosHogar", "id_historial"> {
 
 } 

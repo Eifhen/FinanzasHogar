@@ -21,7 +21,7 @@ export default class ContainerManager implements IContainerManager {
 	private _logger: ILoggerManager;
 
 	/** Identificador */
-	public _identifier_: string = "PARENT";
+	public _identifier: string = "MAIN_CONTAINER";
 
 	constructor(container?: AwilixContainer, logger?: ILoggerManager) {
 		// Instanciamos el logger
@@ -220,19 +220,19 @@ export default class ContainerManager implements IContainerManager {
 	}
 
 	/** Crea una instancia de ContainerManager usando un scope del contenedor actual */
-	public CreateScopedManager(): IContainerManager {
+	public CreateScopedContainer(): IContainerManager {
 		try {
-			this._logger.Activity(`CreateScopedManager`);
+			this._logger.Activity(`CreateScopedContainer`);
 			const scopedContainer = this._container.createScope();
-			console.log("Scoped container =>", scopedContainer);
+			// console.log("Scoped container =>", scopedContainer);
 
 			return new ContainerManager(scopedContainer, this._logger);
 		}
 		catch (err: any) {
-			this._logger.Error("FATAL", "CreateScopedManager", err);
+			this._logger.Error("FATAL", "CreateScopedContainer", err);
 
 			throw new ApplicationException(
-				"CreateScopedManager",
+				"CreateScopedContainer",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
@@ -281,11 +281,9 @@ export default class ContainerManager implements IContainerManager {
 	): Factory {
 		try {
 			this._logger.Activity("Build");
-			this._logger.Message("INFO", `Resolviendo`, {
-				targetOrResolver,
-				opts
-			});
 			
+			// console.log("Build Contenedor =>", this._identifier, targetOrResolver, opts);
+
 			return this._container.build(targetOrResolver, opts);
 		}
 		catch (err: any) {

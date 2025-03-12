@@ -16,11 +16,11 @@ export default class AppImage extends EntitySchema {
 	public url?: string = "";
 
 	/** Nombre del archivo */
-	@SchemaProperty(z.string())
+	@SchemaProperty(z.string().nonempty())
 	public nombre: string = "";
 
 	/** Nombre de la extensión del archivo */
-	@SchemaProperty(z.string())
+	@SchemaProperty(z.string().nonempty())
 	public extension: string = "";
 
 	/** Archivo en base64 */

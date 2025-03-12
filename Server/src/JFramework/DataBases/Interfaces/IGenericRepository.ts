@@ -1,10 +1,6 @@
 import { IApplicationPromise } from "../../Helpers/ApplicationPromise";
 import IPaginationArgs from "../../Helpers/Interfaces/IPaginationArgs";
 import IPaginationResult from "../../Helpers/Interfaces/IPaginationResult";
-import { ClassInstance } from "../../Utils/Types/CommonTypes";
-
-
-
 
 
 
@@ -27,6 +23,13 @@ export default interface IGenericRepository<
 
   /** Permite buscar un elemento por su id */
   FindById(id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<OutputEntity>
+
+  /** Permite buscar un registro en base a un predicado */
+  Find (
+    columnName: keyof DataBaseEntity[TableName],
+    operator: string,
+    value: any
+  ): IApplicationPromise<OutputEntity | null>
 
   /** Permite crear un registro */
   Create(record: InsertType): IApplicationPromise<InsertOutput>;

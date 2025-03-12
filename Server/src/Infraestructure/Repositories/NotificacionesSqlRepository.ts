@@ -1,17 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import INotificacionesSqlRepository from "../../Dominio/Repositories/INotificacionesSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
-
-
-
-
-
-
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 interface INotificacionesRepositoryDependencies {
@@ -20,7 +12,7 @@ interface INotificacionesRepositoryDependencies {
 }
 
 /** Repositorio para la entidad notificaciones */
-export default class NotificacionesSqlRepository extends SqlGenericRepositoryStrategy<"notificaciones", "id_notificacion"> implements INotificacionesSqlRepository {
+export default class NotificacionesSqlRepository extends SqlGenericRepository<DataBase, "notificaciones", "id_notificacion"> implements INotificacionesSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

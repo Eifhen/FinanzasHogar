@@ -1,9 +1,11 @@
-import ISqlGenericRepository from "../../Infraestructure/Repositories/Generic/Interfaces/ISqlGenericRepository";
+import { DataBase } from "../../Infraestructure/DataBase";
+import ISqlGenericRepository from "../../JFramework/DataBases/Interfaces/ISqlGenericRepository";
+
 
 
 
 
 /** Interfaz para repositorio de presupuesto categoria de Hogar*/
-export default interface IPresupuestoCategoriaSqlRepository extends ISqlGenericRepository<"presupuestoCategoria", "id"> {
+export default interface IPresupuestoCategoriaSqlRepository extends ISqlGenericRepository<DataBase, "presupuestoCategoria", "id"> {
 
 } 

@@ -1,6 +1,5 @@
 import { CreateUsuarios } from "../../Dominio/Entities/Usuarios";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
-import SqlTransactionStrategy from "../../JFramework/DataBases/Generic/SqlTransactionStrategy";
 import CloudStorageManager from "../../JFramework/CloudStorage/CloudStorageManager";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import AppImage from "../../JFramework/DTOs/AppImage";
@@ -22,6 +21,8 @@ import IsNullOrEmpty from "../../JFramework/Utils/utils";
 import SignInDTO from "../DTOs/SignInDTO";
 import SignUpDTO from "../DTOs/SignUpDTO";
 import IAuthenticationService from "./Interfaces/IAuthenticationService";
+import { DataBase } from "../../Infraestructure/DataBase";
+import ISqlTransactionManager from "../../JFramework/DataBases/Interfaces/ISqlTransactionManager";
 
 
 interface IAuthenticationServiceDependencies {
@@ -32,9 +33,8 @@ interface IAuthenticationServiceDependencies {
 	cloudStorageManager: CloudStorageManager;
 	emailManager: IEmailManager;
 	emailDataManager: IEmailDataManager;
-	sqlTransactionManager: SqlTransactionStrategy;
+	sqlTransactionManager: ISqlTransactionManager<DataBase>;
 }
-
 
 /** Servicio de Authenticación de usuario */
 export default class AuthenticationService implements IAuthenticationService {
@@ -55,7 +55,7 @@ export default class AuthenticationService implements IAuthenticationService {
 	private readonly _encrypterManager: IEncrypterManager;
 
 	/** Manejador de transacciones */
-	private readonly _transaction: SqlTransactionStrategy;
+	private readonly _transaction: ISqlTransactionManager<DataBase>;
 
 	/** Manejador de imagenes */
 	private readonly _cloudStorageManager: CloudStorageManager;
@@ -91,7 +91,7 @@ export default class AuthenticationService implements IAuthenticationService {
 			// Validamos datos de entrada
 			const signupValidation = SignUpDTO.Validate(args.data);
 			if (!signupValidation.isValid) {
-				throw new BadRequestException("SignUp", signupValidation.error, this._applicationContext, __filename);
+				throw new BadRequestException("SignUp", signupValidation.errorMessage, this._applicationContext, __filename);
 			}
 
 			let uploadedImageId = "";

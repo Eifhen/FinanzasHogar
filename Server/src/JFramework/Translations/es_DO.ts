@@ -37,6 +37,11 @@ export const ES = {
 	"service-unavailable": "Servicio no disponible",
 	"too-many-requests": "Demasiadas solicitudes desde esta IP, inténtelo de nuevo después de {0} {1}",
 	
+	/** Limiters */
+	"generalLimiter": "Has alcanzado el límite de solicitudes. Por favor, inténtalo de nuevo después de {0} {1}",
+	"authLimiter" : "Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo después de {0} {1}",
+	"resourceHeavyLimiter" : "Se ha excedido el límite de solicitudes para este recurso. Por favor, inténtalo de nuevo después de {0} {1}",
+
 	/** Errores custom */
 	"record-exists": "Ya existe un registro con el {0} igual a {1}",
 	"record-not-found": "No se encontró un registro con el identificador {0}",
@@ -50,9 +55,22 @@ export const ES = {
 	"middleware-instance-type-exception": "El middleware ingresado debe ser una instancia de ApplicationMiddleware",
 	"image-size-exception": "El tamaño de la imagen no debe ser superior a {0}",
 
-	// Limiters
-	"generalLimiter": "Has alcanzado el límite de solicitudes. Por favor, inténtalo de nuevo después de {0} {1}",
-	"authLimiter" : "Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo después de {0} {1}",
-	"resourceHeavyLimiter" : "Se ha excedido el límite de solicitudes para este recurso. Por favor, inténtalo de nuevo después de {0} {1}",
+	/** Zod errors */
+	"too_small_array": "La longitud del campo {0} debe ser mayor a {1}.",
+	"too_small_number": "El valor del campo {0} debe ser mayor a {1}.",
+	"too_small_bigint": "El valor del campo {0} debe ser mayor a {1}.",
+	"too_small_string": "El campo {0} debe contener al menos {1} caracteres.",
+	"too_small_date": "La fecha ingresada en el campo {0} debe ser mayor a {1}.",
+
+	"too_big_array": "La longitud del campo {0} no debe ser mayor a {1}.",
+	"too_big_number": "El valor del campo {0} no debe ser mayor a {1}.",
+	"too_big_bigint": "El valor del campo {0} no debe ser mayor a {1}.",
+	"too_big_string": "El campo {0} no debe contener más de {1} caracteres.",
+	"too_big_date": "La fecha ingresada en el campo {0} no debe ser mayor a {1}.",
+
+	"invalid_date": "La fecha ingresada en el campo {0} es inválida.",
+	"invalid_string": "La cadena ingresada en el campo {0} es inválida.",
+	"invalid_literal": "El valor ingresado para el campo {0} es inválido, se esperaba el valor {1}, pero se recibió el valor {2}.",
+	"invalid_type": "El tipo de dato ingresado en el campo {0} es inválido, se esperaba el tipo {1} pero se recibió el tipo {2}.",
 
 } as const;

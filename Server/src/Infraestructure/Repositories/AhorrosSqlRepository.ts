@@ -1,13 +1,9 @@
-
-
 import IAhorrosSqlRepository from "../../Dominio/Repositories/IAhorrosSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase, DataBase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
-import GenericRepository from "../../JFramework/DataBases/Generic/GenericRepository";
-import { Kysely } from "kysely";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 
@@ -17,7 +13,7 @@ interface IAhorrosRepositoryDependencies {
 }
 
 /** Repositorio para la entidad ahorros */
-export default class AhorrosSqlRepository extends GenericRepository<DataBase,"ahorros", "id"> implements IAhorrosSqlRepository {
+export default class AhorrosSqlRepository extends SqlGenericRepository<DataBase, "ahorros", "id"> implements IAhorrosSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import IRolesSqlRepository from "../../Dominio/Repositories/IRolesSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 
@@ -15,7 +13,7 @@ interface IRolesRepositoryDependencies {
 }
 
 /** Repositorio para la entidad roles */
-export default class RolesSqlRepository extends SqlGenericRepositoryStrategy<"roles", "id_rol"> implements IRolesSqlRepository {
+export default class RolesSqlRepository extends SqlGenericRepository<DataBase, "roles", "id_rol"> implements IRolesSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

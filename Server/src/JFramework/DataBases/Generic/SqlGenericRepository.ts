@@ -12,25 +12,18 @@ import { ApplicationPromise, IApplicationPromise } from "../../Helpers/Applicati
 import IPaginationArgs from "../../Helpers/Interfaces/IPaginationArgs";
 import IPaginationResult from "../../Helpers/Interfaces/IPaginationResult";
 import { DEFAULT_NUMBER } from "../../Utils/const";
-import IGenericRepository from '../Interfaces/IGenericRepository';
+import ISqlGenericRepository from "../Interfaces/ISqlGenericRepository";
 
 
 
-export default class SqlGenericRepositoryStrategy<
+export default class SqlGenericRepository<
 	DataBaseEntity extends object,
 	TableName extends Extract<keyof DataBaseEntity, string>,
 	PrimaryKey extends Extract<keyof DataBaseEntity[TableName], string>
-> implements IGenericRepository<
+> implements ISqlGenericRepository<
 	DataBaseEntity, 
 	TableName, 
-	PrimaryKey,
-	Insertable<DataBaseEntity[TableName]>, // InsertType
-	InsertResult, // InsertOutput
-	Updateable<DataBaseEntity[TableName]>, // UpdateType
-	number, // UpdateOutput
-	number, // DeleteOutput
-	Selectable<DataBaseEntity[TableName]>, // GeneralOutput
-	Transaction<DataBaseEntity> // TransactionType
+	PrimaryKey
 	> 
 {
 

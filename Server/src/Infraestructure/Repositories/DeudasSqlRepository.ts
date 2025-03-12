@@ -1,15 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import IDeudasSqlRepository from "../../Dominio/Repositories/IDeudasSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
-
-
-
-
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 interface IDeudasRepositoryDependencies {
@@ -18,7 +12,7 @@ interface IDeudasRepositoryDependencies {
 }
 
 /** Repositorio para la entidad deudas */
-export default class DeudasSqlRepository extends SqlGenericRepositoryStrategy<"deudas", "id"> implements IDeudasSqlRepository {
+export default class DeudasSqlRepository extends SqlGenericRepository<DataBase, "deudas", "id"> implements IDeudasSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

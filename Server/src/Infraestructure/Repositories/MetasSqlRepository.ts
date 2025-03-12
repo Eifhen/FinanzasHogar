@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import IMetasSqlRepository from "../../Dominio/Repositories/IMetasSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 
@@ -15,7 +13,7 @@ interface IMetasRepositoryDependencies {
 }
 
 /** Repositorio para la entidad metas */
-export default class MetasSqlRepository extends SqlGenericRepositoryStrategy<"metas", "id"> implements IMetasSqlRepository {
+export default class MetasSqlRepository extends SqlGenericRepository<DataBase, "metas", "id"> implements IMetasSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

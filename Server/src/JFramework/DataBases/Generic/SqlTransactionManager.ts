@@ -1,34 +1,34 @@
-import { Transaction } from "kysely";
+import { Kysely, Transaction } from "kysely";
 import ApplicationContext from "../../Context/ApplicationContext";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { DatabaseTransactionException, BaseException } from "../../ErrorHandling/Exceptions";
 import { IApplicationPromise, ApplicationPromise } from "../../Helpers/ApplicationPromise";
-import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
+import ILoggerManager from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
 import { ARRAY_LENGTH_EMPTY } from "../../Utils/const";
 import { HttpStatusName } from "../../Utils/HttpCodes";
-import { ApplicationSQLDatabase, DataBase } from "../../../Infraestructure/DataBase";
-
-
-
+import ISqlGenericRepository from "../Interfaces/ISqlGenericRepository";
+import { AutoClassBinder } from "../../Decorators/AutoBind";
+import ISqlTransactionManager from '../Interfaces/ISqlTransactionManager';
 
 
 interface MssSqlTransactionBuilderDependencies {
 	applicationContext: ApplicationContext;
-	database: ApplicationSQLDatabase;
+	database: Kysely<any>;
 }
 
 /** Clase para generar transacciones sql */
-export default class SqlTransactionStrategy {
+@AutoClassBinder
+export default class SqlTransactionManager implements ISqlTransactionManager<any> {
 
-	// ApplicationSQLDatabase es de tipo ApplicationSQLDatabase = Kysely<DataBase>;
-	private _database: ApplicationSQLDatabase;
+	// ;
+	private _database: Kysely<any>;
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;
 
 	/** Repositorios que usaran la transacción */
-	private _repositorys?: ISqlGenericRepository<any, any>[];
+	private _repositorys?: ISqlGenericRepository<any, any, any>[];
 
 	/** contexto de aplicación */
 	private _applicationContext: ApplicationContext;
@@ -38,7 +38,7 @@ export default class SqlTransactionStrategy {
 		// Instanciamos el logger
 		this._logger = new LoggerManager({
 			applicationContext: deps.applicationContext,
-			entityCategory: LoggEntityCategorys.BUILDER,
+			entityCategory: "MANAGER",
 			entityName: "SqlTransactionManager"
 		});
 
@@ -46,12 +46,11 @@ export default class SqlTransactionStrategy {
 		this._database = deps.database;
 	}
 
-
 	/** Inicia una nueva transacción */
-	public Start = async <T>(action: (builder: SqlTransactionStrategy, trx: Transaction<DataBase>) => Promise<T>): IApplicationPromise<T> => {
+	public async Start<ReturnType = any>(action: (builder: SqlTransactionManager, trx: Transaction<any>) => Promise<ReturnType>): IApplicationPromise<ReturnType> {
 		this._logger.Activity("Start");
 
-		return ApplicationPromise.Try<T>(new Promise<T>((resolve, reject) => {
+		return ApplicationPromise.Try<ReturnType>(new Promise<ReturnType>((resolve, reject) => {
 			this._database.transaction().setIsolationLevel("serializable").execute(async (transaction) => {
 
 				/** Validamos si es necesario setear las transacciones en los repositorios */
@@ -94,7 +93,7 @@ export default class SqlTransactionStrategy {
 	}
 
 	/** Setea las transacciones en los repositorios */
-	private SetRepositoryTransactions = async (transaction: Transaction<DataBase> | null) => {
+	private async SetRepositoryTransactions (transaction: Transaction<any> | null) {
 		try {
 			this._logger.Activity("SetTransactions");
 
@@ -122,7 +121,7 @@ export default class SqlTransactionStrategy {
 	}
 
 	/** Setea los repositorios que se van a utilizar en la transacción*/
-	public SetWorkingRepositorys = async (transaction: Transaction<DataBase>, repositorys: ISqlGenericRepository<any, any>[]) => {
+	public async SetWorkingRepositorys (transaction: Transaction<any>, repositorys: ISqlGenericRepository<any, any, any>[]) {
 		try {
 			this._logger.Activity("SetWorkingRepositorys");
 			this._repositorys = repositorys;

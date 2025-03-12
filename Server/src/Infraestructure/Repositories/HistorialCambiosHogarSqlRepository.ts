@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import IHistorialCambiosHogarSqlRepository from "../../Dominio/Repositories/IHistorialCambiosHogarSqlRepository";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase } from "../DataBase";
-import SqlGenericRepositoryStrategy from "../../JFramework/DataBases/Strategies/SqlGenericRepositoryStrategy";
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
+import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
 
 
 
@@ -17,7 +15,7 @@ interface IHistorialCambiosHogarRepositoryDependencies {
 }
 
 /** Repositorio para la entidad historial cambios hogar */
-export default class HistorialCambiosHogarSqlRepository extends SqlGenericRepositoryStrategy<"historialCambiosHogar", "id_historial"> implements IHistorialCambiosHogarSqlRepository {
+export default class HistorialCambiosHogarSqlRepository extends SqlGenericRepository<DataBase, "historialCambiosHogar", "id_historial"> implements IHistorialCambiosHogarSqlRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;

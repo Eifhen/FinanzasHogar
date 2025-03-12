@@ -45,10 +45,10 @@ export default class AttachContainerMiddleware extends ApplicationMiddleware {
 
 			// console.log("Attatch Container =>", this._containerManager !== undefined);
 
-			const multiplier = 10;
+			const multiplier = 1000000;
 			const random = Math.floor(Math.random() * multiplier);
-			const scoped = this._containerManager.CreateScopedManager();
-			scoped._identifier_ = `CHILD-${random}`;
+			const scoped = this._containerManager.CreateScopedContainer();
+			scoped._identifier = `CONTAINER_#${random}`;
 
 			req.container = scoped;
 			next();

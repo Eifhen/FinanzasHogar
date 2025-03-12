@@ -9,12 +9,14 @@ import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepos
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
 import ApplicationRequest from "../../JFramework/Helpers/ApplicationRequest";
-import { InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
+import { BadRequestException, InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
 import RateLimiterMiddleware from "../../JFramework/Security/RateLimiter/RateLimiterMiddleware";
 import ExampleMiddleware from "../../JFramework/Middlewares/ExampleMiddleware";
 import Middlewares from '../../JFramework/Decorators/Middlewares';
 import { DEFAULT_NUMBER } from "../../JFramework/Utils/const";
 import ICloudStorageManager from "../../JFramework/CloudStorage/Interfaces/ICloudStorageManager";
+import SignUpDTO from "../../Application/DTOs/SignUpDTO";
+import AppImage from "../../JFramework/DTOs/AppImage";
 
 
 interface TestControllerDependencies {
@@ -48,7 +50,7 @@ export default class TestController {
 	@route("/")
 	@GET() 
 	@Middlewares([ExampleMiddleware, RateLimiterMiddleware("generalLimiter")])
-	public async GetAll (req: Request, res: Response, next: NextFunction) {
+	public async GetAll (req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetAll");
 			const data = await this._testService.GetAll();
@@ -62,7 +64,7 @@ export default class TestController {
 
 	@route("/error")
 	@GET()
-	public async GetError(req: Request, res: Response, next: NextFunction) {
+	public async GetError(req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetError");
 
@@ -78,7 +80,7 @@ export default class TestController {
 
 	@route("/error/promise")
 	@GET()
-	public async GetPromiseError(req: Request, res: Response, next: NextFunction){
+	public async GetPromiseError(req: ApplicationRequest, res: Response, next: NextFunction){
 		try {
 
 			this._logger.Activity("GetPromiseError");
@@ -97,7 +99,7 @@ export default class TestController {
 
 	@route("/error/controled")
 	@GET()
-	public async GetControledError(req: Request, res: Response, next: NextFunction){
+	public async GetControledError(req: ApplicationRequest, res: Response, next: NextFunction){
 		try {
 			this._logger.Activity("GetControledError");
 
@@ -121,7 +123,7 @@ export default class TestController {
 
 	@route("/error/fatal")
 	@GET()
-	public async GetFatalError(req: Request, res: Response, next: NextFunction){
+	public async GetFatalError(req: ApplicationRequest, res: Response, next: NextFunction){
 		try {
 			this._logger.Activity("GetFatalError");
 			const TIMER = 2000;
@@ -148,9 +150,11 @@ export default class TestController {
 	@route("/usuarios")
 	@GET()
 	@Middlewares([RateLimiterMiddleware("generalLimiter")])
-	public async GetUsuarios (req: Request, res: Response, next: NextFunction) {
+	public async GetUsuarios (req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetUsuarios");
+
+			console.log("ApplicationRequest Controlador =>", req.container._identifier);
 
 			// const [err, data] = await this._usuariosRepository.paginate({
 			//   pageSize: 10,
@@ -186,10 +190,9 @@ export default class TestController {
 		}
 	}
 
-
 	@route("/images")
 	@POST()
-	public async UploadImage(req: Request, res: Response, next: NextFunction){
+	public async UploadImage(req: ApplicationRequest, res: Response, next: NextFunction){
 		try {
 			this._logger.Activity("UploadImages");
 			const result = await this._cloudStorageManager?.Upload(req.body, "casa_1");
@@ -249,7 +252,6 @@ export default class TestController {
 		}
 	}
 
-
 	@route("/translations")
 	@GET()
 	public async GetTranslations(req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction){
@@ -278,7 +280,6 @@ export default class TestController {
 		}
 	}
 
-
 	@route("/activate-account/:token")
 	@GET()
 	public async ActivateAccount(req: ApplicationRequest<any>, res: Response, next: NextFunction){
@@ -290,6 +291,36 @@ export default class TestController {
 		catch (err: any) {
 			next(new InternalServerException(
 				"ActivateAccount",
+				err.message,
+				this._applicationContext,
+				__filename,
+				err
+			));
+		}
+	}
+
+
+	@route("/test-schemas")
+	@POST()
+	public async TestSchemaValidation(req: ApplicationRequest<SignUpDTO>, res: Response, next: NextFunction){
+		try {
+			this._logger.Activity("TestSchemaValidation");
+			
+			const data = SignUpDTO.Validate(req.body);
+			if(!data.isValid){
+				throw new BadRequestException("SignUp", data.errorMessage, this._applicationContext, __filename);
+			}
+
+			const fotoVal = AppImage.Validate(req.body.foto);
+			if(!fotoVal.isValid){
+				throw new BadRequestException("SignUp", fotoVal.errorMessage, this._applicationContext, __filename);
+			}
+
+			res.status(HttpStatusCode.OK).send();
+		}
+		catch(err:any){
+			next(new InternalServerException(
+				"TestSchemaValidation",
 				err.message,
 				this._applicationContext,
 				__filename,

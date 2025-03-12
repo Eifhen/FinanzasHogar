@@ -32,7 +32,7 @@ export class CloudinaryStorageStrategy implements ICloudStoreStrategy {
 		this._logger = new LoggerManager({
 			entityCategory: LoggEntityCategorys.STRATEGY,
 			applicationContext: deps.applicationContext,
-			entityName: "CloudinaryImageStrategy"
+			entityName: "CloudinaryStorageStrategy"
 		});
 
 		this._applicationContext = deps.applicationContext;
