@@ -71,5 +71,7 @@ export const EN = {
 	"invalid_string": "The string entered in field {0} is invalid.",
 	"invalid_literal": "The value entered for field {0} is invalid, the value {1} was expected, but the value {2} was received.",
 	"invalid_type": "The data type entered in field {0} is invalid, type {1} was expected but type {2} was received.",
+	"invalid_union": "",
+
 
 } as const;
