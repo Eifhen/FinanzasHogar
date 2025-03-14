@@ -19,5 +19,8 @@ export const DEFAULT_INDENT = 2;
 /** Representa el length de un array vacio*/
 export const ARRAY_LENGTH_EMPTY = 0;
 
+/** Repreesnta el indice inicial de un array */
+export const ARRAY_START_INDEX = 0;
+
 /** Representa el valor default de un numero */
 export const DEFAULT_NUMBER = 0;

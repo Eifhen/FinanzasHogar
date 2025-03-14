@@ -280,3 +280,28 @@ export class DatabaseException extends ApplicationException {
 		)
 	}
 }
+
+
+
+export class ValidationException extends ApplicationException {
+
+	constructor(
+		methodName: string,
+		messageData: ErrorMessageData[],
+		applicationContext: ApplicationContext,
+		path?: string,
+		innerException?: Error
+	){
+		super(
+			methodName,
+			HttpStatusName.ValidationException,
+			applicationContext.translator.Translate("database-exception"),
+			HttpStatusCode.BadRequest,
+			applicationContext.requestID,
+			path,
+			innerException
+		)
+
+		this.message = this.ProcessErrorMessages(messageData, applicationContext, "internal-error");
+	}
+}

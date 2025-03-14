@@ -76,6 +76,7 @@ export const HttpStatusName = {
 	// Custom Errors
 	NullParameterException:  "NullParameterException",
 	RecordAlreadyExists: "RecordAlreadyExists",
+	ValidationException: "ValidationException",
 
 	// Database Custom Errors
 	DatabaseConnectionException: "DatabaseConnectionException",

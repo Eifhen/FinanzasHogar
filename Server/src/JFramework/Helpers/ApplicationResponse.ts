@@ -3,7 +3,6 @@ import { HttpStatusMessage } from "../Utils/HttpCodes";
 import IApplicationResponse from "./Interfaces/IApplicationResponse";
 
 
-
 /** Clase que contiene la respuesta que se enviará al cliente */
 export class ApplicationResponse<T> implements IApplicationResponse<T> {
 	
@@ -32,3 +31,7 @@ export class ApplicationResponse<T> implements IApplicationResponse<T> {
 	}
 
 }
+
+
+/** Define el tipo de una promesa que retorna un ApplicationResponse */
+export type ApiResponse<T> = Promise<ApplicationResponse<T>>;

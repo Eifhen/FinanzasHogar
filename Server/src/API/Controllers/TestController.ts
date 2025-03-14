@@ -9,7 +9,7 @@ import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepos
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
 import ApplicationRequest from "../../JFramework/Helpers/ApplicationRequest";
-import { BadRequestException, InternalServerException } from "../../JFramework/ErrorHandling/Exceptions";
+import { BadRequestException, InternalServerException, ValidationException } from "../../JFramework/ErrorHandling/Exceptions";
 import RateLimiterMiddleware from "../../JFramework/Security/RateLimiter/RateLimiterMiddleware";
 import ExampleMiddleware from "../../JFramework/Middlewares/ExampleMiddleware";
 import Middlewares from '../../JFramework/Decorators/Middlewares';
@@ -308,18 +308,24 @@ export default class TestController {
 			
 			const data = SignUpDTO.Validate(req.body);
 			if(!data.isValid){
-				throw new BadRequestException("SignUp", data.errorMessage, this._applicationContext, __filename);
+				// throw new BadRequestException("SignUp", data.errorMessage, this._applicationContext, __filename);
+				throw new ValidationException("TestSchemaValidation", data.errorData, this._applicationContext, __filename, data.innerError)
 			}
 
 			const fotoVal = AppImage.Validate(req.body.foto);
 			if(!fotoVal.isValid){
-				throw new BadRequestException("SignUp", fotoVal.errorMessage, this._applicationContext, __filename);
+				// throw new BadRequestException("SignUp", fotoVal.errorMessage, this._applicationContext, __filename);
+				throw new ValidationException("TestSchemaValidation", fotoVal.errorData, this._applicationContext, __filename, fotoVal.innerError)
 			}
 
 			res.status(HttpStatusCode.OK).send();
 		}
 		catch(err:any){
-			next(new InternalServerException(
+			if(err instanceof ApplicationException){
+				return next(err);
+			}
+
+			return next(new InternalServerException(
 				"TestSchemaValidation",
 				err.message,
 				this._applicationContext,

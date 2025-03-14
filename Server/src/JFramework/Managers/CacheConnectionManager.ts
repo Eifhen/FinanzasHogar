@@ -88,6 +88,7 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 
 			/** Agregamos el cliente caché al contenedor de dependencias */
 			this._containerManager.AddInstance<RedisClientType<any, any, any>>("cacheClient", redisClient);
+			this._cacheClient = redisClient;
 
 		}
 		catch (err: any) {

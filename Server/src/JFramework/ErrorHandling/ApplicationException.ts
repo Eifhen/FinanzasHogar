@@ -1,6 +1,6 @@
 import ApplicationContext from "../Context/ApplicationContext";
 import { EN } from "../Translations/en_US";
-import { NO_REQUEST_ID } from "../Utils/const";
+import { ARRAY_LENGTH_EMPTY, NO_REQUEST_ID } from "../Utils/const";
 import { EnvironmentStatus } from "../Utils/Environment";
 import { HttpStatusName, HttpStatusCode, HttpStatusMessage } from "../Utils/HttpCodes";
 import IsNullOrEmpty from "../Utils/utils";
@@ -121,6 +121,30 @@ export default class ApplicationException extends Error {
 		} else {
 			return messageData && typeof messageData === "string" ? messageData : "";
 		}
+	}
+
+	/** Permite procesar un array de mensajes de error */
+	public ProcessErrorMessages(
+		messageData: ErrorMessageData[],
+		applicationContext: ApplicationContext|undefined, 
+		defaultEntry: keyof typeof EN
+	) : string {
+		if(applicationContext){
+			if(messageData && messageData.length > ARRAY_LENGTH_EMPTY){
+
+				/** Hacemos loop sobre cada item recibido */
+				const result = messageData.map((item)=> {
+					/** Ingresamos al array el mensaje traducido de cada error */
+					return applicationContext.translator.Translate(item.message, item.args);
+				});
+
+				return result.join(" ");
+			}
+
+			return applicationContext.translator.Translate(defaultEntry);
+		}
+
+		return defaultEntry;
 	}
 
 	/** Sobrescribe el método toJSON para definir 

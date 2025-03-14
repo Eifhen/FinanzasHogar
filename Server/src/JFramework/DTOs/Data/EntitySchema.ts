@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 
 import { z, ZodObject, ZodSchema } from "zod";
-import { fromZodError } from "zod-validation-error";
+import { ErrorMessageData } from "../../ErrorHandling/Exceptions";
+import SchemaErrorAdapter from "../../ErrorHandling/SchemaErrorAdapter";
 
 interface ValidationResult {
 	isValid: boolean;
-	errorMessage: string;
+	innerError?: Error;
+	errorData: ErrorMessageData[];
 }
 
 /** Hemos convertido EntitySchema en una clase abstracta, ya que no será 
@@ -39,14 +41,13 @@ export default abstract class EntitySchema {
 		if(validation.success){
 			return {
 				isValid: true,
-				errorMessage: ""
+				errorData: []
 			}
 		} else {
-			console.log("issues =>", validation.error.issues);
-
 			return {
 				isValid: false,
-				errorMessage: fromZodError(validation.error).toString()
+				innerError: validation.error,
+				errorData: SchemaErrorAdapter.FormatValidationErrors(validation.error),
 			} as ValidationResult;
 		}
 	}

@@ -42,5 +42,6 @@ export default class AppImage extends EntitySchema {
 	}, z.date()))
 	public fecha: Date = new Date();
 
+
 }
 

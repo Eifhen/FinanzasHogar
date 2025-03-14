@@ -1,12 +1,12 @@
-import { CreateUsuarios } from "../../Dominio/Entities/Usuarios";
+import { CreateUsuarios, UpdateUsuarios } from "../../Dominio/Entities/Usuarios";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import CloudStorageManager from "../../JFramework/CloudStorage/CloudStorageManager";
 import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import AppImage from "../../JFramework/DTOs/AppImage";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
-import { BadRequestException, InternalServerException, RecordAlreadyExistsException } from "../../JFramework/ErrorHandling/Exceptions";
+import { InternalServerException, NotFoundException, RecordAlreadyExistsException, ValidationException } from "../../JFramework/ErrorHandling/Exceptions";
 import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
-import { ApplicationResponse } from "../../JFramework/Helpers/ApplicationResponse";
+import { ApiResponse, ApplicationResponse } from "../../JFramework/Helpers/ApplicationResponse";
 import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
 import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
 import IEncrypterManager from "../../JFramework/Managers/Interfaces/IEncrypterManager";
@@ -23,6 +23,7 @@ import SignUpDTO from "../DTOs/SignUpDTO";
 import IAuthenticationService from "./Interfaces/IAuthenticationService";
 import { DataBase } from "../../Infraestructure/DataBase";
 import ISqlTransactionManager from "../../JFramework/DataBases/Interfaces/ISqlTransactionManager";
+import UserConfirmationDTO from "../DTOs/UserConfirmationDTO";
 
 
 interface IAuthenticationServiceDependencies {
@@ -84,14 +85,14 @@ export default class AuthenticationService implements IAuthenticationService {
 	}
 
 	/** Método que permite el registro del usuario */
-	public SignUp = async (args: ApplicationArgs<SignUpDTO>): Promise<ApplicationResponse<void>> => {
+	public async SignUp(args: ApplicationArgs<SignUpDTO>): ApiResponse<void> {
 		try {
 			this._logger.Activity("SignUp");
 
 			// Validamos datos de entrada
 			const signupValidation = SignUpDTO.Validate(args.data);
 			if (!signupValidation.isValid) {
-				throw new BadRequestException("SignUp", signupValidation.errorMessage, this._applicationContext, __filename);
+				throw new ValidationException("SignUp", signupValidation.errorData, this._applicationContext, __filename, signupValidation.innerError)
 			}
 
 			let uploadedImageId = "";
@@ -147,7 +148,7 @@ export default class AuthenticationService implements IAuthenticationService {
 	}
 
 	/** Valida la data del objeto recibido y devuelve un objeto `CreateUsuarios` */
-	private ValidateUserData = async (data: SignUpDTO): Promise<CreateUsuarios> => {
+	private async ValidateUserData(data: SignUpDTO): Promise<CreateUsuarios> {
 		// Validar que no exista un usuario con ese email
 		const [findUserError, findUser] = await this._usuariosRepository.Find("email", "=", data.email);
 
@@ -184,7 +185,7 @@ export default class AuthenticationService implements IAuthenticationService {
 
 	/** Valida la data de la imagen recibida, si la misma es valida, 
 	 * entonces se sube la imagen, retorna el id de la imagen guardada */
-	private ValidateAndUploadImage = async (data: SignUpDTO, user: CreateUsuarios): Promise<string> => {
+	private async ValidateAndUploadImage(data: SignUpDTO, user: CreateUsuarios): Promise<string> {
 		/** Se guarda imagen en el proveedor */
 		if (AppImage.Validate(data.foto).isValid) {
 
@@ -205,7 +206,7 @@ export default class AuthenticationService implements IAuthenticationService {
 	}
 
 	/** Elimina la imagen cargada */
-	private DeleteUploadedImage = async (imageId: string): Promise<void> => {
+	private async DeleteUploadedImage(imageId: string): Promise<void> {
 		// Si ocurre un error en la transacción eliminamos la imagen
 		if (!IsNullOrEmpty(imageId)) {
 			const [deleteErr] = await this._cloudStorageManager.Delete(imageId);
@@ -217,7 +218,7 @@ export default class AuthenticationService implements IAuthenticationService {
 	}
 
 	/** Envia el email al usuario */
-	private SendUserEmail = async (user: CreateUsuarios) => {
+	private async SendUserEmail(user: CreateUsuarios) {
 		/** Se envía email de confirmación. */
 		const data: EmailData<EmailVerificationData> = this._emailDataManager.GetVerificationEmailData(
 			user.nombre,
@@ -229,8 +230,69 @@ export default class AuthenticationService implements IAuthenticationService {
 		if (emailErr) throw emailErr;
 	}
 
+	/** Permite Validar el token de confirmación de un usuario y marcar el usuario como activo */
+	public async ValidateUserConfirmationToken(args: ApplicationArgs<UserConfirmationDTO>) : ApiResponse<void> {
+		try {
+			this._logger.Activity("ValidateUserConfirmationToken");
+			console.log("args =>", args);
+			
+			/** Obtenemos el token del usuario */
+			const token = args.data.token;
+			const validate = UserConfirmationDTO.Validate(args.data);
+
+			if(!validate.isValid){
+				throw new ValidationException(
+					"ValidateUserConfirmationToken", 
+					validate.errorData, 
+					this._applicationContext, 
+					__filename, 
+					validate.innerError
+				);
+			}
+
+			const [errFind, find] = await this._usuariosRepository.Find("token_confirmacion", "=", token);
+
+			if(errFind){
+				throw new NotFoundException("ValidateUserConfirmationToken", [token], this._applicationContext, __filename, errFind);
+			}
+
+			if(find){
+				
+				/** Limpiamos el campo token confirmación */
+				find.token_confirmacion = "";
+
+				/** Marcamos al usuario como activo */
+				find.estado = EstadosUsuario.ACTIVO;
+
+				// await this._usuariosRepository.Update(find.id_usuario, find as UpdateUsuarios);
+			}
+
+
+			return new ApplicationResponse(
+				this._applicationContext,
+				HttpStatusMessage.Updated,
+			);
+
+		}
+		catch(err:any){
+			this._logger.Error(LoggerTypes.ERROR, "ValidateUserConfirmationToken", err);
+
+			if (err instanceof ApplicationException) {
+				throw err;
+			}
+
+			throw new InternalServerException(
+				"ValidateUserConfirmationToken",
+				err.message,
+				this._applicationContext,
+				__filename,
+				err
+			);
+		}
+	}
+
 	/** Método que permite el inicio de sesión del usuario */
-	public SignIn = async (args: ApplicationArgs<SignInDTO>): Promise<ApplicationResponse<boolean>> => {
+	public async SignIn(args: ApplicationArgs<SignInDTO>): ApiResponse<boolean> {
 		try {
 			this._logger.Activity("SignIn");
 
