@@ -1,17 +1,5 @@
 import { Generated, Insertable, Selectable, Updateable } from "kysely";
 
-
-
-
-
-
-
-
-
-
-
-
-
 /** Tabla que representa las cuentas relacionadas a un hogar  */
 export interface CuentasTable {
   
@@ -49,7 +37,7 @@ export interface CuentasTable {
 export type SelectCuentasTable = Selectable<CuentasTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateCuentasTable = Insertable<CuentasTable>;
+export type CreateCuentasTable = Insertable<Omit<CuentasTable, "id">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateCuentasTable = Updateable<CuentasTable>;
+export type UpdateCuentasTable = Updateable<Omit<CuentasTable, "id">>;

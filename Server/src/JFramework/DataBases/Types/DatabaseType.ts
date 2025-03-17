@@ -1,6 +1,4 @@
-
-
-
+import { Generated } from "kysely";
 
 
 /** Tipos de bases de datos contemplados por el sistema */
@@ -15,3 +13,18 @@ export const DatabaseType = {
 } as const;
 
 export type DatabaseType = keyof typeof DatabaseType;
+
+
+/**
+  Cuando defines el método Update, necesitas "extraer" el tipo subyacente de Generated<T> y 
+  trabajar únicamente con su valor (T). Esto lo puedes hacer con un tipo condicional 
+  en TypeScript para manejar Generated<T>.
+
+  Este tipo revisa si T es del tipo Generated<...>. Si lo es, devuelve el tipo interno (U). 
+  Si no lo es, simplemente usa T como está.
+*/
+
+export type UnwrapGenerated<T> = T extends Generated<infer U> ? U : T;
+
+/** Excluye el primary key a nivel de tipos*/
+export type WithoutPrimaryKey<Table, PrimaryKey extends keyof Table> = Omit<Table, PrimaryKey>;

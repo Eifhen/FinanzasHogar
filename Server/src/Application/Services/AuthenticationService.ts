@@ -7,14 +7,14 @@ import ApplicationException from "../../JFramework/ErrorHandling/ApplicationExce
 import { InternalServerException, NotFoundException, RecordAlreadyExistsException, ValidationException } from "../../JFramework/ErrorHandling/Exceptions";
 import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
 import { ApiResponse, ApplicationResponse } from "../../JFramework/Helpers/ApplicationResponse";
-import { IEmailDataManager } from "../../JFramework/Managers/Interfaces/IEmailDataManager";
-import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
+import { IEmailDataManager } from "../Email/Interfaces/IEmailDataManager";
+import IEmailManager from "../../JFramework/Emails/Interfaces/IEmailManager";
 import IEncrypterManager from "../../JFramework/Managers/Interfaces/IEncrypterManager";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import ITokenManager from "../../JFramework/Managers/Interfaces/ITokenManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { EmailVerificationData } from "../../JFramework/Managers/Types/EmailDataManagerTypes";
-import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
+import { EmailVerificationData } from "../Email/Types/EmailDataManagerTypes";
+import { EmailData } from "../../JFramework/Emails/Types/EmailManagerTypes";
 import { EstadosUsuario } from "../../JFramework/Utils/estados";
 import { HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
 import IsNullOrEmpty from "../../JFramework/Utils/utils";
@@ -24,7 +24,6 @@ import IAuthenticationService from "./Interfaces/IAuthenticationService";
 import { DataBase } from "../../Infraestructure/DataBase";
 import ISqlTransactionManager from "../../JFramework/DataBases/Interfaces/ISqlTransactionManager";
 import UserConfirmationDTO from "../DTOs/UserConfirmationDTO";
-
 
 interface IAuthenticationServiceDependencies {
 	usuariosRepository: IUsuariosSqlRepository;
@@ -152,10 +151,12 @@ export default class AuthenticationService implements IAuthenticationService {
 		// Validar que no exista un usuario con ese email
 		const [findUserError, findUser] = await this._usuariosRepository.Find("email", "=", data.email);
 
+		/** Error al realizar la operación de buscar al usuario */
 		if (findUserError) {
 			throw new InternalServerException("ValidateUserData", findUserError.message, this._applicationContext, __filename);
 		}
 
+		/** Error si no encontramos al usuario */
 		if (findUser) {
 			throw new RecordAlreadyExistsException(
 				"ValidateUserData",
@@ -234,7 +235,6 @@ export default class AuthenticationService implements IAuthenticationService {
 	public async ValidateUserConfirmationToken(args: ApplicationArgs<UserConfirmationDTO>) : ApiResponse<void> {
 		try {
 			this._logger.Activity("ValidateUserConfirmationToken");
-			console.log("args =>", args);
 			
 			/** Obtenemos el token del usuario */
 			const token = args.data.token;
@@ -252,21 +252,35 @@ export default class AuthenticationService implements IAuthenticationService {
 
 			const [errFind, find] = await this._usuariosRepository.Find("token_confirmacion", "=", token);
 
+			/** Validamos si ocurre un error en la operación de búsqueda */
 			if(errFind){
-				throw new NotFoundException("ValidateUserConfirmationToken", [token], this._applicationContext, __filename, errFind);
+				throw new InternalServerException("ValidateUserConfirmationToken", errFind.message, this._applicationContext, __filename, errFind);
 			}
 
-			if(find){
-				
-				/** Limpiamos el campo token confirmación */
-				find.token_confirmacion = "";
+			/** Validamos si el usuario fue encontrado o no */
+			if(!find){
+				throw new NotFoundException("ValidateUserConfirmationToken", [token], this._applicationContext, __filename);
+			} 
 
-				/** Marcamos al usuario como activo */
-				find.estado = EstadosUsuario.ACTIVO;
+			/** id del usuario */
+			const id = find.id_usuario;
 
-				// await this._usuariosRepository.Update(find.id_usuario, find as UpdateUsuarios);
+			/** Limpiamos el campo token confirmación */
+			find.token_confirmacion = "";
+
+			/** Marcamos al usuario como activo */
+			find.estado = EstadosUsuario.ACTIVO;
+		
+			/** Removemos la propiedad id del objeto, para evitar actualizarla al momento de llamar update */
+			delete find.id_usuario;
+
+			/* Actualizamos el usuario */
+			const [errUpdate] = await this._usuariosRepository.Update(id, find as UpdateUsuarios);
+
+			/** Ha ocurridon un error al actualizar */
+			if(errUpdate){
+				throw new InternalServerException("ValidateUserConfirmationToken", errUpdate.message, this._applicationContext, __filename, errUpdate);
 			}
-
 
 			return new ApplicationResponse(
 				this._applicationContext,

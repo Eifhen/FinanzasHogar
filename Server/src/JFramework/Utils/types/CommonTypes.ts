@@ -1,4 +1,5 @@
 
+
 /** Indica que T es una instancia de una clase y no un elemento callable */
 export type ClassInstance<T> = T extends (...args: any[]) => any ? never : T;
 
@@ -31,3 +32,8 @@ export type FunctionExpression<T> = () => T;
 
 /** Indica una función factory*/
 export type FactoryFunction<T> = (...args: any[]) => T;
+
+
+
+/** Representa a los temas de la aplicacion */
+export type ApplicationThemes = 'dark' | 'light';

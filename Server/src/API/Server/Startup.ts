@@ -39,6 +39,10 @@ import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
 import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
 import IServerConfiguration from "../../JFramework/_Internal/Interfaces/IServerConfiguration";
+import { EmailDataManager } from "../../Application/Email/EmailDataManager";
+import EmailTemplateManager from "../../Application/Email/EmailTemplateManager";
+import { IEmailDataManager } from "../../Application/Email/Interfaces/IEmailDataManager";
+import { IEmailTemplateManager } from "../../JFramework/Emails/Interfaces/IEmailTemplateManager";
 
 
 export default class Startup implements IStartup {
@@ -153,6 +157,8 @@ export default class Startup implements IStartup {
 	public async AddBusinessServices(): Promise<void> {
 		try {
 			this._logger.Activity("AddBusinessServices");
+			this._serviceManager.AddService<IEmailDataManager, EmailDataManager>("emailDataManager", EmailDataManager);
+			this._serviceManager.AddService<IEmailTemplateManager, EmailTemplateManager>("emailTemplateManager", EmailTemplateManager);
 
 			this._serviceManager.AddService<ITestService, TestService>("testService", TestService);
 			this._serviceManager.AddService<IAuthenticationService, AuthenticationService>("authenticationService", AuthenticationService);

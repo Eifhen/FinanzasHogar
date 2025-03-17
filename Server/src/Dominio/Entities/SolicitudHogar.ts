@@ -32,7 +32,7 @@ export interface SolicitudHogarTable {
 export type SelectSolicitudHogar = Selectable<SolicitudHogarTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateSolicitudHogar = Insertable<SolicitudHogarTable>;
+export type CreateSolicitudHogar = Insertable<Omit<SolicitudHogarTable, "id_solicitud">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateSolicitudHogar = Updateable<SolicitudHogarTable>;
+export type UpdateSolicitudHogar = Updateable<Omit<SolicitudHogarTable, "id_solicitud">>;

@@ -1,12 +1,21 @@
 import { Generated, Insertable, JSONColumnType, Selectable, Updateable } from "kysely";
 import { EstadoUsuario } from "../../JFramework/Utils/estados";
+import { ApplicationLenguage } from "../../JFramework/Translations/Types/ApplicationLenguages";
+import { ApplicationThemes } from "../../JFramework/Utils/Types/CommonTypes";
+
+
+/** Tipo que representa las preferencias de un usuario */
+export type UserPreferences = {
+  lan: ApplicationLenguage;
+  theme: ApplicationThemes;
+}
 
 
 /** Esta interfaz represeta el esquema de la tabla de usuarios */
 export interface UsuariosTable {
 
   /** Id secuencial del usuario */
-  id_usuario: Generated<number>;
+  id_usuario?: Generated<number>;
 
   /** Codigo de usuario */
   codigo_usuario: Generated<string>;
@@ -84,11 +93,9 @@ export interface UsuariosTable {
     and the insert and update types are always `string` since you're
     always stringifying insert/update values. 
   */
-  preferencias?: JSONColumnType<{
-    lan: "es-DO" | "en-US",
-    theme: "dark" | "light"
-  }>
+  preferencias?: JSONColumnType<UserPreferences, string, string>
 }
+
 
 
 /**  
@@ -104,7 +111,7 @@ export interface UsuariosTable {
 export type SelectUsuarios = Selectable<UsuariosTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateUsuarios = Insertable<UsuariosTable>;
+export type CreateUsuarios = Insertable<Omit<UsuariosTable, "id_usuario">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateUsuarios = Updateable<UsuariosTable>;
+export type UpdateUsuarios = Updateable<Omit<UsuariosTable, "id_usuario">>;

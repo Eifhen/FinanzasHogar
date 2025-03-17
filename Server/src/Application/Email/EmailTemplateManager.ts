@@ -1,7 +1,7 @@
-import ApplicationContext from "../Context/ApplicationContext";
-import { NotFoundException } from "../ErrorHandling/Exceptions";
-import { EmailTemplateType, EmailTemplateTypes } from "./Types/EmailTemplates";
-import { IEmailTemplateManager } from "./Interfaces/IEmailTemplateManager";
+import ApplicationContext from "../../JFramework/Context/ApplicationContext";
+import { NotFoundException } from "../../JFramework/ErrorHandling/Exceptions";
+import { EmailTemplateTypes } from "./Types/EmailTemplateTypes";
+import { IEmailTemplateManager } from "../../JFramework/Emails/Interfaces/IEmailTemplateManager";
 import { EmailVerificationData } from "./Types/EmailDataManagerTypes";
 
 
@@ -21,7 +21,7 @@ export default class EmailTemplateManager implements IEmailTemplateManager {
 	}
 
 	/** Permite obtener un determinado template */
-	public GetTemplate<TemplateData>(templateName: EmailTemplateType, templateData: TemplateData): string {
+	public GetTemplate<TemplateData>(templateName: string, templateData: TemplateData): string {
 		switch (templateName) {
 			case EmailTemplateTypes.VERIFICATION_EMAIL:
 				return this.VerificationEmail(templateData as EmailVerificationData);
@@ -36,7 +36,7 @@ export default class EmailTemplateManager implements IEmailTemplateManager {
 		}
 	}
 
-	/** Email para verificación */
+	/** Template de Email para verificación de usuario */
 	private VerificationEmail(data: EmailVerificationData) {
 
 		return `

@@ -1,9 +1,11 @@
-import ApplicationContext from "../Context/ApplicationContext";
+import ApplicationContext from "../../JFramework/Context/ApplicationContext";
+import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { IEmailDataManager } from "./Interfaces/IEmailDataManager";
-import ILoggerManager, { LoggEntityCategorys } from "./Interfaces/ILoggerManager";
-import LoggerManager from "./LoggerManager";
 import { EmailVerificationData } from "./Types/EmailDataManagerTypes";
-import { EmailData } from "./Types/EmailManagerTypes";
+import { EmailData } from "../../JFramework/Emails/Types/EmailManagerTypes";
+import { EmailTemplateType } from "./Types/EmailTemplateTypes";
+
 
 
 interface IEmailDataManagerDependencies {
@@ -32,12 +34,12 @@ export class EmailDataManager implements IEmailDataManager {
 		});
 	}
 
-	/** Obtiene un objeto de verificacion de email
+	/** Obtiene un objeto formateado para el emai de verificación de usuario
  *  @param {string} name - Indica el nombre de la persona a la que se le enviará el email
  *  @param {string} email - Indica el email de la persona a la que se le enviará el email
  *  @param {string} token - Indica el token de activación 
  */
-	public GetVerificationEmailData(name: string, email: string, token: string): EmailData<EmailVerificationData> {
+	public GetVerificationEmailData(name: string, email: string, token: string): EmailData<EmailVerificationData, EmailTemplateType> {
 		this._logger.Activity("GetValidationEmailData");
 
 		return {

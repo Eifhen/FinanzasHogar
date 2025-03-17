@@ -30,7 +30,7 @@ export interface CategoriasTable {
 export type SelectCategorias = Selectable<CategoriasTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateCategorias = Insertable<CategoriasTable>;
+export type CreateCategorias = Insertable<Omit<CategoriasTable, "id_categoria">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateCategorias = Updateable<CategoriasTable>;
+export type UpdateCategorias = Updateable<Omit<CategoriasTable, "id_categoria">>;

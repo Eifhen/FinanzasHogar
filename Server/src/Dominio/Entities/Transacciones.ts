@@ -36,7 +36,7 @@ export interface TransaccionesTable {
 export type SelectTransaccion = Selectable<TransaccionesTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateTransaccion = Insertable<TransaccionesTable>;
+export type CreateTransaccion = Insertable<Omit<TransaccionesTable, "id">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateTransaccion = Updateable<TransaccionesTable>;
+export type UpdateTransaccion = Updateable<Omit<TransaccionesTable, "id">>;

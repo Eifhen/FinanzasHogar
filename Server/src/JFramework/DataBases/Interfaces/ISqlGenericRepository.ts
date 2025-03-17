@@ -1,5 +1,7 @@
-import { Insertable, InsertResult, Selectable, Transaction, Updateable } from "kysely";
+import { Insertable, InsertResult, Selectable, Transaction, Updateable, UpdateType } from "kysely";
 import IGenericRepository from "./IGenericRepository";
+import { IApplicationPromise } from "../../Helpers/ApplicationPromise";
+import { UnwrapGenerated } from "../Types/DatabaseType";
 
 
 
@@ -20,5 +22,5 @@ export default interface ISqlGenericRepository<
   Selectable<DataBaseEntity[TableName]>, // GeneralOutput
   Transaction<DataBaseEntity> // TransactionType
 > {
-
+    
 }

@@ -1,6 +1,7 @@
 import { IApplicationPromise } from "../../Helpers/ApplicationPromise";
 import IPaginationArgs from "../../Helpers/Interfaces/IPaginationArgs";
 import IPaginationResult from "../../Helpers/Interfaces/IPaginationResult";
+import { UnwrapGenerated } from "../Types/DatabaseType";
 
 
 
@@ -22,7 +23,7 @@ export default interface IGenericRepository<
   GetAll(): IApplicationPromise<OutputEntity[]>;
 
   /** Permite buscar un elemento por su id */
-  FindById(id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<OutputEntity>
+  FindById(id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>): IApplicationPromise<OutputEntity>
 
   /** Permite buscar un registro en base a un predicado */
   Find (
@@ -35,10 +36,10 @@ export default interface IGenericRepository<
   Create(record: InsertType): IApplicationPromise<InsertOutput>;
 
   /** Permite actualizar un registro */
-  Update(id: DataBaseEntity[TableName][PrimaryKey], record: UpdateType): IApplicationPromise<UpdateOutput>;
+  Update(id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>, record: UpdateType): IApplicationPromise<UpdateOutput>;
 
   /** Permite eliminar un registro */
-  Delete(id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<DeleteOutput>;
+  Delete(id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>): IApplicationPromise<DeleteOutput>;
 
   /** Permite paginar la data buscada en base a los argumentos de paginación */
   Paginate(params: IPaginationArgs, filter?: Partial<OutputEntity>): IApplicationPromise<IPaginationResult<OutputEntity>>;

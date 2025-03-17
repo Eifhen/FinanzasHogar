@@ -56,7 +56,7 @@ export interface DeudasTable {
 export type SelectDeudas = Selectable<DeudasTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateDeudas = Insertable<DeudasTable>;
+export type CreateDeudas = Insertable<Omit<DeudasTable, "id">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateDeudas = Updateable<DeudasTable>;
+export type UpdateDeudas = Updateable<Omit<DeudasTable, "id">>;

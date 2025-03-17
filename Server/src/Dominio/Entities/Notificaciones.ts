@@ -42,7 +42,7 @@ export interface NotificacionesTable {
 export type SelectNotificaciones = Selectable<NotificacionesTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateNotificaciones = Insertable<NotificacionesTable>;
+export type CreateNotificaciones = Insertable<Omit<NotificacionesTable, "id_notificacion">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateNotificaciones = Updateable<NotificacionesTable>;
+export type UpdateNotificaciones = Updateable<Omit<NotificacionesTable, "id_notificacion">>;

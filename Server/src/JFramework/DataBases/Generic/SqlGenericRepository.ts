@@ -13,6 +13,7 @@ import IPaginationArgs from "../../Helpers/Interfaces/IPaginationArgs";
 import IPaginationResult from "../../Helpers/Interfaces/IPaginationResult";
 import { DEFAULT_NUMBER } from "../../Utils/const";
 import ISqlGenericRepository from "../Interfaces/ISqlGenericRepository";
+import { UnwrapGenerated } from "../Types/DatabaseType";
 
 
 
@@ -73,7 +74,7 @@ export default class SqlGenericRepository<
 	};
 
 	/** Permite buscar un registro en base a un id */
-	public FindById = async (id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<Selectable<DataBaseEntity[TableName]> | null> => {
+	public FindById = async (id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>): IApplicationPromise<Selectable<DataBaseEntity[TableName]> | null> => {
 		const query = this._transaction ?
 			this._transaction.selectFrom(this._tableName).selectAll()
 			.where(
@@ -127,7 +128,11 @@ export default class SqlGenericRepository<
 	}
 
 	/** Permite actualizar un elemento  */
-	public async Update (id: DataBaseEntity[TableName][PrimaryKey], record: Updateable<DataBaseEntity[TableName]>): IApplicationPromise<number> {
+	public async Update (
+		id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>, 
+		record: Updateable<DataBaseEntity[TableName]>
+	): IApplicationPromise<number> {
+
 		const query = this._transaction ?
 			this._transaction.updateTable(this._tableName)
 			.set(record as UpdateObjectExpression<DataBaseEntity, ExtractTableAlias<DataBaseEntity, TableName>>)
@@ -135,7 +140,8 @@ export default class SqlGenericRepository<
 				this._primaryKey as ReferenceExpression<DataBaseEntity, ExtractTableAlias<DataBaseEntity, TableName>>,
 				'=',
 				id
-			).executeTakeFirst()
+			)
+			.executeTakeFirst()
 			:
 			this._database.updateTable(this._tableName)
 			.set(record as UpdateObjectExpression<DataBaseEntity, ExtractTableAlias<DataBaseEntity, TableName>>)
@@ -152,7 +158,7 @@ export default class SqlGenericRepository<
 	}
 
 	/** Permite eliminar un elemento */
-	public async Delete (id: DataBaseEntity[TableName][PrimaryKey]): IApplicationPromise<number> {
+	public async Delete (id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>): IApplicationPromise<number> {
 		const query = this._transaction ?
 			this._transaction.deleteFrom(this._tableName)
 			.where(

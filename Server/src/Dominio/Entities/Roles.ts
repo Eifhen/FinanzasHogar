@@ -21,7 +21,7 @@ export interface RolesTable {
 export type SelectRoles = Selectable<RolesTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateRoles = Insertable<RolesTable>;
+export type CreateRoles = Insertable<Omit<RolesTable, "id_rol">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateRoles = Updateable<RolesTable>;
+export type UpdateRoles = Updateable<Omit<RolesTable, "id_rol">>;

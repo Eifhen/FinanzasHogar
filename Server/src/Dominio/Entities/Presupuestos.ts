@@ -37,7 +37,7 @@ export interface PresupuestosTable {
 export type SelectPresupuestos = Selectable<PresupuestosTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreatePresupuestos = Insertable<PresupuestosTable>;
+export type CreatePresupuestos = Insertable<Omit<PresupuestosTable, "id_presupuesto">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdatePresupuestos = Updateable<PresupuestosTable>;
+export type UpdatePresupuestos = Updateable<Omit<PresupuestosTable, "id_presupuesto">>;

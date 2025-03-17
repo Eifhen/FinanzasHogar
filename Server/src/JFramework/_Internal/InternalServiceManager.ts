@@ -1,12 +1,7 @@
 import ErrorHandlerMiddleware from "../ErrorHandling/ErrorHandlerMiddleware";
-import { EmailDataManager } from "../Managers/EmailDataManager";
-import EmailManager from "../Managers/EmailManager";
-import EmailTemplateManager from "../Managers/EmailTemplateManager";
 import EncrypterManager from "../Managers/EncrypterManager";
 import { FileManager } from "../Managers/FileManager";
-import { IEmailDataManager } from "../Managers/Interfaces/IEmailDataManager";
-import IEmailManager from "../Managers/Interfaces/IEmailManager";
-import { IEmailTemplateManager } from "../Managers/Interfaces/IEmailTemplateManager";
+import IEmailManager from "../Emails/Interfaces/IEmailManager";
 import IEncrypterManager from "../Managers/Interfaces/IEncrypterManager";
 import IFileManager from "../Managers/Interfaces/IFileManager";
 import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
@@ -24,6 +19,7 @@ import CloudStorageManager from "../CloudStorage/CloudStorageManager";
 import IDatabaseConnectionManager from "../DataBases/Interfaces/IDatabaseConnectionManager";
 import ICacheConnectionManager from "../Managers/Interfaces/ICacheConnectionManager";
 import ISqlTransactionManager from "../DataBases/Interfaces/ISqlTransactionManager";
+import EmailManager from "../Emails/EmailManager";
 
 
 interface InternalServiceManagerDependencies {
@@ -98,8 +94,6 @@ export class InternalServiceManager implements IInternalServiceManager {
 			this._serviceManager.AddService<IEncrypterManager, EncrypterManager>("encrypterManager", EncrypterManager);
 			this._serviceManager.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
 			this._serviceManager.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
-			this._serviceManager.AddService<IEmailDataManager, EmailDataManager>("emailDataManager", EmailDataManager);
-			this._serviceManager.AddService<IEmailTemplateManager, EmailTemplateManager>("emailTemplateManager", EmailTemplateManager);
 			this._serviceManager.AddService<IFileManager, FileManager>("fileManager", FileManager);
 
 		} catch (err: any) {

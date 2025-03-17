@@ -29,7 +29,7 @@ export interface PagosDeudaTable {
 export type SelectPagosDeuda = Selectable<PagosDeudaTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreatePagosDeuda = Insertable<PagosDeudaTable>;
+export type CreatePagosDeuda = Insertable<Omit<PagosDeudaTable, "id">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdatePagosDeuda = Updateable<PagosDeudaTable>;
+export type UpdatePagosDeuda = Updateable<Omit<PagosDeudaTable, "id">>;

@@ -24,7 +24,7 @@ export interface UsuariosHogarTable {
 export type SelectUsuarioHogar = Selectable<UsuariosHogarTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateUsuarioHogar = Insertable<UsuariosHogarTable>;
+export type CreateUsuarioHogar = Insertable<Omit<UsuariosHogarTable, "id">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateUsuarioHogar = Updateable<UsuariosHogarTable>;
+export type UpdateUsuarioHogar = Updateable<Omit<UsuariosHogarTable, "id">>;

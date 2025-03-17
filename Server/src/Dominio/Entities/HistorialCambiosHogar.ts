@@ -31,7 +31,7 @@ export interface HistorialCambiosHogarTable {
 export type SelectHistorialCambiosHogar = Selectable<HistorialCambiosHogarTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateHistorialCambiosHogar = Insertable<HistorialCambiosHogarTable>;
+export type CreateHistorialCambiosHogar = Insertable<Omit<HistorialCambiosHogarTable, "id_historial">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateHistorialCambiosHogar = Updateable<HistorialCambiosHogarTable>;
+export type UpdateHistorialCambiosHogar = Updateable<Omit<HistorialCambiosHogarTable, "id_historial">>;

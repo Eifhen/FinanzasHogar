@@ -23,7 +23,7 @@ export interface HogaresTable {
 export type SelectHogares = Selectable<HogaresTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateHogares = Insertable<HogaresTable>;
+export type CreateHogares = Insertable<Omit<HogaresTable, "id_hogar">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateHogares = Updateable<HogaresTable>;
+export type UpdateHogares = Updateable<Omit<HogaresTable, "id_hogar">>;

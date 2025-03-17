@@ -73,3 +73,7 @@ FROM "usuarios"
 ORDER BY "id_usuario"  -- Es necesario incluir un ORDER BY para usar OFFSET/FETCH
 OFFSET @2 ROWS
 FETCH NEXT @1 ROWS ONLY;
+
+
+
+select id_usuario, estado, token_confirmacion from usuarios;

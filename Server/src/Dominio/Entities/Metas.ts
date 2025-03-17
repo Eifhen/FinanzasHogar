@@ -34,7 +34,7 @@ export interface MetasTable {
 export type SelectMetas = Selectable<MetasTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateMetas = Insertable<MetasTable>;
+export type CreateMetas = Insertable<Omit<MetasTable, "id">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateMetas = Updateable<MetasTable>;
+export type UpdateMetas = Updateable<Omit<MetasTable, "id">>;

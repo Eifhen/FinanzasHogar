@@ -1,15 +1,17 @@
-import ApplicationContext from "../Context/ApplicationContext";
-import { ApplicationPromise, IApplicationPromise } from "../Helpers/ApplicationPromise";
-import IEmailManager from "./Interfaces/IEmailManager";
-import ILoggerManager, { LoggEntityCategorys } from "./Interfaces/ILoggerManager";
-import LoggerManager from "./LoggerManager";
-import { InternalServerException } from "../ErrorHandling/Exceptions";
-import { EmailData } from "./Types/EmailManagerTypes";
-import IFileManager from "./Interfaces/IFileManager";
-import nodemailer from 'nodemailer';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 import Mail from "nodemailer/lib/mailer";
-import { IEmailTemplateManager } from "./Interfaces/IEmailTemplateManager";
+import nodemailer from 'nodemailer';
+import ApplicationContext from "../Context/ApplicationContext";
 import { AutoBind } from "../Decorators/AutoBind";
+import { InternalServerException } from "../ErrorHandling/Exceptions";
+import { IApplicationPromise, ApplicationPromise } from "../Helpers/ApplicationPromise";
+import IFileManager from "../Managers/Interfaces/IFileManager";
+import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../Managers/LoggerManager";
+import IEmailManager from "./Interfaces/IEmailManager";
+import { IEmailTemplateManager } from "./Interfaces/IEmailTemplateManager";
+import { EmailData } from "./Types/EmailManagerTypes";
 
 
 interface IEmailManagerDependencies {
@@ -48,7 +50,7 @@ export default class EmailManager implements IEmailManager {
 
 	/** Método que permite enviar un email a un usuario */
 	@AutoBind
-	public async SendEmail <T>(data:EmailData<T>) : IApplicationPromise<void> {
+	public async SendEmail <TemplateData>(data:EmailData<TemplateData>) : IApplicationPromise<void> {
 		try {
 			this._logger.Activity("SendEmail");
 			return ApplicationPromise.Try((async ()=> {
@@ -57,7 +59,7 @@ export default class EmailManager implements IEmailManager {
 					const provider = this._applicationContext.settings.emailProviderConfig.currentProvider;
 
 					/** Datos para inyectar en la plantilla */
-					const htmlToSend = this._emailTemplateManager.GetTemplate<T>(data.template.name, data.template.data);
+					const htmlToSend = this._emailTemplateManager.GetTemplate<TemplateData>(data.template.name, data.template.data);
 
 					/** Preparamos el transporter */
 					const transporter = nodemailer.createTransport({ 

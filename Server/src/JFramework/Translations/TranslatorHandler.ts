@@ -38,7 +38,7 @@ export default class TranslatorHandler implements ITranslatorHandler {
 	 * según la configuración de idioma de la request en curso */
 	@AutoBind
 	public Translate(key: keyof typeof EN, value?: (string | number)[]): string {
-		this._logger.Activity("Translate");
+		this._logger.Activity("Translate", value);
 
 		/** Configuración de lenguaje definida por el contexto */
 		const lenguage = this._applicationContext.lang;

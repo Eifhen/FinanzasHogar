@@ -11,6 +11,7 @@ import SignUpDTO from "../../Application/DTOs/SignUpDTO";
 import SignInDTO from "../../Application/DTOs/SignInDTO";
 import RateLimiterMiddleware from "../../JFramework/Security/RateLimiter/RateLimiterMiddleware";
 import Middlewares from "../../JFramework/Decorators/Middlewares";
+import UserConfirmationDTO from "../../Application/DTOs/UserConfirmationDTO";
 
 
 
@@ -61,6 +62,23 @@ export default class AuthenticationController {
 		}
 		catch(err:any){
 			this._logger.Error(LoggerTypes.ERROR, "SignUp", err);
+			return next(err);
+		}
+	}
+
+	/** EndPoint que se encarga del registro del usuario en la aplicación */
+	@route("/validate-token")
+	@POST()
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
+	public async ValidateConfirmationToken(req: ApplicationRequest, res: Response, next: NextFunction){
+		try {
+			this._logger.Activity("ValidateConfirmationToken");
+			const args = new ApplicationArgs<UserConfirmationDTO>(req);
+			const result = await this.authenticationService.ValidateUserConfirmationToken(args);
+			return res.status(HttpStatusCode.OK).send(result);
+		}
+		catch(err:any){
+			this._logger.Error(LoggerTypes.ERROR, "ValidateConfirmationToken", err);
 			return next(err);
 		}
 	}

@@ -37,7 +37,7 @@ export interface AhorrosTable {
 export type SelectAhorros = Selectable<AhorrosTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateAhorros = Insertable<AhorrosTable>;
+export type CreateAhorros = Insertable<Omit<AhorrosTable, "id">>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateAhorros = Updateable<AhorrosTable>;
+export type UpdateAhorros = Updateable<Omit<AhorrosTable, "id">>;
