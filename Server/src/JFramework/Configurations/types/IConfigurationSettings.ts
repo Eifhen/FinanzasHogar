@@ -4,6 +4,12 @@ import { DatabaseType } from "../../DataBases/Types/DatabaseType";
 import { CloudStorageProviders } from "../../CloudStorage/Types/CloudStorageProviders";
 
 
+/** Configuración de seguridad */
+export type SecurityConfig = {
+  /** Origenes permitidos por el cors */
+  allowedOrigins: string | string[];
+
+}
 
 /** Datos de configuración de caché */
 export type CacheClientConfig = {
@@ -159,6 +165,9 @@ export type ApplicationHeaders = {
 
   /** Nombre del header que maneja el idioma de la aplicación */
   langHeader: string;
+
+  /** Nombre del header que maneja los tokens csrf */
+  csrfTokenHeader: string;
 }
 
 /** Contiene la configuración de estilos de la aplicación */
@@ -237,5 +246,8 @@ export default interface IConfigurationSettings {
 
   /** Configuracion de cache */
   cacheConfig: CacheClientConfig;
+
+  /** Configuración de seguridad */
+  securityConfig: SecurityConfig;
 
 }

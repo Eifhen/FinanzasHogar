@@ -30,7 +30,6 @@ interface InternalServiceManagerDependencies {
 
 export class InternalServiceManager implements IInternalServiceManager {
 
-
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
 
@@ -117,7 +116,6 @@ export class InternalServiceManager implements IInternalServiceManager {
 		}
 	}
 
-
 	/** Conectar a los servicios que realizan conecciones */
 	public async RunConnectionServices(): Promise<void> {
 		try {
@@ -151,8 +149,5 @@ export class InternalServiceManager implements IInternalServiceManager {
 			throw err;
 		}
 	}
-
-
-
 
 }

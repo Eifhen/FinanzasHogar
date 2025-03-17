@@ -138,7 +138,7 @@ export default class ServerConfiguration implements IServerConfiguration {
 			this._logger.Activity("AddCorsConfiguration");
 
 			this._app.use(cors({
-				origin: "*",
+				origin: this._configurationSettings.securityConfig.allowedOrigins,
 				methods: 'GET,PUT,POST,DELETE',
 				credentials: true,
 				...options

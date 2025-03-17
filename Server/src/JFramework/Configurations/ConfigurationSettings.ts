@@ -2,7 +2,7 @@ import { AutoClassBinder } from "../Decorators/AutoBind";
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { DEFAULT_API_VERSION, DEFAULT_DATABASE_TIMEOUT, DEFAULT_PORT } from "../Utils/const";
 import { Environment, EnvironmentStatus } from "../Utils/Environment";
-import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, CloudProviderConfig, EmailProvider, ApplicationStyleConfig, CloudProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig } from "./Types/IConfigurationSettings";
+import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, CloudProviderConfig, EmailProvider, ApplicationStyleConfig, CloudProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig, SecurityConfig } from "./Types/IConfigurationSettings";
 
 
 /** Objeto de configuración */
@@ -39,6 +39,9 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	/** Configuracion de cache */
 	cacheConfig: CacheClientConfig;
 
+	/** Configuración de seguridad */
+	securityConfig: SecurityConfig;
+
 	constructor() {
 		this.appName = process.env.APP_NAME ?? "";
 		this.appPrettyName = process.env.APP_NAME_PRETTY ?? "";
@@ -50,6 +53,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		this.databaseConnectionData = this.GetDataBaseConnectionData();
 		this.databaseConnectionConfig = this.GetDatabaseConnectionConfig();
 		this.cacheConfig = this.GetCacheConfig();
+		this.securityConfig = this.GetSecurityConfig();
 	}
 
 	/** Retorna el nivel de log de la aplicación */
@@ -114,6 +118,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		} as ApiData;
 	}
 
+	/** Obtiene los enlaces relevantes de la aplicación */
 	private GetApplicationLinks () : ApplicationLinks {
 		const data = JSON.parse(process.env.APPLICATION_LINKS ?? "");
 		return {
@@ -136,6 +141,9 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			
 			/** Nombre del header en la request, que contiene el idioma */
 			langHeader: data.LANG,
+
+			/** Nombre del header en la request, que contiene el token csrf */
+			csrfTokenHeader: data.CSRF_TOKEN_HEADER,
 
 		} as ApplicationHeaders;
 	}
@@ -284,6 +292,15 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			password: config.password,
 			clientName: config.clientName,
 			databaseNumber: config.databaseNumber
+		}
+	}
+
+	/** Obtiene la configuración de seguridad */
+	private GetSecurityConfig() : SecurityConfig {
+		
+		const config = JSON.parse(process.env.SECURITY ?? "");
+		return {
+			allowedOrigins: config.allowedOrigins,
 		}
 	}
 
