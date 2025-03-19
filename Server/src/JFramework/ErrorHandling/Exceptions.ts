@@ -154,6 +154,8 @@ export class BadRequestException extends ApplicationException {
 	}
 }
 
+
+
 /** Cuando un registro ya existe 
  * @param {string}  methodName - Nombre del método
  * @param {Array} message - Recibe un array de dos posiciones strings

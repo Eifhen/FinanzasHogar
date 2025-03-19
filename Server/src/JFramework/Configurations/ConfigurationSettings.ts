@@ -1,7 +1,7 @@
 import { AutoClassBinder } from "../Decorators/AutoBind";
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { DEFAULT_API_VERSION, DEFAULT_DATABASE_TIMEOUT, DEFAULT_PORT } from "../Utils/const";
-import { Environment, EnvironmentStatus } from "../Utils/Environment";
+import { Environment } from "../Utils/Environment";
 import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, CloudProviderConfig, EmailProvider, ApplicationStyleConfig, CloudProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig, SecurityConfig } from "./Types/IConfigurationSettings";
 
 
@@ -46,7 +46,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		this.appName = process.env.APP_NAME ?? "";
 		this.appPrettyName = process.env.APP_NAME_PRETTY ?? "";
 		this.port = Number(process.env.PORT ?? DEFAULT_PORT);
-		this.environment = process.env.NODE_ENV?.toUpperCase() as Environment ?? EnvironmentStatus.DEVELOPMENT;
+		this.environment = process.env.NODE_ENV?.toUpperCase() as Environment ?? Environment.DEVELOPMENT;
 		this.apiData = this.GetApiData();
 		this.emailProviderConfig = this.GetEmailProviders();
 		this.cloudProvider = this.GetCloudProviders();
@@ -57,7 +57,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Retorna el nivel de log de la aplicación */
-	private GetLogLevel (): number {
+	private GetLogLevel(): number {
 		let logLevel: number = 0;
 		const envLogLevel = process.env.LOG_LEVEL ?? "";
 		if (envLogLevel && Object.keys(LogLevels).includes(envLogLevel)) {
@@ -69,13 +69,13 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Obtiene las imagenes por defecto de la aplicación */
-	private GetDefaultImages (): ApplicationImages {
+	private GetDefaultImages(): ApplicationImages {
 		const images: ApplicationImages = JSON.parse(process.env.APPLICATION_IMAGES ?? "");
 		return images;
 	}
 
 	/** Obtiene la configuración de estilos de la aplicación */
-	private GetApplicationStyleConfig () : ApplicationStyleConfig {
+	private GetApplicationStyleConfig(): ApplicationStyleConfig {
 		const styles = JSON.parse(process.env.APPLICATION_STYLES ?? "");
 		return {
 			primaryColor: styles.PRIMARY_COLOR
@@ -83,7 +83,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Retorna un objeto con los datos del api */
-	private GetApiData (): ApiData {
+	private GetApiData(): ApiData {
 		return {
 			/** Clave de aplicación */
 			apiKey: process.env.API_KEY ?? "",
@@ -119,7 +119,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Obtiene los enlaces relevantes de la aplicación */
-	private GetApplicationLinks () : ApplicationLinks {
+	private GetApplicationLinks(): ApplicationLinks {
 		const data = JSON.parse(process.env.APPLICATION_LINKS ?? "");
 		return {
 
@@ -130,26 +130,33 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			accountActivation: data.ACCOUNT_ACTIVATION
 		} as ApplicationLinks
 	}
- 
+
 	/** Obtiene los headers que se utilizan en la aplicación */
-	private GetHeaders () : ApplicationHeaders {
+	private GetHeaders(): ApplicationHeaders {
 		const data = JSON.parse(process.env.APPLICATION_HEADERS ?? "");
 
 		return {
 			/** Nombre del header en la request, que contiene el apiKey */
 			apiKeyHeader: data.API_KEY_HEADER,
-			
+
 			/** Nombre del header en la request, que contiene el idioma */
 			langHeader: data.LANG,
 
-			/** Nombre del header en la request, que contiene el token csrf */
+			/** Nombre del header en la request, que contiene el token CSRF */
 			csrfTokenHeader: data.CSRF_TOKEN_HEADER,
+
+			/** Nombre del header que maneja el token csrf 
+ 			* publico para uso del patrón "double submit cookie" */
+			csrfTokenClientHeader: data.CSRF_TOKEN_CLIENT_HEADER,
+			
+			/** Almacena el nombre del header que contiene el token JWT */
+			jwtTokenHeader: data.JWT_TOKEN_HEADER,
 
 		} as ApplicationHeaders;
 	}
 
 	/** Obtiene el listado de proveedores de Email */
-	private GetEmailProviders (): EmailProviderConfig {
+	private GetEmailProviders(): EmailProviderConfig {
 
 		const emailProvidersData = JSON.parse(process.env.EMAIL_PROVIDERS ?? "");
 		const providers = emailProvidersData.providers as EmailProvider[];
@@ -175,7 +182,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Obtiene los proveedores de manejo de archivo */
-	private GetCloudProviders (): CloudProviderConfig {
+	private GetCloudProviders(): CloudProviderConfig {
 		const fileProvidersData = JSON.parse(process.env.CLOUD_PROVIDERS ?? "");
 		const currentProviderName = fileProvidersData.currentProvider;
 		const providers = fileProvidersData.providers as CloudProvider[];
@@ -206,13 +213,13 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Obtiene los datos de connección a la base de datos */
-	private GetDataBaseConnectionData (): DatabaseConnectionData {
+	private GetDataBaseConnectionData(): DatabaseConnectionData {
 		const dbConfig = JSON.parse(process.env.DATABASE ?? "");
 
 		return {
-			
+
 			/** Tipo de base de datos */
-			type:  dbConfig.TYPE,
+			type: dbConfig.TYPE,
 
 			/** Nombre de usuario de la base de datos */
 			userName: dbConfig.USERNAME,
@@ -250,7 +257,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Devuelve un objeto, con los objeto de connección a las bases de datos disponibles */
-	private GetDatabaseConnectionConfig (): DatabaseConnectionConfig {
+	private GetDatabaseConnectionConfig(): DatabaseConnectionConfig {
 		return {
 			/** Objeto de connección a sql server */
 			sqlConnectionConfig: {
@@ -284,7 +291,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Obtener la configuración de cache */
-	private GetCacheConfig (): CacheClientConfig {
+	private GetCacheConfig(): CacheClientConfig {
 		const config = JSON.parse(process.env.CACHE_CLIENT ?? "");
 		return {
 			url: config.url,
@@ -296,8 +303,8 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	}
 
 	/** Obtiene la configuración de seguridad */
-	private GetSecurityConfig() : SecurityConfig {
-		
+	private GetSecurityConfig(): SecurityConfig {
+
 		const config = JSON.parse(process.env.SECURITY ?? "");
 		return {
 			allowedOrigins: config.allowedOrigins,

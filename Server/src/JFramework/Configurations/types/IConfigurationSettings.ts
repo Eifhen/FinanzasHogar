@@ -168,6 +168,13 @@ export type ApplicationHeaders = {
 
   /** Nombre del header que maneja los tokens csrf */
   csrfTokenHeader: string;
+
+  /** Nombre del header que maneja el token csrf 
+   * publico para uso del patrón "double submit cookie" */
+  csrfTokenClientHeader: string;
+
+  /** Nombre del header donde se espera el token JWT */
+  jwtTokenHeader: string;
 }
 
 /** Contiene la configuración de estilos de la aplicación */

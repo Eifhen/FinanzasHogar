@@ -1,6 +1,6 @@
 import IServiceManager from "./IServiceManager";
 import ConfigurationSettings from '../../Configurations/ConfigurationSettings';
-import IServerConfiguration from "./IServerConfiguration";
+import IServerConfigurationManager from "./IServerConfigurationManager";
 
 export default interface IStartup {
 
@@ -31,5 +31,5 @@ export interface IStartupDependencies {
   configurationSettings: ConfigurationSettings;
 
   /** Configuración del servidor */
-  serverConfiguration: IServerConfiguration;
+  serverConfigurationManager: IServerConfigurationManager;
 }

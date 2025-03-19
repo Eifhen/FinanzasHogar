@@ -24,3 +24,6 @@ export const ARRAY_START_INDEX = 0;
 
 /** Representa el valor default de un numero */
 export const DEFAULT_NUMBER = 0;
+
+/** Representa la longitud de los tokens en la app */
+export const DEFAULT_TOKEN_LENGTH = 32;

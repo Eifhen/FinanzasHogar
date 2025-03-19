@@ -20,12 +20,25 @@ import IDatabaseConnectionManager from "../DataBases/Interfaces/IDatabaseConnect
 import ICacheConnectionManager from "../Managers/Interfaces/ICacheConnectionManager";
 import ISqlTransactionManager from "../DataBases/Interfaces/ISqlTransactionManager";
 import EmailManager from "../Emails/EmailManager";
+import { Application } from "express";
+import { loadControllers } from "awilix-express";
+import ICookieManager from "../Managers/Interfaces/ICookieManager";
+import CookieManager from "../Managers/CookieManager";
+import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
+import { RedisClientType } from "redis";
+import ApplicationContext from "../Context/ApplicationContext";
+import ApplicationException from "../ErrorHandling/ApplicationException";
+import { limiterConfig, Limiters } from "../Security/RateLimiter/Limiters";
+import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
+import { NO_REQUEST_ID } from "../Utils/const";
+import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
 
 
 interface InternalServiceManagerDependencies {
 	configurationSettings: ConfigurationSettings;
 	serviceManager: IServiceManager,
 	containerManager: IContainerManager;
+	app: Application;
 }
 
 export class InternalServiceManager implements IInternalServiceManager {
@@ -47,6 +60,9 @@ export class InternalServiceManager implements IInternalServiceManager {
 
 	/** Manejador de conección a servidor caché */
 	private readonly _cacheConnectionManager: ICacheConnectionManager;
+
+	/** Instancia de express */
+	private readonly _app: Application;
 
 	constructor(deps: InternalServiceManagerDependencies) {
 		/** Instancia logger */
@@ -70,6 +86,35 @@ export class InternalServiceManager implements IInternalServiceManager {
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings
 		});
+
+		/** Agregamos la instancia de express */
+		this._app = deps.app;
+	}
+
+	/** Permite añadir endpoints de uso interno */
+	public async AddInternalEndpoints(): Promise<void> {
+		try {
+			this._logger.Activity("AddInternalEndpoints");
+
+			// Definimos la ruta base para endpoints internos, por ejemplo '/internal'
+			const internalRoute = `${this._configurationSettings.apiData.baseRoute}`;
+
+			// Definimos la ruta del directorio donde se encuentran los controladores internos.
+			// Por ejemplo, suponiendo que están en src/InternalControllers:
+			//  ../../API/Controllers/*.ts
+			const internalControllersDir = './endpoints/*.ts';
+
+			// Cargamos los controladores internos usando awilix-express
+			this._app.use(
+				internalRoute,
+				loadControllers(internalControllersDir, { cwd: __dirname })
+			);
+
+		}
+		catch (err: any) {
+			this._logger.Error("FATAL", "AddInternalEndpoints", err);
+			throw err;
+		}
 	}
 
 	/** Agregamos las estrategias de desarrollo interno */
@@ -94,9 +139,53 @@ export class InternalServiceManager implements IInternalServiceManager {
 			this._serviceManager.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
 			this._serviceManager.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
 			this._serviceManager.AddService<IFileManager, FileManager>("fileManager", FileManager);
+			this._serviceManager.AddService<ICookieManager, CookieManager>("cookieManager", CookieManager);
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalManagers", err);
+			throw err;
+		}
+	}
+
+	/** Permite agregar una instancia del RateLimiter 
+	 * Middleware como singleton */
+	private AddRateLimiters(): void {
+		try {
+			this._logger.Activity("AddRateLimiters");
+			const cacheClient = this._containerManager.Resolve<RedisClientType<any, any, any>>("cacheClient");
+			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
+			const manager = new RateLimiterManager({ cacheClient, applicationContext });
+
+			/** Registramos los limiters según la configuración */
+			Object.entries(limiterConfig).forEach(([limiterName, options]) => {
+				manager.BuildStore(limiterName as Limiters, options);
+				this._containerManager.AddValue<RateLimitRequestHandler>(limiterName, rateLimit(options));
+			});
+		}
+		catch (err: any) {
+			this._logger.Error("FATAL", "AddRateLimiters", err);
+			throw new ApplicationException(
+				"AddRateLimiters",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
+	}
+
+	/** Permite agregar la configuración de seguridad interna */
+	public async AddInternalSecurity(): Promise<void> {
+		try {
+			this._logger.Activity("AddInternalSecurity");
+
+			/** Agrega los RateLimiters */
+			this.AddRateLimiters();
+
+		} catch (err: any) {
+			this._logger.Error("FATAL", "AddInternalSecurity", err);
 			throw err;
 		}
 	}
@@ -120,7 +209,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 	public async RunConnectionServices(): Promise<void> {
 		try {
 			this._logger.Activity("RunConnectionServices");
-			
+
 			/** Realizamos la conección a la base de datos */
 			await this._databaseConnecctionManager.Connect();
 

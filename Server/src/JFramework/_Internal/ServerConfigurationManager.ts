@@ -7,15 +7,13 @@ import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 import IContainerManager from "./Interfaces/IContainerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import ApplicationException from "../ErrorHandling/ApplicationException";
-import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
+import { HttpStatusName, HttpStatusCode, HttpAllowedMethods } from "../Utils/HttpCodes";
 import ApplicationContext from "../Context/ApplicationContext";
 import AttachContainerMiddleware from "../Middlewares/AttachContainerMiddleware";
 import IServiceManager from "./Interfaces/IServiceManager";
-import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
-import { RedisClientType } from "redis";
-import { limiterConfig, Limiters } from "../Security/RateLimiter/Limiters";
-import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
-import IServerConfiguration from "./Interfaces/IServerConfiguration";
+import IServerConfigurationManager from "./Interfaces/IServerConfigurationManager";
+import cookieParser, { CookieParseOptions } from "cookie-parser";
+import TokenManager from "../Managers/TokenManager";
 
 interface IServerConfigurationDependencies {
 	app: Application;
@@ -25,7 +23,7 @@ interface IServerConfigurationDependencies {
 }
 
 @AutoClassBinder
-export default class ServerConfiguration implements IServerConfiguration {
+export default class ServerConfigurationManager implements IServerConfigurationManager {
 
 	/** Instanciamos el logger */
 	private readonly _logger = new LoggerManager({
@@ -44,6 +42,7 @@ export default class ServerConfiguration implements IServerConfiguration {
 
 	/** Manejador de servicios */
 	private readonly _serviceManager: IServiceManager;
+
 
 	constructor(deps: IServerConfigurationDependencies) {
 
@@ -81,35 +80,6 @@ export default class ServerConfiguration implements IServerConfiguration {
 		}
 	}
 
-	/** Permite agregar una instancia del RateLimiter 
-	 * Middleware como singleton */
-	public AddRateLimiters(): void {
-		try {
-			this._logger.Activity("AddRateLimiters");
-			const cacheClient = this._containerManager.Resolve<RedisClientType<any, any, any>>("cacheClient");
-			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
-			const manager = new RateLimiterManager({ cacheClient, applicationContext });
-
-			/** Registramos los limiters según la configuración */
-			Object.entries(limiterConfig).forEach(([limiterName, options]) => {
-				manager.BuildStore(limiterName as Limiters, options);
-				this._containerManager.AddValue<RateLimitRequestHandler>(limiterName, rateLimit(options));
-			});
-		}
-		catch (err: any) {
-			this._logger.Error("FATAL", "AddRateLimiters", err);
-			throw new ApplicationException(
-				"AddRateLimiters",
-				HttpStatusName.InternalServerError,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
-				__filename,
-				err
-			);
-		}
-	}
-
 	/** Método que maneja la respuesta JSON de la aplicación */
 	public AddJsonResponseConfiguration(limit: string = DEFAULT_JSON_RESPONSE_LIMIT) {
 		try {
@@ -121,7 +91,7 @@ export default class ServerConfiguration implements IServerConfiguration {
 		catch (err: any) {
 			this._logger.Error("FATAL", "AddJsonResponseConfiguration", err);
 			throw new ApplicationException(
-				"AddContainer",
+				"AddJsonResponseConfiguration",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
@@ -139,8 +109,8 @@ export default class ServerConfiguration implements IServerConfiguration {
 
 			this._app.use(cors({
 				origin: this._configurationSettings.securityConfig.allowedOrigins,
-				methods: 'GET,PUT,POST,DELETE',
-				credentials: true,
+				methods: Object.values(HttpAllowedMethods).join(","), // 'GET,PUT,POST,DELETE',
+				credentials: true, // indica si el servidor permite el pase de cookies
 				...options
 			}));
 
@@ -148,7 +118,49 @@ export default class ServerConfiguration implements IServerConfiguration {
 		catch (err: any) {
 			this._logger.Error("FATAL", "AddCorsConfiguration", err);
 			throw new ApplicationException(
-				"AddContainer",
+				"AddCorsConfiguration",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
+	}
+
+	/** Permite añadir la configuración de las cookies */
+	public async AddCookieConfiguration(options?: CookieParseOptions): Promise<void> {
+		try {
+			this._logger.Activity("AddCookieConfiguration");
+
+			/** LLamamos al applicationContext del contenedor de dependencias */
+			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
+			
+			/** Creamos una instancia de tokenManager para generar tokens */
+			const tokenManager = new TokenManager({ applicationContext });
+
+			/** Generamos un token que nos va a servir como clave secreta. 
+			 * Al generar la clave de forma dinámica, se generará un nuevo token cada 
+			 * vez que se reinicie el servidor. Esto significa que cualquier cookie que tengan nuestros
+			 * usuarios quedará invalidada. Esto puede solucionarse pasando una clave fija
+			 * mediante una variable de entorno. Por el momento genero la clave 
+			 * dinámicamente para mayor seguridad, ya que por el momento la unica cookie que pensamos tener
+			 * son los tokens CSRF y los token JWT de autenticación y por el momento no nos molesta
+			 * que los usuarios tengan que iniciar sesión de nuevo si el servidor se reinicia. */
+			const secret = await tokenManager.GenerateToken();
+
+			/** Agregamos el parser como middleware y pasamos 
+			 * la clave secreta para firmar las cookies */
+			this._app.use(cookieParser(secret, {
+				...options,
+			}));
+
+		}
+		catch(err:any){
+			this._logger.Error("FATAL", "AddCookieConfiguration", err);
+			throw new ApplicationException(
+				"AddCookieConfiguration",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,

@@ -1,7 +1,7 @@
 import ApplicationContext from "../Context/ApplicationContext";
 import { EN } from "../Translations/en_US";
 import { ARRAY_LENGTH_EMPTY, NO_REQUEST_ID } from "../Utils/const";
-import { EnvironmentStatus } from "../Utils/Environment";
+import { Environment } from "../Utils/Environment";
 import { HttpStatusName, HttpStatusCode, HttpStatusMessage } from "../Utils/HttpCodes";
 import IsNullOrEmpty from "../Utils/utils";
 import { ErrorMessageData } from "./Exceptions";
@@ -163,7 +163,7 @@ export default class ApplicationException extends Error {
 		};
 
 		// solo agregamos el stack en desarrollo
-		if (process.env.NODE_ENV?.toUpperCase() === EnvironmentStatus.DEVELOPMENT) {
+		if (process.env.NODE_ENV?.toUpperCase() === Environment.DEVELOPMENT) {
 			error.details = {
 				path: this.path ?? "",
 				innerException: this.stack,

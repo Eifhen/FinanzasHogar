@@ -8,13 +8,13 @@ import { EXIT_CODES } from "../Utils/exit_codes";
 import ServiceManager from "./ServiceManager";
 import IContainerManager from "./Interfaces/IContainerManager";
 import ContainerManager from "./ContainerManager";
-import ServerConfiguration from "./ServerConfiguration";
+import ServerConfigurationManager from "./ServerConfigurationManager";
 import IInternalServiceManager from "./Interfaces/IInternalServiceManager";
 import { InternalServiceManager } from "./InternalServiceManager";
 import IServiceManager from "./Interfaces/IServiceManager";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 import { ClassConstructor } from "../Utils/Types/CommonTypes";
-import IServerConfiguration from "./Interfaces/IServerConfiguration";
+import IServerConfigurationManager from "./Interfaces/IServerConfigurationManager";
 
 
 interface ServerManagerDependencies {
@@ -47,7 +47,7 @@ export default class ServerManager {
 	private readonly _serviceManager: IServiceManager;
 
 	/**  Manejador de configuración del servidor */
-	private readonly _serverConfiguration: IServerConfiguration;
+	private readonly _serverConfigurationManager: IServerConfigurationManager;
 
 	/** Objeto de configuración del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
@@ -78,7 +78,7 @@ export default class ServerManager {
 		});
 
 		/** Instanciamos la configuración del server */
-		this._serverConfiguration = new ServerConfiguration({
+		this._serverConfigurationManager = new ServerConfigurationManager({
 			app: this._app,
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings,
@@ -87,6 +87,7 @@ export default class ServerManager {
 
 		/** Agregamos el manejador de servicios internos */
 		this._internalServiceManager = new InternalServiceManager({
+			app: this._app,
 			serviceManager: this._serviceManager,
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings
@@ -95,7 +96,7 @@ export default class ServerManager {
 		/** Instanciamos el Startup */
 		this._startup = new deps.startup({
 			configurationSettings: this._configurationSettings,
-			serverConfiguration: this._serverConfiguration,
+			serverConfiguration: this._serverConfigurationManager,
 			serviceManager: this._serviceManager,
 		});
 	}
@@ -169,7 +170,7 @@ export default class ServerManager {
 	}
 
 	/** Maneja los eventos de termino de proceso */
-	private OnProcessEnds() {
+	private InitializeProcessListeners() {
 		/** Eliminar listeners existentes para evitar duplicados */
 		process.removeAllListeners("uncaughtException");
 		process.removeAllListeners("unhandledRejection");
@@ -223,7 +224,7 @@ export default class ServerManager {
 			this._logger.Activity("OnServerStart");
 
 			/** Maneja los eventos que terminan el proceso */
-			this.OnProcessEnds();
+			this.InitializeProcessListeners();
 
 			/** Agregamos la configuración inicial */
 			await this._startup.AddConfiguration();
@@ -231,7 +232,10 @@ export default class ServerManager {
 			/** Agregamos todos los servicios que realizan conecciones */
 			await this._internalServiceManager.RunConnectionServices();
 
-			/** Agregamos la configuración de seguridad */
+			/** Agregamos la configuración de seguridad interna */
+			await this._internalServiceManager.AddInternalSecurity();
+
+			/** Agregamos la configuración de seguridad del negocio */
 			await this._startup.AddSecurityConfiguration();
 
 			/** Agregamos los middleware del negocio */
@@ -245,6 +249,7 @@ export default class ServerManager {
 			/** Se agregan servicios internos */
 			await this._internalServiceManager.AddInternalStrategies();
 			await this._internalServiceManager.AddInternalManagers();
+			await this._internalServiceManager.AddInternalEndpoints();
 			await this._internalServiceManager.AddExceptionManager();
 
 			/** Iniciamos el servidor */

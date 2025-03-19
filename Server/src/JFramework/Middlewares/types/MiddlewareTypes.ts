@@ -7,10 +7,10 @@ import { ClassConstructor } from "../../Utils/Types/CommonTypes";
 
 
 
-/** Representa un request de la aplicación */
+/** Representa un manejador de request de la aplicación */
 export type ApplicationRequestHandler = ((req: ApplicationRequest, res: Response, next: NextFunction) => any);
 
-/** Representa un request con error */
+/** Representa un manejador de request con error */
 export type ApplicationExceptionHandler = ((error: ApplicationException, req: ApplicationRequest, res: Response, next: NextFunction) => any);
 
 /** Función que representa un Middleware o RequestHandler de express */

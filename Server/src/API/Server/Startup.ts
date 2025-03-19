@@ -38,11 +38,12 @@ import ILoggerManager from "../../JFramework/Managers/Interfaces/ILoggerManager"
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
 import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
-import IServerConfiguration from "../../JFramework/_Internal/Interfaces/IServerConfiguration";
+import IServerConfigurationManager from "../../JFramework/_Internal/Interfaces/IServerConfigurationManager";
 import { EmailDataManager } from "../../Application/Email/EmailDataManager";
 import EmailTemplateManager from "../../Application/Email/EmailTemplateManager";
 import { IEmailDataManager } from "../../Application/Email/Interfaces/IEmailDataManager";
 import { IEmailTemplateManager } from "../../JFramework/Emails/Interfaces/IEmailTemplateManager";
+import CsrfValidationMiddleware from "../../JFramework/Security/CSRF/CsrfValidationMiddleware";
 
 
 export default class Startup implements IStartup {
@@ -54,7 +55,7 @@ export default class Startup implements IStartup {
 	private readonly _serviceManager: IServiceManager;
 
 	/** Configuracion del servidor */
-	private readonly _serverConfiguration: IServerConfiguration;
+	private readonly _serverConfigurationManager: IServerConfigurationManager;
 
 	/** Configuraciones del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
@@ -68,7 +69,7 @@ export default class Startup implements IStartup {
 		});
 
 		this._serviceManager = deps.serviceManager;
-		this._serverConfiguration = deps.serverConfiguration;
+		this._serverConfigurationManager = deps.serverConfigurationManager;
 		this._configurationSettings = deps.configurationSettings;
 	}
 
@@ -81,14 +82,16 @@ export default class Startup implements IStartup {
 			this._serviceManager.AddAplicationContext();
 
 			/** Agregamos el contenedor de dependencias */
-			this._serverConfiguration.AddContainer();
+			this._serverConfigurationManager.AddContainer();
 
 			/** Agregamos la configuración de cors */
-			this._serverConfiguration.AddCorsConfiguration();
+			this._serverConfigurationManager.AddCorsConfiguration();
 
 			/** Parsea la respuesta a json */
-			this._serverConfiguration.AddJsonResponseConfiguration();
+			this._serverConfigurationManager.AddJsonResponseConfiguration();
 
+			/** Agrega el cookie-parser como middleware y establece la firma de las cookies */
+			await this._serverConfigurationManager.AddCookieConfiguration();
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "AddConfiguration", err);
@@ -101,7 +104,11 @@ export default class Startup implements IStartup {
 		try {
 			this._logger.Activity("AddSecurityConfiguration");
 
-			this._serverConfiguration.AddRateLimiters();
+			/** Middleware para validación de token Csrf */
+			this._serviceManager.AddMiddleware(CsrfValidationMiddleware);
+
+			/** Middleware para validación del apiKey */
+			this._serviceManager.AddMiddleware(ApiValidationMiddleware);
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddSecurityConfiguration", err);
@@ -113,9 +120,6 @@ export default class Startup implements IStartup {
 	public async AddBusinessMiddlewares(): Promise<void> {
 		try {
 			this._logger.Activity("AddBusinessMiddlewares");
-
-			/** Middleware para validación del apiKey */
-			this._serviceManager.AddMiddleware(ApiValidationMiddleware);
 
 			/** Agregamos los controladores */
 			this._serviceManager.AddControllers();
@@ -162,7 +166,7 @@ export default class Startup implements IStartup {
 
 			this._serviceManager.AddService<ITestService, TestService>("testService", TestService);
 			this._serviceManager.AddService<IAuthenticationService, AuthenticationService>("authenticationService", AuthenticationService);
- 
+
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddBusinessServices", err);
 			throw err;

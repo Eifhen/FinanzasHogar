@@ -53,6 +53,10 @@ export const EN = {
 	"rate-limiter-invalid": "RateLimiter for {0} is not a function.",
 	"middleware-instance-type-exception": "The entered middleware must be an instance of ApplicationMiddleware.",
 	"image-size-exception": "The Image size cannot be larger than {0}.",
+	"invalid-csrf-token": "The CSRF token entered is invalid",
+	"csrf-token-doesnt-exists": "The CSRF token does not exist",
+	"invalid-verb": "The HTTP Verb entered is invalid for this request.",
+	"out-of-range": "The current request is out of range",
 
 	/** Zod errors */
 	"too_small_array": `The length of field "{0}" must be greater than {1}.`,

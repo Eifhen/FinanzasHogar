@@ -6,6 +6,7 @@ import ApplicationContext from '../Context/ApplicationContext';
 import { BaseException } from "../ErrorHandling/Exceptions";
 import bcrypt from 'bcrypt';
 import { HttpStatusName } from "../Utils/HttpCodes";
+import { DEFAULT_TOKEN_LENGTH } from "../Utils/const";
 
 
 interface TokenManagerDependencies {
@@ -83,7 +84,6 @@ export default class TokenManager implements ITokenManager {
 		try {
 			this._logger.Activity("GenerateToken");
 
-			const LENGTH = 32;
 			const SALT_ROUNDS = 10;
 			const BASE_STRING = 36; /** Indica que el string es base36 */
 			const CHAR_INDEX = 2;
@@ -94,7 +94,7 @@ export default class TokenManager implements ITokenManager {
 			 * Se toma el tercer carácter de la cadena resultante (índice 2).
 			 * Finalmente, se unen todos esos caracteres para formar la cadena aleatoria. */
 
-			const token = [...Array(LENGTH)].map(() => Math.random().toString(BASE_STRING)[CHAR_INDEX]).join('');
+			const token = [...Array(DEFAULT_TOKEN_LENGTH)].map(() => Math.random().toString(BASE_STRING)[CHAR_INDEX]).join('');
 
 			// Hashear la cadena usando bcrypt
 			const salt = await bcrypt.genSalt(SALT_ROUNDS);

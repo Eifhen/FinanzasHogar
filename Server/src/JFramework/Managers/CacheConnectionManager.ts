@@ -6,7 +6,7 @@ import ApplicationException from "../ErrorHandling/ApplicationException";
 import { LoggEntityCategorys } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";
 import { NO_REQUEST_ID } from "../Utils/const";
-import { EnvironmentStatus } from "../Utils/Environment";
+import { Environment } from "../Utils/Environment";
 import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
 import ICacheConnectionManager from "./Interfaces/ICacheConnectionManager";
 
@@ -50,7 +50,7 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 			let redisClient;
 
 			/** Conectamos al cliente de redis */
-			if (environment === EnvironmentStatus.DEVELOPMENT) {
+			if (environment === Environment.DEVELOPMENT) {
 				redisClient = createClient();
 			}
 			else {

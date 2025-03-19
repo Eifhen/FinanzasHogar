@@ -47,6 +47,8 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 	private SetConnectionStrategy(): void {
 		this._logger.Activity("SetConnectionStrategy");
 		
+		console.log("connection tipe =>", this._configurationSettings.databaseConnectionData.type);
+		
 		/** Ejecutamos una estrategía de conección según el tipo de base de datos
 		 * especificado en la configuración */
 		switch (this._configurationSettings.databaseConnectionData.type) {

@@ -1,4 +1,5 @@
 
+
 export const HttpStatusCode = {
 	// Información
 	OK : 200,
@@ -93,6 +94,36 @@ export const HttpStatusName = {
 
 } as const
 
+
+/** Indica los métodos http que son para 
+ * leer información que están permitidos en nuestra app */
+export const HttpAllowedReadMethods = {
+	GET: "GET",
+	// HEAD: "HEAD",
+	// OPTIONS: "OPTIONS",
+} as const;
+
+/** Indica los métodos http que son para escribir información que 
+ * están permitidos en nuestra app POST, PUT, DELETE, PATCH */
+export const HttpAllowedWriteMethods = {
+	POST: "POST",
+	PUT: "PUT",
+	DELETE: "DELETE",
+	// PATCH: "PATCH"
+} as const;
+
+/** Indica los métodos http permitidos en nuestra aplicación */
+export const HttpAllowedMethods = {
+	...HttpAllowedReadMethods,
+	...HttpAllowedWriteMethods
+} as const;
+
+
+export type HttpAllowedWriteMethods = (typeof HttpAllowedWriteMethods)[keyof typeof HttpAllowedWriteMethods];
+
+export type HttpAllowedReadMethods = (typeof HttpAllowedReadMethods)[keyof typeof HttpAllowedReadMethods];
+
+export type HttpAllowedMethods = (typeof HttpAllowedMethods)[keyof typeof HttpAllowedMethods];
 
 export type HttpStatusName = (typeof HttpStatusName)[keyof typeof HttpStatusName];
 

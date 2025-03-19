@@ -1,6 +1,6 @@
-export const EnvironmentStatus = {
+export const Environment = {
 	DEVELOPMENT:"DEVELOPMENT",
 	PRODUCTION:"PRODUCTION",
 } as const;
 
-export type Environment = (typeof EnvironmentStatus)[keyof typeof EnvironmentStatus];
+export type Environment = (typeof Environment)[keyof typeof Environment];
