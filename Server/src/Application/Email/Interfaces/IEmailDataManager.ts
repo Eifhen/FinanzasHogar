@@ -1,5 +1,5 @@
 import { EmailVerificationData } from "../Types/EmailDataManagerTypes";
-import { EmailData } from "../../../JFramework/Emails/Types/EmailManagerTypes";
+import { EmailData } from "../../../JFramework/Managers/Types/EmailManagerTypes";
 
 
 

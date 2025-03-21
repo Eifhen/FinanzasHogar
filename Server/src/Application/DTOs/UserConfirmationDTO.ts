@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import SchemaProperty from "../../JFramework/Decorators/SchemaProperty";
+import SchemaProperty from "../../JFramework/Helpers/Decorators/SchemaProperty";
 import { z } from "zod";
-import EntitySchema from "../../JFramework/DTOs/Data/EntitySchema";
+import EntitySchema from "../../JFramework/Helpers/DTOs/Data/EntitySchema";
 
 
 /** DTO para manejar la confirmación de usuario */

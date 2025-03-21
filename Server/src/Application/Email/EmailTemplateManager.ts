@@ -1,8 +1,8 @@
-import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import { NotFoundException } from "../../JFramework/ErrorHandling/Exceptions";
 import { EmailTemplateTypes } from "./Types/EmailTemplateTypes";
-import { IEmailTemplateManager } from "../../JFramework/Emails/Interfaces/IEmailTemplateManager";
+import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEmailTemplateManager";
 import { EmailVerificationData } from "./Types/EmailDataManagerTypes";
+import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
 
 
 

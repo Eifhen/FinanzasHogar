@@ -1,10 +1,10 @@
-import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { IEmailDataManager } from "./Interfaces/IEmailDataManager";
 import { EmailVerificationData } from "./Types/EmailDataManagerTypes";
-import { EmailData } from "../../JFramework/Emails/Types/EmailManagerTypes";
+import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
 import { EmailTemplateType } from "./Types/EmailTemplateTypes";
+import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
 
 
 

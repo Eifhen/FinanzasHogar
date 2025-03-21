@@ -6,22 +6,18 @@ import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
 import { HttpStatusCode } from "../../JFramework/Utils/HttpCodes";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import SignUpDTO from "../../Application/DTOs/SignUpDTO";
 import SignInDTO from "../../Application/DTOs/SignInDTO";
 import RateLimiterMiddleware from "../../JFramework/Security/RateLimiter/RateLimiterMiddleware";
-import Middlewares from "../../JFramework/Decorators/Middlewares";
+import Middlewares from "../../JFramework/Helpers/Decorators/Middlewares";
 import UserConfirmationDTO from "../../Application/DTOs/UserConfirmationDTO";
-
-
+import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
 
 
 interface IAuthenticationDependencies {
 	authenticationService: IAuthenticationService;
 	applicationContext: ApplicationContext
 }
-
-
 
 @route("/auth")
 export default class AuthenticationController {

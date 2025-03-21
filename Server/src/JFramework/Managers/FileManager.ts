@@ -1,4 +1,4 @@
-import ApplicationContext from "../Context/ApplicationContext";
+import ApplicationContext from "../Configurations/ApplicationContext";
 import IFileManager from "./Interfaces/IFileManager";
 import ILoggerManager, { LoggEntityCategorys } from "./Interfaces/ILoggerManager";
 import LoggerManager from "./LoggerManager";

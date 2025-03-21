@@ -2,11 +2,11 @@ import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "./Interfaces/I
 import ITokenManager from "./Interfaces/ITokenManager";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import LoggerManager from "./LoggerManager";
-import ApplicationContext from '../Context/ApplicationContext';
 import { BaseException } from "../ErrorHandling/Exceptions";
 import bcrypt from 'bcrypt';
 import { HttpStatusName } from "../Utils/HttpCodes";
 import { DEFAULT_TOKEN_LENGTH } from "../Utils/const";
+import ApplicationContext from "../Configurations/ApplicationContext";
 
 
 interface TokenManagerDependencies {

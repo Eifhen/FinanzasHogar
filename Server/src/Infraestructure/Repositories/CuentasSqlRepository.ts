@@ -1,9 +1,9 @@
 import ICuentasSqlRepository from "../../Dominio/Repositories/ICuentasSqlRepository";
-import ApplicationContext from "../../JFramework/Context/ApplicationContext";
+import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { ApplicationSQLDatabase, DataBase } from "../DataBase";
-import SqlGenericRepository from "../../JFramework/DataBases/Generic/SqlGenericRepository";
+import SqlGenericRepository from "../../JFramework/External/DataBases/Generic/SqlGenericRepository";
 
 
 

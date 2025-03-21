@@ -1,8 +1,8 @@
-import { AutoClassBinder } from "../Decorators/AutoBind";
+import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { DEFAULT_API_VERSION, DEFAULT_DATABASE_TIMEOUT, DEFAULT_PORT } from "../Utils/const";
 import { Environment } from "../Utils/Environment";
-import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, CloudProviderConfig, EmailProvider, ApplicationStyleConfig, CloudProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig, SecurityConfig } from "./Types/IConfigurationSettings";
+import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, CloudProviderConfig, EmailProvider, ApplicationStyleConfig, CloudProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig, SecurityConfig, ApplicationCookies, ApplicationCookie } from "./Types/IConfigurationSettings";
 
 
 /** Objeto de configuración */
@@ -88,9 +88,6 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			/** Clave de aplicación */
 			apiKey: process.env.API_KEY ?? "",
 
-			/** Headers que se utilizan en la app */
-			headers: this.GetHeaders(),
-
 			/** Token de aplicación */
 			tokenKey: process.env.TOKEN_KEY ?? "",
 
@@ -102,6 +99,12 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 
 			/** Path a la carpeta de controllers */
 			controllersPath: process.env.CONTROLLERS ?? "",
+
+			/** Headers que se utilizan en la app */
+			headers: this.GetHeaders(),
+
+			/** Obtiene los nombres de las cookies del sistema */
+			cookieData: this.GetCookieData(),
 
 			/** Nivel de log */
 			logLevel: this.GetLogLevel(),
@@ -146,13 +149,24 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			csrfTokenHeader: data.CSRF_TOKEN_HEADER,
 
 			/** Nombre del header que maneja el token csrf 
- 			* publico para uso del patrón "double submit cookie" */
+				* publico para uso del patrón "double submit cookie" */
 			csrfTokenClientHeader: data.CSRF_TOKEN_CLIENT_HEADER,
-			
+
 			/** Almacena el nombre del header que contiene el token JWT */
 			jwtTokenHeader: data.JWT_TOKEN_HEADER,
 
 		} as ApplicationHeaders;
+	}
+
+	/** Obtiene los nombres de las cookies del sistema */
+	private GetCookieData(): ApplicationCookies {
+		const data = JSON.parse(process.env.APPLICATION_COOKIES ?? "");
+
+		return {
+			/** Nombre de la cookie para tokens csrf */
+			csrfTokenCookie: data.CSRF_TOKEN_COOKIE,
+
+		} as ApplicationCookies;
 	}
 
 	/** Obtiene el listado de proveedores de Email */

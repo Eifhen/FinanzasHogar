@@ -1,5 +1,5 @@
 import { DataBase } from "../../Infraestructure/DataBase";
-import ISqlGenericRepository from "../../JFramework/DataBases/Interfaces/ISqlGenericRepository";
+import ISqlGenericRepository from "../../JFramework/External/DataBases/Interfaces/ISqlGenericRepository";
 
 
 

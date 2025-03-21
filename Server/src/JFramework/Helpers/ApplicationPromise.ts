@@ -1,8 +1,8 @@
 import { ConnectionError } from "tedious";
 import ApplicationException from "../ErrorHandling/ApplicationException";
 import { DatabaseConnectionException, DatabaseException } from "../ErrorHandling/Exceptions";
-import ApplicationContext from "../Context/ApplicationContext";
-import { AutoBind } from "../Decorators/AutoBind";
+import { AutoBind } from "./Decorators/AutoBind";
+import ApplicationContext from "../Configurations/ApplicationContext";
 
 
 /*** Retorna una promesa de aplicación  */

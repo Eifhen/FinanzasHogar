@@ -6,11 +6,11 @@ import IsNullOrEmpty from '../Utils/utils';
 import ApplicationException from '../ErrorHandling/ApplicationException';
 import { HttpStatusCode, HttpStatusName } from '../Utils/HttpCodes';
 import { v4 as uuidv4 } from 'uuid';
-import ApplicationContext from '../Context/ApplicationContext';
 import ConfigurationSettings from '../Configurations/ConfigurationSettings';
 import { ApplicationMiddleware } from './Types/MiddlewareTypes';
-import { AutoClassBinder } from '../Decorators/AutoBind';
+import { AutoClassBinder } from '../Helpers/Decorators/AutoBind';
 import { ApplicationLenguages, ApplicationLenguage } from '../Translations/Types/ApplicationLenguages';
+import ApplicationContext from '../Configurations/ApplicationContext';
 
 
 

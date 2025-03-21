@@ -6,7 +6,7 @@ import LoggerManager from "../Managers/LoggerManager";
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationRequest from "../Helpers/ApplicationRequest";
 import { ApplicationErrorMiddleware } from "../Middlewares/Types/MiddlewareTypes";
-import { AutoBind } from "../Decorators/AutoBind";
+import { AutoBind } from "../Helpers/Decorators/AutoBind";
 
 
 /** Esta clase representa al middleware de manejo de errores de la aplicación */

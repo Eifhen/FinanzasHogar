@@ -5,6 +5,7 @@
 /** Objeto de idioma español */
 export const ES = {
 
+	/** Business Messages */
 	"activar": "Activar",
 	"activar-cuenta": "Activar Cuenta",
 	"apikey-invalido": "El API Key {0} ingresado es invalido.",
@@ -12,11 +13,15 @@ export const ES = {
 	"bienvenido-a": "Bienvenido a",
 	"cuenta-creada-exitosamente": "Tu cuenta ha sido creada exitosamente. Pulsa el link para activar tu cuenta.",
 	"hola": "Hola",
+	/** END Business Messages */
+
+	/** Time Units */
 	"days": "Días",
 	"hours": "Horas",
 	"minutes": "Minutos",
 	"seconds": "Segundos",
 	"milliseconds": "Milisegundos",
+	/** END Time Units */
 
 	/** Status Messages */
 	"ok-result": "Petición Exitosa",
@@ -36,11 +41,13 @@ export const ES = {
 	"bad-gateway": "Puerta de enlace incorrecta",
 	"service-unavailable": "Servicio no disponible",
 	"too-many-requests": "Demasiadas solicitudes desde esta IP, inténtelo de nuevo después de {0} {1}.",
+	/** END Status Messages */
 
 	/** Limiters */
 	"generalLimiter": "Has alcanzado el límite de solicitudes. Por favor, inténtalo de nuevo después de {0} {1}.",
 	"authLimiter": "Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo después de {0} {1}.",
 	"resourceHeavyLimiter": "Se ha excedido el límite de solicitudes para este recurso. Por favor, inténtalo de nuevo después de {0} {1}.",
+	/** END Limiters */
 
 	/** Errores custom */
 	"record-exists": "Ya existe un registro con el {0} igual a {1}.",
@@ -56,9 +63,10 @@ export const ES = {
 	"image-size-exception": "El tamaño de la imagen no debe ser superior a {0}.",
 	"invalid-csrf-token": "El token CSRF ingresado es inválido",
 	"csrf-token-doesnt-exists": "El token CSRF no existe",
+	"csrf-error": "Ha ocurrido un error mientras se validaba el token csrf",
 	"invalid-verb": "El Verbo HTTP ingresado, es inválido para esta solicitud",
 	"out-of-range": "La solicitud en curso está fuera de rango",
-
+	/** END Errores Custom */
 
 	/** Zod errors */
 	"too_small_array": `La longitud del campo "{0}" debe ser mayor a {1}.`,
@@ -90,5 +98,6 @@ export const ES = {
 	"not_finite": `El valor del campo "{0}", debe ser un número finito.`,
 	"not_multiple_of": `El valor ingresado en el campo "{0}" no debe ser multiplo de {1}.`,
 	"unrecognized_keys": `El campo "{0}" no debe poseer propiedades adicionales: [{1}].`,
+	/** END Zod Errors */
 
 } as const;

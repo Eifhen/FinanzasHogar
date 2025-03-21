@@ -1,5 +1,5 @@
 import ApplicationArgs from "../../../JFramework/Helpers/ApplicationArgs";
-import { ApiResponse, ApplicationResponse } from "../../../JFramework/Helpers/ApplicationResponse";
+import { ApiResponse } from "../../../JFramework/Helpers/ApplicationResponse";
 import SignInDTO from "../../DTOs/SignInDTO";
 import SignUpDTO from "../../DTOs/SignUpDTO";
 import UserConfirmationDTO from "../../DTOs/UserConfirmationDTO";

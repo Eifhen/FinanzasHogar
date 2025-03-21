@@ -47,7 +47,7 @@ export abstract class ApplicationErrorMiddleware {
 
 	/** Middleware de intercepción de solicitudes de error.
 	 * Es necesario siempre hacer un binding de esta implementación*/
-	abstract Intercept(error: ApplicationException, req: ApplicationRequest, res: Response, next: NextFunction): any;
+	abstract Intercept(error: ApplicationException|Error, req: ApplicationRequest, res: Response, next: NextFunction): any;
 }
 
 

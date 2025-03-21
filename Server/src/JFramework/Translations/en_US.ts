@@ -4,6 +4,7 @@
 /** Objeto de idioma inglés */
 export const EN = {
 
+	/** Business Messages */
 	"activar": "Activate",
 	"activar-cuenta": "Activate Account",
 	"apikey-invalido": "The API Key {0} entered is invalid.",
@@ -11,11 +12,15 @@ export const EN = {
 	"bienvenido-a": "Welcome to",
 	"cuenta-creada-exitosamente": "Your account has been successfully created. Click the link below to activate your account.",
 	"hola": "Hello",
-	"days": "days",
-	"hours": "hours",
+	/** END Business Messages */
+
+	/** Time Units */
+	"days": "Days",
+	"hours": "Hours",
 	"minutes": "Minutes",
 	"seconds": "Seconds",
 	"milliseconds": "Milliseconds",
+	/** END Time Units */
 
 	/** Status Messages */
 	"ok-result": "Successful Request",
@@ -35,13 +40,15 @@ export const EN = {
 	"bad-gateway": "Bad gateway",
 	"service-unavailable": "Service unavailable",
 	"too-many-requests": "Too many requests from this IP, please try again after {0} {1}.",
+	/** END Status Messages */
 
 	/** Limiters */
 	"generalLimiter": "You have reached the request limit. Please try again later after {0} {1}.",
 	"authLimiter": "Too many login attempts. Please try again after {0} {1}.",
 	"resourceHeavyLimiter": "Request limit for this resource exceeded. Please try again after {0} {1}.",
+	/** END Limiters */
 
-	/** Errores custom */
+	/** Errores Custom */
 	"record-exists": "There is already a record with {0} equal to {1}.",
 	"record-not-found": "No record found with identifier {0}.",
 	"null-parameter-exception": "The parameter {0} can't be null.",
@@ -55,10 +62,12 @@ export const EN = {
 	"image-size-exception": "The Image size cannot be larger than {0}.",
 	"invalid-csrf-token": "The CSRF token entered is invalid",
 	"csrf-token-doesnt-exists": "The CSRF token does not exist",
+	"csrf-error": "An error occurred while validating the CSRF token.",
 	"invalid-verb": "The HTTP Verb entered is invalid for this request.",
 	"out-of-range": "The current request is out of range",
+	/** END Errores Custom */
 
-	/** Zod errors */
+	/** Zod Errors */
 	"too_small_array": `The length of field "{0}" must be greater than {1}.`,
 	"too_small_set": `The length of field "{0}" must be greater than {1}.`,
 	"too_small_number": `The value of field "{0}" must be greater than {1}.`,
@@ -88,5 +97,6 @@ export const EN = {
 	"not_finite": `The value of the field "{0}", must be a finite number.`,
 	"not_multiple_of": `The value entered in field "{0}" must not be a multiple of {1}.`,
 	"unrecognized_keys": `The field "{0}" must not have any additional properties: [{1}].`,
+	/** END Zod Errors */
 
 } as const;

@@ -1,5 +1,6 @@
 import { Request, Query } from 'express-serve-static-core'
-import IContainerManager from '../_Internal/Interfaces/IContainerManager';
+import IContainerManager from '../Configurations/Interfaces/IContainerManager';
+
 // import { AwilixContainer } from 'awilix';
 
 

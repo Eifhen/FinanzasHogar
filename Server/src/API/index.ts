@@ -1,4 +1,4 @@
-import ServerManager from "../JFramework/_Internal/ServerManager";
+import ServerManager from "../JFramework/Configurations/ServerManager";
 import Startup from "./Server/Startup";
 
 

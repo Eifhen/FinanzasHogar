@@ -1,5 +1,4 @@
 import { RedisClientType } from "redis";
-import ApplicationContext from "../../Context/ApplicationContext";
 import { Options } from "express-rate-limit";
 import LoggerManager from "../../Managers/LoggerManager";
 import { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
@@ -10,7 +9,8 @@ import { HttpStatusCode } from "../../Utils/HttpCodes";
 import { TimeUnitConverter } from "../../Utils/TimeUnitConverter";
 import { Limiters } from "./Limiters";
 import IsNullOrEmpty from '../../Utils/utils';
-import { AutoBind } from "../../Decorators/AutoBind";
+import { AutoBind } from "../../Helpers/Decorators/AutoBind";
+import ApplicationContext from "../../Configurations/ApplicationContext";
 
 
 interface RateLimiterManagerDependencies {

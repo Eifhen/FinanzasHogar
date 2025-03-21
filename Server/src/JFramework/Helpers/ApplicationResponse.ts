@@ -1,10 +1,10 @@
-import ApplicationContext from "../Context/ApplicationContext";
+import ApplicationContext from "../Configurations/ApplicationContext";
 import { HttpStatusMessage } from "../Utils/HttpCodes";
-import IApplicationResponse from "./Interfaces/IApplicationResponse";
+import IApiResponse from "./Interfaces/IApiResponse";
 
 
 /** Clase que contiene la respuesta que se enviará al cliente */
-export class ApplicationResponse<T> implements IApplicationResponse<T> {
+export class ApplicationResponse<T> implements IApiResponse<T> {
 	
 	/** Id de la request */
 	public requestID: string;

@@ -3,9 +3,9 @@ import ApplicationRequest from "../Helpers/ApplicationRequest";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
-import ServiceManager from "../_Internal/ServiceManager";
 import ITokenManager from "../Managers/Interfaces/ITokenManager";
 import { ApplicationMiddleware } from "./Types/MiddlewareTypes";
+import ServiceManager from "../Configurations/ServiceManager";
 
 
 /** Middleware de autenticación */

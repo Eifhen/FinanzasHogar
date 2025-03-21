@@ -1,20 +1,17 @@
 import { CreateUsuarios, UpdateUsuarios } from "../../Dominio/Entities/Usuarios";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
-import CloudStorageManager from "../../JFramework/CloudStorage/CloudStorageManager";
-import ApplicationContext from "../../JFramework/Context/ApplicationContext";
-import AppImage from "../../JFramework/DTOs/AppImage";
+import AppImage from "../../JFramework/Helpers/DTOs/AppImage";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 import { InternalServerException, NotFoundException, RecordAlreadyExistsException, ValidationException } from "../../JFramework/ErrorHandling/Exceptions";
 import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
 import { ApiResponse, ApplicationResponse } from "../../JFramework/Helpers/ApplicationResponse";
 import { IEmailDataManager } from "../Email/Interfaces/IEmailDataManager";
-import IEmailManager from "../../JFramework/Emails/Interfaces/IEmailManager";
 import IEncrypterManager from "../../JFramework/Managers/Interfaces/IEncrypterManager";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import ITokenManager from "../../JFramework/Managers/Interfaces/ITokenManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { EmailVerificationData } from "../Email/Types/EmailDataManagerTypes";
-import { EmailData } from "../../JFramework/Emails/Types/EmailManagerTypes";
+import { EmailData } from "../../JFramework/Managers/Types/EmailManagerTypes";
 import { EstadosUsuario } from "../../JFramework/Utils/estados";
 import { HttpStatusMessage } from "../../JFramework/Utils/HttpCodes";
 import IsNullOrEmpty from "../../JFramework/Utils/utils";
@@ -22,8 +19,11 @@ import SignInDTO from "../DTOs/SignInDTO";
 import SignUpDTO from "../DTOs/SignUpDTO";
 import IAuthenticationService from "./Interfaces/IAuthenticationService";
 import { DataBase } from "../../Infraestructure/DataBase";
-import ISqlTransactionManager from "../../JFramework/DataBases/Interfaces/ISqlTransactionManager";
+import ISqlTransactionManager from "../../JFramework/External/DataBases/Interfaces/ISqlTransactionManager";
 import UserConfirmationDTO from "../DTOs/UserConfirmationDTO";
+import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
+import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
+import CloudStorageManager from "../../JFramework/External/CloudStorage/CloudStorageManager";
 
 interface IAuthenticationServiceDependencies {
 	usuariosRepository: IUsuariosSqlRepository;

@@ -1,7 +1,8 @@
 import { ConnectionConfiguration } from "tedious";
 import { Environment } from "../../Utils/Environment";
-import { DatabaseType } from "../../DataBases/Types/DatabaseType";
-import { CloudStorageProviders } from "../../CloudStorage/Types/CloudStorageProviders";
+import { DatabaseType } from "../../External/DataBases/Types/DatabaseType";
+import { CloudStorageProviders } from "../../External/CloudStorage/Types/CloudStorageProviders";
+import { TimeUnits } from "../../Utils/TimeUnitConverter";
 
 
 /** Configuración de seguridad */
@@ -169,12 +170,31 @@ export type ApplicationHeaders = {
   /** Nombre del header que maneja los tokens csrf */
   csrfTokenHeader: string;
 
-  /** Nombre del header que maneja el token csrf 
-   * publico para uso del patrón "double submit cookie" */
-  csrfTokenClientHeader: string;
-
   /** Nombre del header donde se espera el token JWT */
   jwtTokenHeader: string;
+}
+
+
+/** Representa la duración de una cookie */
+export type ApplicationCookieTime = {
+  unit: TimeUnits;
+  value: number;
+}
+
+/** Datos de la cookie */
+export type ApplicationCookie = {
+   /** Nombre de la cookie*/
+  name: string;
+
+  /** Duración de la cookie */
+  time: ApplicationCookieTime;
+}
+
+/** Indica el nombre de las diferentes cookis que se utilizan en la aplicación */
+export type ApplicationCookies = {
+  
+  /** Datos de la cookie para el token csrf */
+  csrfTokenCookie: ApplicationCookie;
 }
 
 /** Contiene la configuración de estilos de la aplicación */
@@ -190,6 +210,9 @@ export type ApiData = {
 
   /** Contiene los headers custom de la aplicación */
   headers: ApplicationHeaders;
+
+  /** Contiene los nombres de todas las cookies del sistema */
+  cookieData: ApplicationCookies;
 
   /** Token de aplicación */
   tokenKey: string;

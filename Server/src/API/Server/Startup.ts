@@ -1,3 +1,6 @@
+import { EmailDataManager } from "../../Application/Email/EmailDataManager";
+import EmailTemplateManager from "../../Application/Email/EmailTemplateManager";
+import { IEmailDataManager } from "../../Application/Email/Interfaces/IEmailDataManager";
 import AuthenticationService from "../../Application/Services/AuthenticationService";
 import IAuthenticationService from "../../Application/Services/Interfaces/IAuthenticationService";
 import { ITestService } from "../../Application/Services/Interfaces/ITestService";
@@ -32,18 +35,15 @@ import SolicitudHogarSqlRepository from "../../Infraestructure/Repositories/Soli
 import TransaccionesSqlRepository from "../../Infraestructure/Repositories/TransaccionesSqlRepository";
 import UsuarioHogarSqlRepository from "../../Infraestructure/Repositories/UsuarioHogarSqlRepository";
 import UsuariosSqlRepository from "../../Infraestructure/Repositories/UsuariosSqlRepository";
-import IServiceManager from "../../JFramework/_Internal/Interfaces/IServiceManager";
-import IStartup, { IStartupDependencies } from "../../JFramework/_Internal/Interfaces/IStartup";
+import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
+import IServerConfigurationManager from "../../JFramework/Configurations/Interfaces/IServerConfigurationManager";
+import IServiceManager from "../../JFramework/Configurations/Interfaces/IServiceManager";
+import IStartup, { IStartupDependencies } from "../../JFramework/Configurations/Interfaces/IStartup";
+import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEmailTemplateManager";
 import ILoggerManager from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
-import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
-import IServerConfigurationManager from "../../JFramework/_Internal/Interfaces/IServerConfigurationManager";
-import { EmailDataManager } from "../../Application/Email/EmailDataManager";
-import EmailTemplateManager from "../../Application/Email/EmailTemplateManager";
-import { IEmailDataManager } from "../../Application/Email/Interfaces/IEmailDataManager";
-import { IEmailTemplateManager } from "../../JFramework/Emails/Interfaces/IEmailTemplateManager";
-import CsrfValidationMiddleware from "../../JFramework/Security/CSRF/CsrfValidationMiddleware";
+
 
 
 export default class Startup implements IStartup {
@@ -103,12 +103,12 @@ export default class Startup implements IStartup {
 	public async AddSecurityConfiguration(): Promise<void> {
 		try {
 			this._logger.Activity("AddSecurityConfiguration");
-
-			/** Middleware para validación de token Csrf */
-			this._serviceManager.AddMiddleware(CsrfValidationMiddleware);
-
+			
 			/** Middleware para validación del apiKey */
 			this._serviceManager.AddMiddleware(ApiValidationMiddleware);
+
+			/** Middleware para validación de token Csrf Este token debe ser aplicado por ruta */
+			// this._serviceManager.AddMiddleware(CsrfValidationMiddleware);
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddSecurityConfiguration", err);

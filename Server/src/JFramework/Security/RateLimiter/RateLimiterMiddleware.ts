@@ -1,11 +1,11 @@
 
-import ApplicationContext from "../../Context/ApplicationContext";
 import { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
 import { NextFunction, Response, Request } from "express";
 import { Limiters } from "./Limiters";
 import { RateLimitRequestHandler } from "express-rate-limit";
 import { ErrorMessageData, InternalServerException } from "../../ErrorHandling/Exceptions";
+import ApplicationContext from "../../Configurations/ApplicationContext";
 
 
 // Define una interfaz base para las dependencias comunes

@@ -1,22 +1,23 @@
 import { GET, POST, route } from "awilix-express";
 import { ITestService } from "../../Application/Services/Interfaces/ITestService";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import ILoggerManager, { LoggEntityCategorys, LoggerTypes } from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import { HttpStatusCode } from "../../JFramework/Utils/HttpCodes";
-import ApplicationContext from "../../JFramework/Context/ApplicationContext";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
 import ApplicationException from "../../JFramework/ErrorHandling/ApplicationException";
 import ApplicationArgs from "../../JFramework/Helpers/ApplicationArgs";
 import ApplicationRequest from "../../JFramework/Helpers/ApplicationRequest";
-import { BadRequestException, InternalServerException, ValidationException } from "../../JFramework/ErrorHandling/Exceptions";
+import { InternalServerException, ValidationException } from "../../JFramework/ErrorHandling/Exceptions";
 import RateLimiterMiddleware from "../../JFramework/Security/RateLimiter/RateLimiterMiddleware";
 import ExampleMiddleware from "../../JFramework/Middlewares/ExampleMiddleware";
-import Middlewares from '../../JFramework/Decorators/Middlewares';
+import Middlewares from '../../JFramework/Helpers/Decorators/Middlewares';
 import { DEFAULT_NUMBER } from "../../JFramework/Utils/const";
-import ICloudStorageManager from "../../JFramework/CloudStorage/Interfaces/ICloudStorageManager";
 import SignUpDTO from "../../Application/DTOs/SignUpDTO";
-import AppImage from "../../JFramework/DTOs/AppImage";
+import AppImage from "../../JFramework/Helpers/DTOs/AppImage";
+import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
+import ICloudStorageManager from "../../JFramework/External/CloudStorage/Interfaces/ICloudStorageManager";
+import CsrfValidationMiddleware from "../../JFramework/Security/CSRF/CsrfValidationMiddleware";
 
 
 interface TestControllerDependencies {
@@ -48,9 +49,9 @@ export default class TestController {
 	}
 
 	@route("/")
-	@GET() 
+	@GET()
 	@Middlewares([ExampleMiddleware, RateLimiterMiddleware("generalLimiter")])
-	public async GetAll (req: ApplicationRequest, res: Response, next: NextFunction) {
+	public async GetAll(req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetAll");
 			const data = await this._testService.GetAll();
@@ -80,7 +81,7 @@ export default class TestController {
 
 	@route("/error/promise")
 	@GET()
-	public async GetPromiseError(req: ApplicationRequest, res: Response, next: NextFunction){
+	public async GetPromiseError(req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 
 			this._logger.Activity("GetPromiseError");
@@ -99,7 +100,7 @@ export default class TestController {
 
 	@route("/error/controled")
 	@GET()
-	public async GetControledError(req: ApplicationRequest, res: Response, next: NextFunction){
+	public async GetControledError(req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetControledError");
 
@@ -123,7 +124,7 @@ export default class TestController {
 
 	@route("/error/fatal")
 	@GET()
-	public async GetFatalError(req: ApplicationRequest, res: Response, next: NextFunction){
+	public async GetFatalError(req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetFatalError");
 			const TIMER = 2000;
@@ -150,7 +151,7 @@ export default class TestController {
 	@route("/usuarios")
 	@GET()
 	@Middlewares([RateLimiterMiddleware("generalLimiter")])
-	public async GetUsuarios (req: ApplicationRequest, res: Response, next: NextFunction) {
+	public async GetUsuarios(req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetUsuarios");
 
@@ -161,13 +162,13 @@ export default class TestController {
 			//   currentPage: 1,
 			// });
 
-			if(this._usuariosRepository){
+			if (this._usuariosRepository) {
 				const [err, data] = await this._usuariosRepository.GetAll();
-	
+
 				if (err) {
 					throw err;
 				}
-	
+
 				return res.status(HttpStatusCode.OK).send(data);
 			}
 
@@ -192,7 +193,7 @@ export default class TestController {
 
 	@route("/images")
 	@POST()
-	public async UploadImage(req: ApplicationRequest, res: Response, next: NextFunction){
+	public async UploadImage(req: ApplicationRequest, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("UploadImages");
 			const result = await this._cloudStorageManager?.Upload(req.body, "casa_1");
@@ -217,19 +218,19 @@ export default class TestController {
 
 	@route("/images")
 	@GET()
-	public async GetImage(req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction){
+	public async GetImage(req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetImage");
 
 			const args = new ApplicationArgs<any, { id: string }>(req);
 			const id = args.query?.id ?? "";
-			if(this._cloudStorageManager){
+			if (this._cloudStorageManager) {
 				const [error, result] = await this._cloudStorageManager.Get(id);
-	
+
 				if (error) {
 					throw new Error("No encontrado")
 				}
-	
+
 				return res.status(HttpStatusCode.OK).send(result);
 			}
 
@@ -254,7 +255,7 @@ export default class TestController {
 
 	@route("/translations")
 	@GET()
-	public async GetTranslations(req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction){
+	public async GetTranslations(req: ApplicationRequest<any, { id: string }>, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("GetTranslations");
 
@@ -282,7 +283,7 @@ export default class TestController {
 
 	@route("/activate-account/:token")
 	@GET()
-	public async ActivateAccount(req: ApplicationRequest<any>, res: Response, next: NextFunction){
+	public async ActivateAccount(req: ApplicationRequest<any>, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("ActivateAccount");
 			const param = req.params.token;
@@ -299,34 +300,121 @@ export default class TestController {
 		}
 	}
 
-
 	@route("/test-schemas")
 	@POST()
-	public async TestSchemaValidation(req: ApplicationRequest<SignUpDTO>, res: Response, next: NextFunction){
+	public async TestSchemaValidation(req: ApplicationRequest<SignUpDTO>, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("TestSchemaValidation");
-			
+
 			const data = SignUpDTO.Validate(req.body);
-			if(!data.isValid){
+			if (!data.isValid) {
 				// throw new BadRequestException("SignUp", data.errorMessage, this._applicationContext, __filename);
 				throw new ValidationException("TestSchemaValidation", data.errorData, this._applicationContext, __filename, data.innerError)
 			}
 
 			const fotoVal = AppImage.Validate(req.body.foto);
-			if(!fotoVal.isValid){
+			if (!fotoVal.isValid) {
 				// throw new BadRequestException("SignUp", fotoVal.errorMessage, this._applicationContext, __filename);
 				throw new ValidationException("TestSchemaValidation", fotoVal.errorData, this._applicationContext, __filename, fotoVal.innerError)
 			}
 
 			res.status(HttpStatusCode.OK).send();
 		}
-		catch(err:any){
-			if(err instanceof ApplicationException){
+		catch (err: any) {
+			if (err instanceof ApplicationException) {
 				return next(err);
 			}
 
 			return next(new InternalServerException(
 				"TestSchemaValidation",
+				err.message,
+				this._applicationContext,
+				__filename,
+				err
+			));
+		}
+	}
+
+	@route("/csrf")
+	@GET()
+	@Middlewares(CsrfValidationMiddleware)
+	public async TestGetCSRF(req: ApplicationRequest<any>, res: Response, next: NextFunction) {
+		try {
+			this._logger.Activity("TestCSRF");
+
+			/** Obtenemos los datos de la cookie */
+			const cookieData = this._applicationContext.settings.apiData.cookieData.csrfTokenCookie;
+
+			/** Obtenemos el nombre del header */
+			const csrfHeader = this._applicationContext.settings.apiData.headers.csrfTokenHeader;
+
+			/** Valor de la cookie */
+			const cookie = req.cookies[cookieData.name];
+
+			/** Obtenemos el token del header */
+			const token = req.get(csrfHeader);
+
+			res.status(HttpStatusCode.OK).send({
+				headers: req.headers,
+				cookies: req.cookies,
+				signedCookies: req.signedCookies,
+				token: {
+					header: csrfHeader,
+					value: token,
+				},
+				csrfCookie: {
+					name: cookieData.name,
+					value: cookie
+				}
+			});
+		}
+		catch (err: any) {
+			next(new InternalServerException(
+				"TestCSRF",
+				err.message,
+				this._applicationContext,
+				__filename,
+				err
+			));
+		}
+	}
+
+	@route("/csrf")
+	@POST()
+	@Middlewares(CsrfValidationMiddleware)
+	public async TestPostCSRF(req: ApplicationRequest<any>, res: Response, next: NextFunction) {
+		try {
+			this._logger.Activity("TestCSRF");
+
+			/** Obtenemos los datos de la cookie */
+			const cookieData = this._applicationContext.settings.apiData.cookieData.csrfTokenCookie;
+
+			/** Obtenemos el nombre del header */
+			const csrfHeader = this._applicationContext.settings.apiData.headers.csrfTokenHeader;
+
+			/** Valor de la cookie */
+			const cookie = req.cookies[cookieData.name];
+
+			/** Obtenemos el token del header */
+			const token = req.get(csrfHeader);
+
+			res.status(HttpStatusCode.OK).send({
+				headers: req.headers,
+				cookies: req.cookies,
+				signedCookies: req.signedCookies,
+				token: {
+					header: csrfHeader,
+					value: token,
+				},
+				csrfCookie: {
+					name: cookieData.name,
+					value: cookie
+				}
+			});
+		}
+		catch (err: any) {
+			next(new InternalServerException(
+				"TestCSRF",
 				err.message,
 				this._applicationContext,
 				__filename,

@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 
+import ApplicationException from "../ErrorHandling/ApplicationException";
 import { DEFAULT_INDENT } from "../Utils/const";
 import { LoggerType, LoggerTypes } from "./Interfaces/ILoggerManager";
 
@@ -12,7 +12,7 @@ enum COLORS {
 	Blink = "\x1b[5m",
 	Reverse = "\x1b[7m",
 	Hidden = "\x1b[8m",
-	
+
 	// TextColor
 	FgBlack = "\x1b[30m",
 	FgGreen = "\x1b[32m",
@@ -24,7 +24,7 @@ enum COLORS {
 	FgGray = "\x1b[90m",
 	FgRed = "\x1b[31m",
 	FgFatalError = "\x1b[38;2;213;0;0m",
-	
+
 	// Texto con background color
 	BgBlack = "\x1b[40m",
 	BgRed = "\x1b[41m",
@@ -47,11 +47,36 @@ export default class Line {
 	 * @param obj - Objeto a formatear
 	 * @returns  - Retorna objeto formateado como json
 	 */
-	private static Format (obj:any) {
-		return JSON.stringify(obj, (key, value) => {
-			return value;
-		}, DEFAULT_INDENT); // Adds indentation to the object for readability
+	private static Format(obj: any): string {
+
+		/** Si es una instancia de Error y No es una instancia de ApplicationException, 
+			creamos una representación personalizada. */
+		if (obj instanceof Error && !(obj instanceof ApplicationException)) {
+
+			// Extraemos propiedades adicionales (aquellas que no sean name, message y stack)
+			const extraProps = Object.getOwnPropertyNames(obj)
+			.filter((prop) => !['name', 'message', 'stack'].includes(prop))
+			.reduce((acc: Record<string, any>, prop: string) => {
+				acc[prop] = (obj as Record<string, any>)[prop];
+				return acc;
+			}, {} as Record<string, any>);
+
+			// Construimos el objeto de error a imprimir.
+			const errorRepresentation = {
+				name: obj.name,
+				message: obj.message,
+				stack: obj.stack,
+				...extraProps
+			};
+
+			return JSON.stringify(errorRepresentation, null, DEFAULT_INDENT);
+		}
+
+		// Para otros tipos de objetos, se usa JSON.stringify normal.
+		return JSON.stringify(obj, null, DEFAULT_INDENT);
 	}
+
+
 
 	/**
 	 * @description - Método que permite imprimir en consola un mensaje de log con color
@@ -59,31 +84,31 @@ export default class Line {
 	 * @param message - Mensaje de log que se desea imprimir
 	 * @param obj - Objeto que se desea imprimir
 	 */
-	public static Print (type:LoggerType, message:string, obj?:any) {
+	public static Print(type: LoggerType, message: string, obj?: any) {
 
 		let msg = ``;
 
-		if(type === LoggerTypes.FATAL){
+		if (type === LoggerTypes.FATAL) {
 			msg = `${COLORS.FgFatalError}[${type}] | ${message}`;
 		}
 
-		if(type === LoggerTypes.ERROR){
+		if (type === LoggerTypes.ERROR) {
 			msg = `${COLORS.FgRed}[${type}] | ${message}`;
 		}
 
-		if(type === LoggerTypes.WARN){
+		if (type === LoggerTypes.WARN) {
 			msg = `${COLORS.FgYellow}[${type}]${COLORS.Reset} | ${message}`;
 		}
 
-		if(type === LoggerTypes.INFO) {
+		if (type === LoggerTypes.INFO) {
 			msg = `${COLORS.FgBlue}[${type}]${COLORS.Reset} | ${message}`;
 		}
 
-		if(obj){
+		if (obj) {
 			console.log(msg, this.Format(obj))
 		} else {
 			console.log(msg)
 		}
-		
+
 	}
 }

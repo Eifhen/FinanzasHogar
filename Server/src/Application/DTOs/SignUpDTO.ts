@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { z } from "zod";
-import SchemaProperty from "../../JFramework/Decorators/SchemaProperty";
-import EntitySchema from "../../JFramework/DTOs/Data/EntitySchema";
-import AppImage from "../../JFramework/DTOs/AppImage";
+import SchemaProperty from "../../JFramework/Helpers/Decorators/SchemaProperty";
+import EntitySchema from "../../JFramework/Helpers/DTOs/Data/EntitySchema";
+import AppImage from "../../JFramework/Helpers/DTOs/AppImage";
 
 
 export default class SignUpDTO extends EntitySchema {
