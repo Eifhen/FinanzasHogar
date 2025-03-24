@@ -1,6 +1,5 @@
 
 
-
 export const ES_DO_BUSINESS = {
 	/** Business Messages */
 	"activar": "Activar",

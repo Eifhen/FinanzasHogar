@@ -1,3 +1,4 @@
+import { RequestData } from "../../Configurations/ApplicationContext";
 
 
 
@@ -8,7 +9,8 @@ export interface ITranslationProvider {
    */
   getTranslation(key: string): string | undefined;
 
-  requestId: string;
+  /** Contiene información acerca de la request en curso */
+  requestData: RequestData;
 }
 
 

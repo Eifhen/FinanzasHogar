@@ -1,14 +1,12 @@
+import { RequestData } from '../Configurations/ApplicationContext';
 import { AutoClassBinder } from '../Helpers/Decorators/AutoBind';
 import ILoggerManager from '../Managers/Interfaces/ILoggerManager';
 import LoggerManager from '../Managers/LoggerManager';
 import { ClassConstructor } from '../Utils/Types/CommonTypes';
 import { ITranslationProvider } from './Interfaces/ITranslatorProvider';
-import { ApplicationLenguage } from './Types/ApplicationLenguages';
-
 
 interface TranslatorProviderDependencies {
-	lang: ApplicationLenguage;
-	requestId: string,
+	requestData: RequestData;
 	systemTranslatorProvider: ClassConstructor<ITranslationProvider>;
 	businessTranslatorProvider?: ClassConstructor<ITranslationProvider>;
 }
@@ -16,12 +14,11 @@ interface TranslatorProviderDependencies {
 @AutoClassBinder
 export default class TranslatorProvider implements ITranslationProvider {
 
-
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
 
-	/** Id de la requeste en curso */
-	public readonly requestId: string;
+	/** Contiene información acerca de la request en curso */
+	public readonly requestData: RequestData;
 
 	/** Implementa las traducciones del sistema */
 	private readonly _systemTranslatorProvider: ITranslationProvider;
@@ -30,23 +27,22 @@ export default class TranslatorProvider implements ITranslationProvider {
 	private readonly _businessTranslatorProvider?: ITranslationProvider;
 
 	constructor(deps: TranslatorProviderDependencies) {
+		
+		this.requestData = deps.requestData;
+
 		this._logger = new LoggerManager({
 			entityName: "TranslatorProvider",
 			entityCategory: "PROVIDER",
-			requestId: deps.requestId
+			requestId: deps.requestData.requestId
 		});
 
-		this.requestId = deps.requestId;
-
 		this._systemTranslatorProvider = new deps.systemTranslatorProvider({ 
-			lang: deps.lang, 
-			requestId: this.requestId 
+			requestData: deps.requestData
 		});
 
 		if(deps.businessTranslatorProvider){
 			this._businessTranslatorProvider = new deps.businessTranslatorProvider({ 
-				lang: deps.lang,
-				requestId: this.requestId  
+				requestData: deps.requestData
 			});
 		}
 

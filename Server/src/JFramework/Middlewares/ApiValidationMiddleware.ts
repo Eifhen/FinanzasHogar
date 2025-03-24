@@ -13,7 +13,9 @@ import { ApplicationLenguages, ApplicationLenguage } from '../Translations/Types
 import ApplicationContext from '../Configurations/ApplicationContext';
 
 
-
+interface ApiValidationMiddlewareDependencies {
+	applicationContext: ApplicationContext;
+}
 
 /** Middleware para manejo de la validación del api */
 @AutoClassBinder
@@ -22,14 +24,20 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
 
-	constructor(){
+	/** Contexto de aplicacion */
+	private readonly _applicationContext: ApplicationContext;
+
+	constructor(deps: ApiValidationMiddlewareDependencies){
 		super();
 		
 		// Instanciamos el logger
 		this._logger = new LoggerManager({
 			entityCategory: LoggEntityCategorys.MIDDLEWARE,
-			entityName: "ApiValidationMiddleware"
+			entityName: "ApiValidationMiddleware",
+			applicationContext: deps.applicationContext
 		});
+
+		this._applicationContext = deps.applicationContext;
 	
 	}
 
@@ -50,11 +58,8 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 			const START_INDEX = 0;
 			const END_INDEX = 8;
 
-			/** Obtenemos el contexto de aplicación */
-			const applicationContext = req.container.Resolve<ApplicationContext>("applicationContext");
-			
 			/** Data de aplicación */
-			const apiData = applicationContext.settings.apiData;
+			const apiData = this._applicationContext.settings.apiData;
 			
 			/** ApiKey recibida en la request */
 			const incomingApiKey = req.headers[apiData.headers.apiKeyHeader];
@@ -68,7 +73,7 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 				throw new ApplicationException(
 					"ApiValidationMiddleware",
 					HttpStatusName.InternalServerError,
-					applicationContext.translator.Translate("apikey-no-definido"),
+					this._applicationContext.translator.Translate("apikey-no-definido"),
 					HttpStatusCode.InternalServerError,
 					request_id,
 					__filename
@@ -82,7 +87,7 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 				throw new ApplicationException(
 					"ApiValidationMiddleware",
 					HttpStatusName.BadRequest,
-					applicationContext.translator.Translate("apikey-invalido", invalidKey),
+					this._applicationContext.translator.Translate("apikey-invalido", invalidKey),
 					HttpStatusCode.BadRequest,
 					request_id,
 					__filename
@@ -90,13 +95,13 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 			}
 
 			/** Agregamos el ApiKey al contexto */
-			applicationContext.requestID = request_id;
+			this._applicationContext.requestData.requestId = request_id;
 
 			/** Agregamos la ip actual al contexto */
-			applicationContext.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
+			this._applicationContext.requestData.ipAddress = IsNullOrEmpty(req.ip) ? "" : req.ip!;
 
 			/** Seteamos la configuración de idioma al contexto */
-			applicationContext.lang = this.GetLenguageConfig(req, applicationContext.settings);
+			this._applicationContext.requestData.lang = this.GetLenguageConfig(req, this._applicationContext.settings);
 
 			/** Agregamos el ApiKey a la request */
 			req.requestID = request_id;

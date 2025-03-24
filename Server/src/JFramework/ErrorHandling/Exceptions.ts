@@ -32,7 +32,7 @@ export class BaseException extends ApplicationException {
 			errorName,
 			"",
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			error
 		);
@@ -56,7 +56,7 @@ export class InternalServerException extends ApplicationException {
 			HttpStatusName.InternalServerError,
 			"",
 			HttpStatusCode.InternalServerError,
-			applicationContext?.requestID,
+			applicationContext?.requestData.requestId,
 			path,
 			innerException
 		);
@@ -81,7 +81,7 @@ export class TooManyRequestsException extends ApplicationException {
 			HttpStatusName.TooManyRequests,
 			applicationContext.translator.Translate(messageData.message, messageData.args),
 			HttpStatusCode.TooManyRequests,
-			applicationContext?.requestID,
+			applicationContext?.requestData.requestId,
 			path,
 			innerException
 		)
@@ -102,7 +102,7 @@ export class NotFoundException extends ApplicationException {
 			HttpStatusName.NotFound,
 			applicationContext.translator.Translate("record-not-found", value),
 			HttpStatusCode.NotFound,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		);
@@ -123,7 +123,7 @@ export class NullParameterException extends ApplicationException {
 			HttpStatusName.NullParameterException,
 			applicationContext.translator.Translate("null-parameter-exception", [parameterName]),
 			HttpStatusCode.BadRequest,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		);
@@ -144,7 +144,7 @@ export class BadRequestException extends ApplicationException {
 			HttpStatusName.BadRequest,
 			"",
 			HttpStatusCode.BadRequest,
-			applicationContext?.requestID,
+			applicationContext?.requestData.requestId,
 			path,
 			innerException
 		);
@@ -176,7 +176,7 @@ export class RecordAlreadyExistsException extends ApplicationException {
 			HttpStatusName.RecordAlreadyExists,
 			applicationContext.translator.Translate("record-exists", message),
 			HttpStatusCode.BadRequest,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		);
@@ -196,7 +196,7 @@ export class DatabaseConnectionException extends ApplicationException {
 			HttpStatusName.DatabaseConnectionException,
 			applicationContext.translator.Translate("database-connection-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		)
@@ -216,7 +216,7 @@ export class DatabaseNoInstanceException extends ApplicationException {
 			HttpStatusName.DatabaseNoInstanceException,
 			applicationContext.translator.Translate("database-no-instance-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		)
@@ -236,7 +236,7 @@ export class DatabaseNoDialectException extends ApplicationException {
 			HttpStatusName.DatabaseNoDialectException,
 			applicationContext.translator.Translate("database-no-dialect-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		)
@@ -256,7 +256,7 @@ export class DatabaseTransactionException extends ApplicationException {
 			HttpStatusName.DatabaseTransactionException,
 			applicationContext.translator.Translate("database-transaction-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		)
@@ -276,7 +276,7 @@ export class DatabaseException extends ApplicationException {
 			HttpStatusName.DatabaseException,
 			applicationContext.translator.Translate("database-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		)
@@ -299,7 +299,7 @@ export class ValidationException extends ApplicationException {
 			HttpStatusName.ValidationException,
 			applicationContext.translator.Translate("database-exception"),
 			HttpStatusCode.BadRequest,
-			applicationContext.requestID,
+			applicationContext.requestData.requestId,
 			path,
 			innerException
 		)

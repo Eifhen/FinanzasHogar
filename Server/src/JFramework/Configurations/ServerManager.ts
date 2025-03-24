@@ -63,7 +63,7 @@ export default class ServerManager {
 
 		/** Instanciamos la app de express */
 		this._app = express();
-		
+
 		/** Agregamos el objeto de configuración */
 		this._configurationSettings = new ConfigurationSettings();
 
@@ -92,7 +92,7 @@ export default class ServerManager {
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings
 		} as InternalServiceManagerDependencies);
-		
+
 		/** Instanciamos el Startup */
 		this._startup = new deps.startup({
 			configurationSettings: this._configurationSettings,
@@ -184,7 +184,7 @@ export default class ServerManager {
 	}
 
 	/** Cierra el servidor */
-	private Close(exitCode: EXIT_CODES){
+	private Close(exitCode: EXIT_CODES) {
 		if (this._server) {
 			/** Cerrar el servidor de manera controlada  */
 			this._logger.Message("WARN", `El servidor procederá a cerrarse =>`);
@@ -212,7 +212,7 @@ export default class ServerManager {
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "CloseServer", err);
-			
+
 			/** Cerramos el servidor */
 			this.Close(exitCode);
 		}
@@ -235,11 +235,7 @@ export default class ServerManager {
 			/** Agregamos la configuración de seguridad interna */
 			await this._internalServiceManager.AddInternalSecurity();
 
-			/** Se agregan servicios internos */
-			await this._internalServiceManager.AddInternalStrategies();
-			await this._internalServiceManager.AddInternalManagers();
-			await this._internalServiceManager.AddInternalServices();
-			await this._internalServiceManager.AddInternalEndpoints();
+
 
 			/** Agregamos la configuración de seguridad del negocio */
 			await this._startup.AddSecurityConfiguration();
@@ -251,6 +247,12 @@ export default class ServerManager {
 			 * simplemente se llena el contenedor de dependencias */
 			await this._startup.AddBusinessRepositories();
 			await this._startup.AddBusinessServices();
+
+			/** Se agregan servicios internos */
+			await this._internalServiceManager.AddInternalStrategies();
+			await this._internalServiceManager.AddInternalManagers();
+			await this._internalServiceManager.AddInternalServices();
+			await this._internalServiceManager.AddInternalEndpoints();
 
 			/** Se agrega middleware interno para manejo de errores */
 			await this._internalServiceManager.AddExceptionManager();

@@ -24,7 +24,7 @@ export class ApplicationResponse<T> implements IApiResponse<T> {
 		_data?: T, 
 		_redirectionRoute?:string
 	){
-		this.requestID = applicationContext.requestID;
+		this.requestID = applicationContext.requestData.requestId;
 		this.message = applicationContext.translator.Translate(_message);
 		this.data = _data;
 		this.redirectionRoute = _redirectionRoute;

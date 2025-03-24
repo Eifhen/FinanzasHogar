@@ -49,6 +49,8 @@ export default class Line {
 	 */
 	private static Format(obj: any): string {
 
+		console.log("OBJ =>", obj);
+		
 		/** Si es una instancia de Error y No es una instancia de ApplicationException, 
 			creamos una representación personalizada. */
 		if (obj instanceof Error && !(obj instanceof ApplicationException)) {

@@ -2,7 +2,7 @@ import IPresupuestosSqlRepository from "../../../Dominio/Repositories/IPresupues
 import ApplicationContext from "../../../JFramework/Configurations/ApplicationContext";
 import ILoggerManager, { LoggEntityCategorys } from "../../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
+import { ApplicationSQLDatabase, DataBase } from "../DataBase";
 import SqlGenericRepository from "../../../JFramework/External/DataBases/Generic/SqlGenericRepository";
 
 

@@ -1,10 +1,8 @@
 
 
-
-
 export const EN_US_BUSINESS = {
 
-  /** Business Messages */
+	/** Business Messages */
 	"activar": "Activate",
 	"activar-cuenta": "Activate Account",
 	"apikey-invalido": "The API Key {0} entered is invalid.",
@@ -13,5 +11,5 @@ export const EN_US_BUSINESS = {
 	"cuenta-creada-exitosamente": "Your account has been successfully created. Click the link below to activate your account.",
 	"hola": "Hello",
 	/** END Business Messages */
-  
+
 } as const;

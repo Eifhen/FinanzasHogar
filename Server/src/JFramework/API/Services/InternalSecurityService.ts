@@ -33,7 +33,7 @@ export default class InternalSecurityService implements IInternalSecurityService
 		/** Instanciamos el logger */
 		this._logger = new LoggerManager({
 			entityCategory: "SERVICE",
-			entityName: "InternalCookiesService"
+			entityName: "InternalSecurityService"
 		});
 
 		/** Agregamos el contexto de applicación */
@@ -46,7 +46,7 @@ export default class InternalSecurityService implements IInternalSecurityService
 	/** Permite Crear un token y una cookie para protección contra ataques CSRF */
 	public async CreateCsrfProtection(): Promise<CsrfData> {
 		try {
-			this._logger.Activity("CreateCsrfCookie");
+			this._logger.Activity("CreateCsrfProtection");
 
 			/** Representa el nombre de la cookie que almacena el token CSRF */
 			const csrfCookieData = this._applicationContext.settings.apiData.cookieData.csrfTokenCookie;
@@ -81,14 +81,14 @@ export default class InternalSecurityService implements IInternalSecurityService
 
 		}
 		catch (err: any) {
-			this._logger.Error("ERROR", "CreateCsrfCookie", err);
+			this._logger.Error("ERROR", "CreateCsrfProtection", err);
 
 			if (err instanceof ApplicationException) {
 				throw err;
 			}
 
 			throw new InternalServerException(
-				"CreateCsrfCookie",
+				"CreateCsrfProtection",
 				"",
 				this._applicationContext,
 				__filename,

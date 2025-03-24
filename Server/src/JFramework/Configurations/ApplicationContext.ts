@@ -3,10 +3,21 @@ import { ITranslationProvider } from "../Translations/Interfaces/ITranslatorProv
 import SystemTranslatorProvider from "../Translations/SystemTranslatorProvider";
 import TranslatorHandler from "../Translations/TranslatorHandler";
 import TranslatorProvider from "../Translations/TranslatorProvider";
-import { ApplicationLenguage, ApplicationLenguages } from "../Translations/Types/ApplicationLenguages";
+import { ApplicationLenguages } from "../Translations/Types/ApplicationLenguages";
+import { NO_REQUEST_ID } from "../Utils/const";
 import { ClassConstructor } from "../Utils/Types/CommonTypes";
 
 
+export interface RequestData {
+	/** Id de la request en curso */
+	requestId: string;
+
+	/** Contiene el lenguaje disponible en la aplicación  (esto nos llega en la request)*/
+	lang: string;
+
+	/** Ip del request en curso */
+	ipAddress:string;
+}
 export interface ApplicationContextDependencies {
 	settings: ConfigurationSettings;
 	businessTranslatorProvider?: ClassConstructor<ITranslationProvider>;
@@ -18,26 +29,25 @@ export default class ApplicationContext {
 	/** Usuario Logueado */
 	public user:any = {};
 
-	/** Id de la request en curso */
-	public requestID: string = "";
-
-	/** Ip del request en curso */
-	public ipAddress: string = "";
-	
-	/** Contiene el lenguaje disponible en la aplicación  (esto nos llega en la request)*/
-	public lang: ApplicationLenguage = ApplicationLenguages.en;
-
 	/** Objeto de configuración de la aplicación */
 	public settings: ConfigurationSettings; 
 
 	/** Tranductor */
 	public translator: TranslatorHandler;
+
+	/** Datos de la request */
+	public requestData: RequestData = {
+		lang: ApplicationLenguages.en,
+		requestId: "",
+		ipAddress: ""
+	};
 	
 	constructor(deps:ApplicationContextDependencies){
 
 		/** Agregamos las configuraciones */
 		this.settings = deps.settings;
 
+		/** Agregamos el translator */
 		this.translator = this.AddTranslator(deps);
 	}
 
@@ -46,8 +56,7 @@ export default class ApplicationContext {
 		
 		/** Creamos el proveedor de traducciones */
 		const translatorProvider = new TranslatorProvider({
-			lang: this.lang,
-			requestId: this.requestID,
+			requestData: this.requestData,
 			systemTranslatorProvider: SystemTranslatorProvider,
 			businessTranslatorProvider: deps.businessTranslatorProvider
 		})

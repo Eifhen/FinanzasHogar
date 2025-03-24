@@ -3,14 +3,14 @@ import LoggerManager from "../Managers/LoggerManager";
 import { ITranslationProvider } from "./Interfaces/ITranslatorProvider";
 import { EN_US_SYSTEM } from "./Dictionaries/en_US_SYSTEM";
 import { ES_DO_SYSTEM } from "./Dictionaries/es_DO_SYSTEM";
-import { ApplicationLenguage, ApplicationLenguages } from "./Types/ApplicationLenguages";
+import { ApplicationLenguages } from "./Types/ApplicationLenguages";
 import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
+import { RequestData } from "../Configurations/ApplicationContext";
 
 
 
 interface SystemTranslatorProviderDependencies {
-	lang: ApplicationLenguage;
-	requestId: string,
+	requestData: RequestData;
 }
 
 @AutoClassBinder
@@ -19,21 +19,17 @@ export default class SystemTranslatorProvider implements ITranslationProvider {
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
 
-	/** Idioma actual de la request en curso */
-	private readonly _lang: ApplicationLenguage;
-
 	/** Id de la request en curso */
-	public readonly requestId: string;
+	public readonly requestData: RequestData;
 
 	constructor(deps: SystemTranslatorProviderDependencies) {
 
-		this._lang = deps.lang;
-		this.requestId = deps.requestId;
+		this.requestData = deps.requestData
 
 		this._logger = new LoggerManager({
 			entityName: "SystemTranslatorProvider",
 			entityCategory: "PROVIDER",
-			requestId: deps.requestId
+			requestId: deps.requestData.requestId
 		});
 	}
 
@@ -42,9 +38,9 @@ export default class SystemTranslatorProvider implements ITranslationProvider {
 	public getTranslation(key: string): string | undefined {
 		this._logger.Activity("getTranslation");
 
-		if (this._lang === ApplicationLenguages.en) {
+		if (this.requestData.lang === ApplicationLenguages.en) {
 			return EN_US_SYSTEM[key as keyof typeof EN_US_SYSTEM];
-		} else if (this._lang === ApplicationLenguages.es) {
+		} else if (this.requestData.lang === ApplicationLenguages.es) {
 			return ES_DO_SYSTEM[key as keyof typeof ES_DO_SYSTEM];
 		}
 		return undefined;

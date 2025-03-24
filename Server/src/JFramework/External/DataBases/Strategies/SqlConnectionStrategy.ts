@@ -155,7 +155,7 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestID,
+				this._applicationContext.requestData.requestId,
 				__filename,
 				err
 			);
@@ -186,7 +186,7 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestID,
+				this._applicationContext.requestData.requestId,
 				__filename,
 				err
 			);

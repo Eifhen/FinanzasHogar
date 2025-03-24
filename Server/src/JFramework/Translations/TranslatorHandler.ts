@@ -23,9 +23,8 @@ export default class TranslatorHandler implements ITranslatorHandler {
 		this._logger = new LoggerManager({
 			entityName: "TranslatorHandler",
 			entityCategory: LoggEntityCategorys.HANDLER,
-			requestId: deps.translatorProvider.requestId
+			requestId: deps.translatorProvider.requestData.requestId
 		});
-	
 	}
 
 	/** Recibe un key del archivo de traducción y devuelve el texto traducido 

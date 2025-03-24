@@ -18,12 +18,12 @@ import IsNullOrEmpty from "../../JFramework/Utils/utils";
 import SignInDTO from "../DTOs/SignInDTO";
 import SignUpDTO from "../DTOs/SignUpDTO";
 import IAuthenticationService from "./Interfaces/IAuthenticationService";
-import { DataBase } from "../../Infraestructure/DataBase";
 import ISqlTransactionManager from "../../JFramework/External/DataBases/Interfaces/ISqlTransactionManager";
 import UserConfirmationDTO from "../DTOs/UserConfirmationDTO";
 import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
 import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
 import CloudStorageManager from "../../JFramework/External/CloudStorage/CloudStorageManager";
+import { DataBase } from "../../Infraestructure/DataBase/DataBase";
 
 interface IAuthenticationServiceDependencies {
 	usuariosRepository: IUsuariosSqlRepository;
