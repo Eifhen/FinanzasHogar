@@ -1,10 +1,10 @@
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "./ApplicationException";
-import { EN } from '../Translations/en_US';
+import { EN_US_SYSTEM } from '../Translations/Dictionaries/en_US_SYSTEM';
 import ApplicationContext from "../Configurations/ApplicationContext";
 
 export type ErrorMessageData = {
-	message: keyof typeof EN;
+	message: keyof typeof EN_US_SYSTEM;
 	args?: (string | number)[]
 }
 

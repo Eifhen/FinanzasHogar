@@ -1,4 +1,4 @@
-import { EN } from '../Translations/en_US';
+import { EN_US_SYSTEM } from '../Translations/Dictionaries/en_US_SYSTEM';
 import { ZodError } from "zod";
 import { ErrorMessageData } from "./Exceptions";
 import { ARRAY_START_INDEX, DEFAULT_NUMBER } from "../Utils/const";
@@ -93,7 +93,7 @@ export default class SchemaErrorAdapter {
 			/** Valida el error custom */
 			if (value.code === "custom") {
 				return {
-					message: value.message as keyof typeof EN,
+					message: value.message as keyof typeof EN_US_SYSTEM,
 					args: value.params && Array.isArray(value.params) ? [fields, value.params?.join(", ")] : [fields]
 				}
 			}

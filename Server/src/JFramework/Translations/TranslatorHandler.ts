@@ -1,78 +1,50 @@
-import ApplicationContext from "../Configurations/ApplicationContext";
-import { AutoBind, AutoClassBinder } from "../Helpers/Decorators/AutoBind";
+import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
 import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
-import { EN } from "./en_US";
-import { ES } from "./es_DO";
 import { ITranslatorHandler } from "./Interfaces/ITranslatorHandler";
-import { ApplicationLenguages } from "./Types/ApplicationLenguages";
+import { ITranslationProvider } from "./Interfaces/ITranslatorProvider";
 
 interface TranslatorHandlerDependencies {
-	applicationContext: ApplicationContext;
+	translatorProvider: ITranslationProvider;
 }
 
 @AutoClassBinder
 export default class TranslatorHandler implements ITranslatorHandler {
 
-	/** Contexto de aplicación */
-	private readonly _applicationContext: ApplicationContext;
-
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
 
-	constructor(deps: TranslatorHandlerDependencies) {
+	/** Proveedor de traducciones */
+	private readonly _translatorProvider: ITranslationProvider;
 
-		this._applicationContext = deps.applicationContext;
+	constructor(deps: TranslatorHandlerDependencies) {
+		this._translatorProvider = deps.translatorProvider;
 
 		this._logger = new LoggerManager({
 			entityName: "TranslatorHandler",
 			entityCategory: LoggEntityCategorys.HANDLER,
-			applicationContext: this._applicationContext,
+			requestId: deps.translatorProvider.requestId
 		});
+	
 	}
-
 
 	/** Recibe un key del archivo de traducción y devuelve el texto traducido 
 	 * según la configuración de idioma de la request en curso */
-	@AutoBind
-	public Translate(key: keyof typeof EN, value?: (string | number)[]): string {
-		this._logger.Activity("Translate", value);
+	public Translate(key: string, values?: (string | number)[]): string {
+		this._logger.Activity("Translate", values);
+		let translation = this._translatorProvider.getTranslation(key);
 
-		/** Configuración de lenguaje definida por el contexto */
-		const lenguage = this._applicationContext.lang;
-
-		switch (lenguage) {
-			case ApplicationLenguages.en:
-				return this.TranslateToEnglish(key, value);
-
-			case ApplicationLenguages.es:
-				return this.TranslateToSpanish(key, value);
-
-			default:
-				throw new Error(`Error al traducir el lenguaje`);
-		}
-	}
-
-	/** Traduce la expresión al español */
-	private TranslateToSpanish(key: keyof typeof EN, value?: (string | number)[]): string {
-		const element = ES[key];
-		return this.TranslateOperation(element, value);
-	}
-
-	/** Traduce la expresión al inglés */
-	private TranslateToEnglish(key: keyof typeof EN, value?: (string | number)[]): string {
-		const element = EN[key];
-		return this.TranslateOperation(element, value);
-	}
-
-	/** Ejecuta la operación de traducción */
-	private TranslateOperation(record: string, value?: (string | number)[]): string {
-		if (value) {
-			return this.Interpolate(record, value);
+		if (!translation) {
+			this._logger.Message("WARN", `La traducción de la Key: ${key}, no fue encontrada`);
+			translation = key;
 		}
 
-		return record;
+		if (values) {
+			translation = this.Interpolate(translation, values);
+		}
+		return translation;
 	}
+	
 
 	/** Función para interpolar valores en una cadena
  * @param {string} template - La cadena con marcadores de posición (e.g., "Hola {0}, ¿cómo estás {1}?")
@@ -83,6 +55,5 @@ export default class TranslatorHandler implements ITranslatorHandler {
 			return typeof values[index] !== 'undefined' ? values[index].toString() : match;
 		});
 	}
-	
 
 }

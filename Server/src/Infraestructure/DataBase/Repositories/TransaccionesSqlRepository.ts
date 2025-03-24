@@ -1,9 +1,9 @@
-import ITransaccionesSqlRepository from "../../Dominio/Repositories/ITransaccionesSqlRepository";
-import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
-import ILoggerManager, { LoggEntityCategorys } from "../../JFramework/Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import { ApplicationSQLDatabase, DataBase } from "../DataBase";
-import SqlGenericRepository from "../../JFramework/External/DataBases/Generic/SqlGenericRepository";
+import ITransaccionesSqlRepository from "../../../Dominio/Repositories/ITransaccionesSqlRepository";
+import ApplicationContext from "../../../JFramework/Configurations/ApplicationContext";
+import ILoggerManager, { LoggEntityCategorys } from "../../../JFramework/Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../../JFramework/Managers/LoggerManager";
+import { ApplicationSQLDatabase, DataBase } from "../../DataBase";
+import SqlGenericRepository from "../../../JFramework/External/DataBases/Generic/SqlGenericRepository";
 
 
 interface ITransaccionesRepositoryDependencies {

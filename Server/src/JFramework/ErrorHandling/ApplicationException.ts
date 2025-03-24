@@ -1,5 +1,5 @@
 import ApplicationContext from "../Configurations/ApplicationContext";
-import { EN } from "../Translations/en_US";
+import { EN_US_SYSTEM } from "../Translations/Dictionaries/en_US_SYSTEM";
 import { ARRAY_LENGTH_EMPTY, NO_REQUEST_ID } from "../Utils/const";
 import { Environment } from "../Utils/Environment";
 import { HttpStatusName, HttpStatusCode, HttpStatusMessage } from "../Utils/HttpCodes";
@@ -101,13 +101,13 @@ export default class ApplicationException extends Error {
 	public GetErrorMessage (
 		messageData: string | ErrorMessageData | undefined,
 		applicationContext: ApplicationContext|undefined, 
-		defaultEntry: keyof typeof EN
+		defaultEntry: keyof typeof EN_US_SYSTEM
 	): string {
 		if (applicationContext) {
 			if (messageData && !IsNullOrEmpty(messageData)) {
 				if (typeof messageData === "string") {
-					if (messageData in EN){
-						return applicationContext.translator.Translate(messageData as keyof typeof EN);
+					if (messageData in EN_US_SYSTEM){
+						return applicationContext.translator.Translate(messageData as keyof typeof EN_US_SYSTEM);
 					}
 					else {
 						return messageData;
@@ -127,7 +127,7 @@ export default class ApplicationException extends Error {
 	public ProcessErrorMessages(
 		messageData: ErrorMessageData[],
 		applicationContext: ApplicationContext|undefined, 
-		defaultEntry: keyof typeof EN
+		defaultEntry: keyof typeof EN_US_SYSTEM
 	) : string {
 		if(applicationContext){
 			if(messageData && messageData.length > ARRAY_LENGTH_EMPTY){

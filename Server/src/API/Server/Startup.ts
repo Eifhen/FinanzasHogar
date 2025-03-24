@@ -20,21 +20,22 @@ import ISolicitudHogarSqlRepository from "../../Dominio/Repositories/ISolicitudH
 import ITransaccionesSqlRepository from "../../Dominio/Repositories/ITransaccionesSqlRepository";
 import IUsuarioHogarSqlRepository from "../../Dominio/Repositories/IUsuarioHogarSqlRepository";
 import IUsuariosSqlRepository from "../../Dominio/Repositories/IUsuariosSqlRepository";
-import AhorrosSqlRepository from "../../Infraestructure/Repositories/AhorrosSqlRepository";
-import CategoriasSqlRepository from "../../Infraestructure/Repositories/CategoriasSqlRepository";
-import CuentasSqlRepository from "../../Infraestructure/Repositories/CuentasSqlRepository";
-import DeudasSqlRepository from "../../Infraestructure/Repositories/DeudasSqlRepository";
-import HistorialCambiosHogarSqlRepository from "../../Infraestructure/Repositories/HistorialCambiosHogarSqlRepository";
-import HogaresSqlRepository from "../../Infraestructure/Repositories/HogaresSqlRepository";
-import MetasSqlRepository from "../../Infraestructure/Repositories/MetasSqlRepository";
-import NotificacionesSqlRepository from "../../Infraestructure/Repositories/NotificacionesSqlRepository";
-import PagosDeudaSqlRepository from "../../Infraestructure/Repositories/PagosDeudaSqlRepository";
-import PresupuestoCategoriaSqlRepository from "../../Infraestructure/Repositories/PresupuestoCategoriaSqlRepository";
-import RolesSqlRepository from "../../Infraestructure/Repositories/RolesSqlRepository";
-import SolicitudHogarSqlRepository from "../../Infraestructure/Repositories/SolicitudHogarSqlRepository";
-import TransaccionesSqlRepository from "../../Infraestructure/Repositories/TransaccionesSqlRepository";
-import UsuarioHogarSqlRepository from "../../Infraestructure/Repositories/UsuarioHogarSqlRepository";
-import UsuariosSqlRepository from "../../Infraestructure/Repositories/UsuariosSqlRepository";
+import AhorrosSqlRepository from "../../Infraestructure/DataBase/Repositories/AhorrosSqlRepository";
+import CategoriasSqlRepository from "../../Infraestructure/DataBase/Repositories/CategoriasSqlRepository";
+import CuentasSqlRepository from "../../Infraestructure/DataBase/Repositories/CuentasSqlRepository";
+import DeudasSqlRepository from "../../Infraestructure/DataBase/Repositories/DeudasSqlRepository";
+import HistorialCambiosHogarSqlRepository from "../../Infraestructure/DataBase/Repositories/HistorialCambiosHogarSqlRepository";
+import HogaresSqlRepository from "../../Infraestructure/DataBase/Repositories/HogaresSqlRepository";
+import MetasSqlRepository from "../../Infraestructure/DataBase/Repositories/MetasSqlRepository";
+import NotificacionesSqlRepository from "../../Infraestructure/DataBase/Repositories/NotificacionesSqlRepository";
+import PagosDeudaSqlRepository from "../../Infraestructure/DataBase/Repositories/PagosDeudaSqlRepository";
+import PresupuestoCategoriaSqlRepository from "../../Infraestructure/DataBase/Repositories/PresupuestoCategoriaSqlRepository";
+import RolesSqlRepository from "../../Infraestructure/DataBase/Repositories/RolesSqlRepository";
+import SolicitudHogarSqlRepository from "../../Infraestructure/DataBase/Repositories/SolicitudHogarSqlRepository";
+import TransaccionesSqlRepository from "../../Infraestructure/DataBase/Repositories/TransaccionesSqlRepository";
+import UsuarioHogarSqlRepository from "../../Infraestructure/DataBase/Repositories/UsuarioHogarSqlRepository";
+import UsuariosSqlRepository from "../../Infraestructure/DataBase/Repositories/UsuariosSqlRepository";
+import BusinessTranslatorProvider from "../../Infraestructure/Translations/BusinessTranslatorProvider";
 import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
 import IServerConfigurationManager from "../../JFramework/Configurations/Interfaces/IServerConfigurationManager";
 import IServiceManager from "../../JFramework/Configurations/Interfaces/IServiceManager";
@@ -43,7 +44,6 @@ import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEma
 import ILoggerManager from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
-
 
 
 export default class Startup implements IStartup {
@@ -59,7 +59,6 @@ export default class Startup implements IStartup {
 
 	/** Configuraciones del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
-
 
 	constructor(deps: IStartupDependencies) {
 		/** Instancia logger */
@@ -79,7 +78,10 @@ export default class Startup implements IStartup {
 			this._logger.Activity("AddConfiguration");
 
 			/** Agregamos el contexto de aplicación */
-			this._serviceManager.AddAplicationContext();
+			this._serviceManager.AddAplicationContext({
+				settings: this._configurationSettings,
+				businessTranslatorProvider: BusinessTranslatorProvider
+			});
 
 			/** Agregamos el contenedor de dependencias */
 			this._serverConfigurationManager.AddContainer();

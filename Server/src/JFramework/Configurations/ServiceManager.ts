@@ -13,7 +13,8 @@ import IContainerManager from "./Interfaces/IContainerManager";
 import { Lifetime, LifetimeType } from "awilix";
 import IServiceManager from "./Interfaces/IServiceManager";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
-import ApplicationContext from "./ApplicationContext";
+import ApplicationContext, { ApplicationContextDependencies } from "./ApplicationContext";
+import { ITranslationProvider } from "../Translations/Interfaces/ITranslatorProvider";
 
 
 export interface IServiceManagerDependencies {
@@ -133,13 +134,12 @@ export default class ServiceManager implements IServiceManager {
 	}
 
 	/** Permite configurar el contexto de la aplicación */
-	public AddAplicationContext(): void {
+	public AddAplicationContext(deps: ApplicationContextDependencies): void {
 		try {
 			this._logger.Activity(`AddAplicationContext`);
-			this._containerManager.AddInstance<ApplicationContext>(
-				"applicationContext",
-				new ApplicationContext(this._configurationSettings)
-			);
+
+			const context = new ApplicationContext(deps);
+			this._containerManager.AddInstance<ApplicationContext>("applicationContext", context);
 
 		} catch (err: any) {
 			this._logger.Error(LoggerTypes.FATAL, "AddAplicationContext", err);

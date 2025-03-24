@@ -3,9 +3,11 @@ import ILoggerManager, { LoggEntityCategory, LoggErrorType, LoggerType, LoggerTy
 import Line from "./LinePrinterManager";
 import { InternalServerException } from "../ErrorHandling/Exceptions";
 import ApplicationContext from "../Configurations/ApplicationContext";
+import IsNullOrEmpty from "../Utils/utils";
 
 
 interface LoggManagerDependencies {
+	requestId?: string,
 	applicationContext?: ApplicationContext;
 	entityCategory: LoggEntityCategory;
 	entityName: string;
@@ -25,10 +27,14 @@ export default class LoggerManager implements ILoggerManager {
 	/** Contexto de la aplicación */
 	private _applicationContext?: ApplicationContext;
 
+	/** Id de la request en curso, puede sacarse del applicationContext */
+	private _requestId?: string;
+
 	constructor(dependencies?: LoggManagerDependencies) {
 		this._applicationContext = dependencies?.applicationContext;
 		this._entityName = dependencies?.entityName ?? "";
 		this._entityCategory = dependencies?.entityCategory;
+		this._requestId = dependencies?.requestId ?? "";
 	}
 
 	/** 
@@ -92,9 +98,8 @@ export default class LoggerManager implements ILoggerManager {
 
 	/**
 	 * @description - Método para loggear una determinada actividad del sistema
-	 * @param request_id - Id de la solicitud 
-	 * @param this._entityCategory - Categoría que se intenta loguear
 	 * @param method - Método ejecutado
+	 * @param obj - Objeto que se dessa imprimir 
 	 */
 	public Activity(method?: string, obj?: any) {
 		try {
@@ -108,9 +113,10 @@ export default class LoggerManager implements ILoggerManager {
 				`El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]` :
 				`El ${this._entityCategory} [${this._entityName}] se ha ejecutado`;
 
-
 			if (this._applicationContext && this._applicationContext.requestID !== "") {
 				msg = `RequestId: ${this._applicationContext.requestID} | ${msg}`;
+			} else if (!IsNullOrEmpty(this._requestId)) {
+				msg = `RequestId: ${this._requestId} | ${msg}`;
 			}
 
 			// agregar request ID desde el context
@@ -130,18 +136,19 @@ export default class LoggerManager implements ILoggerManager {
 	}
 
 	/**
-		 * @description - Similar a Activity, pero este nos permite definir el tipo de logg
-		 * @param type -Tipo de log
-		 * @param method - nombre del método que lo ejecuta
-		 * @param obj - objeto a imprimir si lo hay
-		 * @returns 
-		 */
+	 * @description - Similar a Activity, pero este nos permite definir el tipo de logg
+	 * @param type -Tipo de log
+	 * @param method - nombre del método que lo ejecuta
+	 * @param obj - objeto a imprimir si lo hay
+	 * @returns  */
 	public Register(type: LoggerType, method: string, obj?: any) {
 		try {
 			let msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`;
 
-			if (this._applicationContext?.requestID) {
+			if (this._applicationContext && this._applicationContext.requestID !== "") {
 				msg = `RequestId: ${this._applicationContext.requestID} | ${msg}`;
+			} else if (!IsNullOrEmpty(this._requestId)){
+				msg = `RequestId: ${this._requestId} | ${msg}`;
 			}
 
 			this.Message(type, msg, obj);
@@ -162,8 +169,7 @@ export default class LoggerManager implements ILoggerManager {
 	/**
 	 * @description - Método para loguear una excepcióon dentro de la aplicación
 	 * @param request_id - Id de la solicitud (opcional)
-	 * @param type - Tipo de error ( Fatal o Error)
-	 */
+	 * @param type - Tipo de error ( Fatal o Error) */
 	public Error(type: LoggErrorType, method?: string, obj?: any) {
 		try {
 
@@ -173,8 +179,10 @@ export default class LoggerManager implements ILoggerManager {
 				`Ha ocurrido un error en el ${this._entityCategory} [${this._entityName}]`;
 
 			// Agregar request id desde el context si lo hay
-			if (this._applicationContext && this._applicationContext.requestID != "") {
+			if (this._applicationContext && this._applicationContext.requestID !== "") {
 				msg = `RequestId: ${this._applicationContext.requestID} | ${msg}`;
+			} else if (!IsNullOrEmpty(this._requestId)){
+				msg = `RequestId: ${this._requestId} | ${msg}`;
 			}
 
 			this.Message(type, msg, obj);

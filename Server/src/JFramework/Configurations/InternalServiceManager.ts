@@ -32,6 +32,8 @@ import ApplicationContext from "./ApplicationContext";
 import CloudStorageManager from "../External/CloudStorage/CloudStorageManager";
 import IInternalSecurityService from "../API/Services/Interfaces/InternalSecurityService";
 import InternalSecurityService from "../API/Services/InternalSecurityService";
+import { ITranslationProvider } from "../Translations/Interfaces/ITranslatorProvider";
+import SystemTranslatorProvider from "../Translations/SystemTranslatorProvider";
 
 
 export interface InternalServiceManagerDependencies {
@@ -153,6 +155,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 			this._serviceManager.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
 			this._serviceManager.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
 			this._serviceManager.AddService<IFileManager, FileManager>("fileManager", FileManager);
+			this._serviceManager.AddService<ITranslationProvider, SystemTranslatorProvider>("systemTranslatorProvider", SystemTranslatorProvider);
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalManagers", err);

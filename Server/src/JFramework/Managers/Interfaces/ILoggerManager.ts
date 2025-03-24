@@ -23,7 +23,8 @@ export const LoggEntityCategorys = {
 	CONFIGURATION: "CONFIGURATION",
 	BUILDER: "BUILDER",
 	STRATEGY: "STRATEGY",
-	DIRECTOR: "STRATEGY DIRECTOR"
+	DIRECTOR: "STRATEGY DIRECTOR",
+	PROVIDER: "PROVIDER",
 } as const;
 
 export type LoggEntityCategory = (typeof LoggEntityCategorys)[keyof typeof LoggEntityCategorys];
