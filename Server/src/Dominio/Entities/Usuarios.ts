@@ -1,5 +1,5 @@
 import { Generated, Insertable, JSONColumnType, Selectable, Updateable } from "kysely";
-import { EstadoUsuario } from "../../JFramework/Utils/estados";
+import { EstadosUsuario } from "../../JFramework/Utils/estados";
 import { ApplicationLenguage } from "../../JFramework/Translations/Types/ApplicationLenguages";
 import { ApplicationThemes } from "../../JFramework/Utils/Types/CommonTypes";
 
@@ -56,7 +56,7 @@ export interface UsuariosTable {
    * 3= BLOQUEADO, 
    * 4= ELIMINADO 
   */
-  estado: EstadoUsuario;
+  estado: EstadosUsuario;
 
   /** Id de la Url de la foto del usuario */
   image_public_id?: string;

@@ -2,7 +2,6 @@ import { Insertable, InsertResult, Selectable, Transaction, Updateable } from "k
 import IGenericRepository from "./IGenericRepository";
 
 
-
 /** Repositorio generico para SQL Server */
 export default interface ISqlGenericRepository<
   DataBaseEntity extends object,

@@ -1,9 +1,9 @@
-import { RequestData } from '../Configurations/ApplicationContext';
-import { AutoClassBinder } from '../Helpers/Decorators/AutoBind';
-import ILoggerManager from '../Managers/Interfaces/ILoggerManager';
-import LoggerManager from '../Managers/LoggerManager';
-import { ClassConstructor } from '../Utils/Types/CommonTypes';
-import { ITranslationProvider } from './Interfaces/ITranslatorProvider';
+import { RequestData } from '../../Configurations/ApplicationContext';
+import { AutoClassBinder } from '../../Helpers/Decorators/AutoBind';
+import ILoggerManager from '../../Managers/Interfaces/ILoggerManager';
+import LoggerManager from '../../Managers/LoggerManager';
+import { ClassConstructor } from '../../Utils/Types/CommonTypes';
+import { ITranslationProvider } from '../Interfaces/ITranslatorProvider';
 
 interface TranslatorProviderDependencies {
 	requestData: RequestData;

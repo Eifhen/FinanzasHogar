@@ -2,7 +2,7 @@ import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
 import { LogLevels } from "../Managers/Interfaces/ILoggerManager";
 import { DEFAULT_API_VERSION, DEFAULT_DATABASE_TIMEOUT, DEFAULT_PORT } from "../Utils/const";
 import { Environment } from "../Utils/Environment";
-import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, CloudProviderConfig, EmailProvider, ApplicationStyleConfig, CloudProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig, SecurityConfig, ApplicationCookies, ApplicationCookie } from "./Types/IConfigurationSettings";
+import IConfigurationSettings, { ApiData, ApplicationImages, DatabaseConnectionData, DatabaseConnectionConfig, EmailProviderConfig, CloudProviderConfig, EmailProvider, ApplicationStyleConfig, CloudProvider, ApplicationHeaders, ApplicationLinks, CacheClientConfig, SecurityConfig, ApplicationCookies, DatabaseEnvironmentConnectionData, DatabaseEnvironmentConnectionConfig } from "./Types/IConfigurationSettings";
 
 
 /** Objeto de configuración */
@@ -24,11 +24,11 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	/** Data relevante al api */
 	apiData: ApiData;
 
-	/** Datos de connección a la base de datos */
-	databaseConnectionData: DatabaseConnectionData;
+	/** Datos de conexión a la base de datos, por ejemplo username, password, connectionString */
+	databaseConnectionData: DatabaseEnvironmentConnectionData;
 
-	/** Objeto de conneccion a base de datos */
-	databaseConnectionConfig: DatabaseConnectionConfig;
+	/** Objeto de conexión a base de datos, por ejemplo un objeto de tedious */
+	databaseConnectionConfig: DatabaseEnvironmentConnectionConfig;
 
 	/** Proveedores de email */
 	emailProviderConfig: EmailProviderConfig;
@@ -50,8 +50,8 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		this.apiData = this.GetApiData();
 		this.emailProviderConfig = this.GetEmailProviders();
 		this.cloudProvider = this.GetCloudProviders();
-		this.databaseConnectionData = this.GetDataBaseConnectionData();
-		this.databaseConnectionConfig = this.GetDatabaseConnectionConfig();
+		this.databaseConnectionData = this.GetDatabaseConnectionDataByEnvironment();
+		this.databaseConnectionConfig = this.GetDatabaseConnectionConfigByEnvironment();
 		this.cacheConfig = this.GetCacheConfig();
 		this.securityConfig = this.GetSecurityConfig();
 	}
@@ -88,8 +88,11 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			/** Clave de aplicación */
 			apiKey: process.env.API_KEY ?? "",
 
+			/** Token que identifica a la aplicación en la tabla de proyectos */
+			proyect_token: process.env.PROYECT_TOKEN ?? "",
+
 			/** Token de aplicación */
-			tokenKey: process.env.TOKEN_KEY ?? "",
+			authTokenSecret: process.env.AUTH_TOKEN_SECRET ?? "",
 
 			/** Version de la aplicación */
 			version: Number(process.env.API_VERSION ?? DEFAULT_API_VERSION),
@@ -226,12 +229,31 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		} as CloudProviderConfig;
 	}
 
-	/** Obtiene los datos de connección a la base de datos */
-	private GetDataBaseConnectionData(): DatabaseConnectionData {
-		const dbConfig = JSON.parse(process.env.DATABASE ?? "");
-
+	/** Obtener la configuración de cache */
+	private GetCacheConfig(): CacheClientConfig {
+		const config = JSON.parse(process.env.CACHE_CLIENT ?? "");
 		return {
+			url: config.url,
+			userName: config.userName,
+			password: config.password,
+			clientName: config.clientName,
+			databaseNumber: config.databaseNumber
+		}
+	}
 
+	/** Obtiene la configuración de seguridad */
+	private GetSecurityConfig(): SecurityConfig {
+
+		const config = JSON.parse(process.env.SECURITY ?? "");
+		return {
+			allowedOrigins: config.allowedOrigins,
+		}
+	}
+
+
+	/** Obtiene los datos de connección según el ambiente */
+	private GetDatabaseConnectionData(dbConfig: any): DatabaseConnectionData {
+		return {
 			/** Tipo de base de datos */
 			type: dbConfig.TYPE,
 
@@ -267,36 +289,52 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 
 			/** Tamaño maximo del connection pool */
 			connectionPoolMaxSize: dbConfig.CONNECTION_POOL_MAX_SIZE,
-		} as DatabaseConnectionData;
+		}
+	}
+
+	/** Obtiene los datos de connección a la base de datos */
+	private GetDatabaseConnectionDataByEnvironment(): DatabaseEnvironmentConnectionData {
+		const dbConfig = JSON.parse(process.env.DATABASE ?? "");
+
+		/** Representa los datos de conección para la base de datos de uso interno */
+		const internal = dbConfig.INTERNAL_CONNECTION;
+
+		/** Representa los datos de conección para la base de datos del negocio */
+		const business = dbConfig.BUSINESS_CONNECTION;
+
+		return {
+			internal: this.GetDatabaseConnectionData(internal),
+			business: this.GetDatabaseConnectionData(business)
+		} as DatabaseEnvironmentConnectionData;
 	}
 
 	/** Devuelve un objeto, con los objeto de connección a las bases de datos disponibles */
-	private GetDatabaseConnectionConfig(): DatabaseConnectionConfig {
+	private GetDatabaseConnectionConfig(env: DatabaseConnectionData): DatabaseConnectionConfig {
 		return {
 			/** Objeto de connección a sql server */
 			sqlConnectionConfig: {
 				/** Nombre del servidor */
-				server: this.databaseConnectionData.server ?? "",
+				server: env.server ?? "",
 
 				/** Opciones de configuración */
 				options: {
 					/** Nombre de la base de datos */
-					database: this.databaseConnectionData.databaseName ?? "",
+					database: env.databaseName ?? "",
 					/** Nombre de la instancia */
-					instanceName: this.databaseConnectionData.instance ?? "",
+					instanceName: env.instance ?? "",
 					// port: Number(process.env.DB_PORT ?? 0),
 					trustServerCertificate: true,
 					// Aborta cualquier transacción automaticamente si ocurre un error en sql.
 					abortTransactionOnError: true,
 					// The number of milliseconds before the attempt to connect is considered failed (default: 15000).
-					connectTimeout: this.databaseConnectionData.connectionTimeout ?? DEFAULT_DATABASE_TIMEOUT,
+					connectTimeout: env.connectionTimeout ?? DEFAULT_DATABASE_TIMEOUT,
 				},
 				/** Datos de autenticación */
 				authentication: {
 					type: 'default',
 					options: {
-						userName: this.databaseConnectionData.userName ?? "",
-						password: this.databaseConnectionData.password ?? "",
+						userName: env.userName ?? "",
+						password: env.password ?? "",
 						//domain: process.env.DB_DOMAIN ?? "",
 					},
 				}
@@ -304,24 +342,17 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		} as DatabaseConnectionConfig;
 	}
 
-	/** Obtener la configuración de cache */
-	private GetCacheConfig(): CacheClientConfig {
-		const config = JSON.parse(process.env.CACHE_CLIENT ?? "");
-		return {
-			url: config.url,
-			userName: config.userName,
-			password: config.password,
-			clientName: config.clientName,
-			databaseNumber: config.databaseNumber
-		}
-	}
+	/** Objeto de conección a la base de datos, según el ambiente */
+	private GetDatabaseConnectionConfigByEnvironment(): DatabaseEnvironmentConnectionConfig {
 
-	/** Obtiene la configuración de seguridad */
-	private GetSecurityConfig(): SecurityConfig {
+		const data = this.GetDatabaseConnectionDataByEnvironment();
 
-		const config = JSON.parse(process.env.SECURITY ?? "");
 		return {
-			allowedOrigins: config.allowedOrigins,
+			/** Representa los datos de conección para la base de datos de uso interno */
+			internal: this.GetDatabaseConnectionConfig(data.internal),
+
+			/** Representa los datos de conección para la base de datos del negocio */
+			business: this.GetDatabaseConnectionConfig(data.business)
 		}
 	}
 

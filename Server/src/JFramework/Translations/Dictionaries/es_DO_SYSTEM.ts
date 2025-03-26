@@ -1,9 +1,10 @@
+import { LenguageKeys } from "../Types/ApplicationLenguages";
 
 
 
 
 /** Objeto de idioma español */
-export const ES_DO_SYSTEM = {
+export const ES_DO_SYSTEM: Record<LenguageKeys, string> = {
 
 	/** Time Units */
 	"days": "Días",
@@ -11,6 +12,7 @@ export const ES_DO_SYSTEM = {
 	"minutes": "Minutos",
 	"seconds": "Segundos",
 	"milliseconds": "Milisegundos",
+	"years": "Años",
 	/** END Time Units */
 
 	/** Status Messages */
@@ -56,6 +58,8 @@ export const ES_DO_SYSTEM = {
 	"csrf-error": "Ha ocurrido un error mientras se validaba el token csrf",
 	"invalid-verb": "El Verbo HTTP ingresado, es inválido para esta solicitud",
 	"out-of-range": "La solicitud en curso está fuera de rango",
+	"connection-env-error": "Ha ocurrido un error al definir el tipo de ambiente de conexión",
+	"connection-config-error": "Ha ocurrido un error al definir la configuración de conexión",
 	/** END Errores Custom */
 
 	/** Zod errors */

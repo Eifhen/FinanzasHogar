@@ -14,6 +14,7 @@ import { DEFAULT_NUMBER } from "../../../Utils/const";
 import ISqlGenericRepository from "../Interfaces/ISqlGenericRepository";
 import { UnwrapGenerated } from "../Types/DatabaseType";
 import ApplicationContext from "../../../Configurations/ApplicationContext";
+import { QueryExpression } from "../Interfaces/IGenericRepository";
 
 
 
@@ -22,11 +23,10 @@ export default class SqlGenericRepository<
 	TableName extends Extract<keyof DataBaseEntity, string>,
 	PrimaryKey extends Extract<keyof DataBaseEntity[TableName], string>
 > implements ISqlGenericRepository<
-	DataBaseEntity, 
-	TableName, 
+	DataBaseEntity,
+	TableName,
 	PrimaryKey
-	> 
-{
+> {
 
 	/** Nombre de la tabla a trabajar */
 	public _tableName: TableName;
@@ -97,20 +97,47 @@ export default class SqlGenericRepository<
 	};
 
 	/** Permite buscar un registro en base a un predicado */
-	public Find = async (
-		columnName: keyof DataBaseEntity[TableName],
-		operator: string,
-		value: any
-	): IApplicationPromise<Selectable<DataBaseEntity[TableName]> | null> => {
+	public Find = async (expressions: QueryExpression<DataBaseEntity, TableName>[]): IApplicationPromise<Selectable<DataBaseEntity[TableName]> | null> => {
 		const query: any = this._transaction ?
 			this._transaction.selectFrom(this._tableName).selectAll()
 			:
 			this._database.selectFrom(this._tableName).selectAll()
 
-		const result = query.where(columnName, operator, value).executeTakeFirst();
+		// Aseguramos que 'expressions' sea siempre un array
+  	const expressionsArray = Array.isArray(expressions) ? expressions : [expressions];
+
+		// Encadenamos las condiciones para cada expresión
+		expressionsArray.forEach(([columnName, operator, value]) => {
+			query.where(columnName as string, operator, value);
+		});
+
+		const result = query.executeTakeFirst();
 
 		return this._applicationPromise.TryQuery(
 			result as Promise<Selectable<DataBaseEntity[TableName]> | null>,
+			"Find"
+		);
+	};
+
+	/** Permite buscar un registro según las condiciones ingresadas */
+	public Where = async (expressions: QueryExpression<DataBaseEntity, TableName>[]|QueryExpression<DataBaseEntity, TableName>): IApplicationPromise<Selectable<DataBaseEntity[TableName]>[]> => {
+		const query: any = this._transaction ?
+			this._transaction.selectFrom(this._tableName).selectAll()
+			:
+			this._database.selectFrom(this._tableName).selectAll()
+
+		// Aseguramos que 'expressions' sea siempre un array
+  	const expressionsArray = Array.isArray(expressions) ? expressions : [expressions];
+
+		// Encadenamos las condiciones para cada expresión
+		expressionsArray.forEach(([columnName, operator, value]) => {
+			query.where(columnName as string, operator, value);
+		});
+
+		const result = query.execute();
+
+		return this._applicationPromise.TryQuery(
+			result as Promise<Selectable<DataBaseEntity[TableName]>[]>,
 			"Find"
 		);
 	};
@@ -128,8 +155,8 @@ export default class SqlGenericRepository<
 	}
 
 	/** Permite actualizar un elemento  */
-	public async Update (
-		id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>, 
+	public async Update(
+		id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>,
 		record: Updateable<DataBaseEntity[TableName]>
 	): IApplicationPromise<number> {
 
@@ -158,7 +185,7 @@ export default class SqlGenericRepository<
 	}
 
 	/** Permite eliminar un elemento */
-	public async Delete (id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>): IApplicationPromise<number> {
+	public async Delete(id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>): IApplicationPromise<number> {
 		const query = this._transaction ?
 			this._transaction.deleteFrom(this._tableName)
 			.where(
@@ -185,17 +212,17 @@ export default class SqlGenericRepository<
 		params: IPaginationArgs,
 		filter?: Partial<Selectable<DataBaseEntity[TableName]>>
 	): IApplicationPromise<IPaginationResult<Selectable<DataBaseEntity[TableName]>>> {
-		
+
 		const getPaginatedResults = async () => {
 			const { pageSize, currentPage } = params;
 			const offsetIndex = 1;
 			const offset = (currentPage - offsetIndex) * pageSize;
-	
+
 			// Construir la consulta base
 			let baseQuery = this._transaction
 				? this._transaction.selectFrom(this._tableName)
 				: this._database.selectFrom(this._tableName);
-	
+
 			// Aplicar filtros dinámicos forzando el tipado con 'any'
 			if (filter) {
 				Object.entries(filter).forEach(([key, value]) => {
@@ -203,22 +230,22 @@ export default class SqlGenericRepository<
 					baseQuery = (baseQuery as any).where(key, '=', value);
 				});
 			}
-	
+
 			// Contar el total de registros antes de la paginación
 			const countQuery = (baseQuery as any).select((qb: any) => qb.fn.countAll().as('total'));
 			const totalItemsResult = await countQuery.executeTakeFirst();
 			const totalItems = Number(totalItemsResult?.total || DEFAULT_NUMBER);
 			const totalPages = Math.ceil(totalItems / pageSize);
-	
+
 			// Construir la consulta paginada
 			const paginatedQuery = (baseQuery as any)
 			.selectAll()
 			.orderBy(this._primaryKey, 'asc')
 			.offset(offset)
 			.fetch(pageSize);
-	
+
 			const items = (await paginatedQuery.execute()) as Selectable<DataBaseEntity[TableName]>[];
-	
+
 			// Construir y retornar el resultado de paginación
 			const paginationResult: IPaginationResult<Selectable<DataBaseEntity[TableName]>> = {
 				result: items,
@@ -229,15 +256,15 @@ export default class SqlGenericRepository<
 					totalItems,
 				},
 			};
-	
+
 			return paginationResult;
 		};
-	
+
 		return this._applicationPromise.TryQuery(getPaginatedResults(), "Paginate");
 	}
 
 	/** Setea una nueva transacción */
-	public async SetTransaction (transaction: Transaction<DataBaseEntity> | null) {
+	public async SetTransaction(transaction: Transaction<DataBaseEntity> | null) {
 		this._transaction = transaction;
 	}
 

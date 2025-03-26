@@ -1,20 +1,20 @@
 import { Kysely } from "kysely";
-import { UsuariosTable } from "../Dominio/Entities/Usuarios";
-import { UsuariosHogarTable } from "../Dominio/Entities/UsuarioHogar";
-import { HogaresTable } from "../Dominio/Entities/Hogares";
-import { SolicitudHogarTable } from "../Dominio/Entities/SolicitudHogar";
-import { NotificacionesTable } from "../Dominio/Entities/Notificaciones";
-import { RolesTable } from "../Dominio/Entities/Roles";
-import { HistorialCambiosHogarTable } from "../Dominio/Entities/HistorialCambiosHogar";
-import { CategoriasTable } from "../Dominio/Entities/Categorias";
-import { PresupuestosTable } from "../Dominio/Entities/Presupuestos";
-import { PresupuestoCategoriaTable } from "../Dominio/Entities/PresupuestoCategoria";
-import { CuentasTable } from "../Dominio/Entities/Cuentas";
-import { TransaccionesTable } from "../Dominio/Entities/Transacciones";
-import { MetasTable } from "../Dominio/Entities/Metas";
-import { AhorrosTable } from "../Dominio/Entities/Ahorros";
-import { DeudasTable } from "../Dominio/Entities/Deudas";
-import { PagosDeudaTable } from "../Dominio/Entities/PagosDeuda";
+import { AhorrosTable } from "../../Dominio/Entities/Ahorros";
+import { CategoriasTable } from "../../Dominio/Entities/Categorias";
+import { CuentasTable } from "../../Dominio/Entities/Cuentas";
+import { DeudasTable } from "../../Dominio/Entities/Deudas";
+import { HistorialCambiosHogarTable } from "../../Dominio/Entities/HistorialCambiosHogar";
+import { HogaresTable } from "../../Dominio/Entities/Hogares";
+import { MetasTable } from "../../Dominio/Entities/Metas";
+import { NotificacionesTable } from "../../Dominio/Entities/Notificaciones";
+import { PagosDeudaTable } from "../../Dominio/Entities/PagosDeuda";
+import { PresupuestoCategoriaTable } from "../../Dominio/Entities/PresupuestoCategoria";
+import { PresupuestosTable } from "../../Dominio/Entities/Presupuestos";
+import { RolesTable } from "../../Dominio/Entities/Roles";
+import { SolicitudHogarTable } from "../../Dominio/Entities/SolicitudHogar";
+import { TransaccionesTable } from "../../Dominio/Entities/Transacciones";
+import { UsuariosHogarTable } from "../../Dominio/Entities/UsuarioHogar";
+import { UsuariosTable } from "../../Dominio/Entities/Usuarios";
 
 
 /** Modelo de base de datos */

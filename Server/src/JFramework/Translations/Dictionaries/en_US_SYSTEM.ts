@@ -10,6 +10,7 @@ export const EN_US_SYSTEM = {
 	"minutes": "Minutes",
 	"seconds": "Seconds",
 	"milliseconds": "Milliseconds",
+	"years": "Years",
 	/** END Time Units */
 
 	/** Status Messages */
@@ -55,6 +56,8 @@ export const EN_US_SYSTEM = {
 	"csrf-error": "An error occurred while validating the CSRF token.",
 	"invalid-verb": "The HTTP Verb entered is invalid for this request.",
 	"out-of-range": "The current request is out of range",
+	"connection-env-error": "An error occurred while defining the connection environment type.",
+	"connection-config-error": "An error ocurred while setting the connection configuration.",
 	/** END Errores Custom */
 
 	/** Zod Errors */

@@ -149,7 +149,7 @@ export default class AuthenticationService implements IAuthenticationService {
 	/** Valida la data del objeto recibido y devuelve un objeto `CreateUsuarios` */
 	private async ValidateUserData(data: SignUpDTO): Promise<CreateUsuarios> {
 		// Validar que no exista un usuario con ese email
-		const [findUserError, findUser] = await this._usuariosRepository.Find("email", "=", data.email);
+		const [findUserError, findUser] = await this._usuariosRepository.Find(["email", "=", data.email]);
 
 		/** Error al realizar la operación de buscar al usuario */
 		if (findUserError) {
@@ -250,7 +250,7 @@ export default class AuthenticationService implements IAuthenticationService {
 				);
 			}
 
-			const [errFind, find] = await this._usuariosRepository.Find("token_confirmacion", "=", token);
+			const [errFind, find] = await this._usuariosRepository.Find(["token_confirmacion", "=", token]);
 
 			/** Validamos si ocurre un error en la operación de búsqueda */
 			if(errFind){

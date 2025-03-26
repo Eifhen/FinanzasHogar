@@ -15,6 +15,9 @@ export default interface IInternalServiceManager {
   /** Permite añadir los servicios de uso interno */
   AddInternalServices(): Promise<void>;
 
+  /** Permite añadir los repositorios de uso interno al contenedor de dependencias */
+  AddInternalRepositories() : Promise<void>;
+
   /** Permite añadir endpoints de uso interno */
   AddInternalEndpoints(): Promise<void>;
 

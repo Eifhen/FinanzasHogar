@@ -22,7 +22,7 @@ import LoggerManager from "../Managers/LoggerManager";
 import TokenManager from "../Managers/TokenManager";
 import { limiterConfig, Limiters } from "../Security/RateLimiter/Limiters";
 import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
-import { NO_REQUEST_ID } from "../Utils/const";
+import { INTERNAL_DATABASE_INSTANCE_NAME, NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
 import ConfigurationSettings from "./ConfigurationSettings";
 import IContainerManager from "./Interfaces/IContainerManager";
@@ -32,8 +32,13 @@ import ApplicationContext from "./ApplicationContext";
 import CloudStorageManager from "../External/CloudStorage/CloudStorageManager";
 import IInternalSecurityService from "../API/Services/Interfaces/InternalSecurityService";
 import InternalSecurityService from "../API/Services/InternalSecurityService";
-import { ITranslationProvider } from "../Translations/Interfaces/ITranslatorProvider";
-import SystemTranslatorProvider from "../Translations/SystemTranslatorProvider";
+import { ConnectionEnvironment } from "./Types/IConnectionService";
+import IProyectsInternalRepository from "../API/DataAccess/Repositories/Interfaces/IProyectsInternalRepository";
+import ProyectsInternalRepository from "../API/DataAccess/Repositories/ProyectsInternalRepository";
+import ITenantsInternalRepository from "../API/DataAccess/Repositories/Interfaces/ITenantsInternalRepository";
+import TenantsInternalRepository from "../API/DataAccess/Repositories/TenantsInternalRepository";
+import ITenantDetailsInternalRepository from "../API/DataAccess/Repositories/Interfaces/ITenantDetailsInternalRepository";
+import TenantDetailsInternalRepository from "../API/DataAccess/Repositories/TenantDetailsInternalRepository";
 
 
 export interface InternalServiceManagerDependencies {
@@ -58,7 +63,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 	private readonly _containerManager: IContainerManager;
 
 	/** Manejador de conección a la base de datos */
-	private readonly _databaseConnecctionManager: IDatabaseConnectionManager;
+	private readonly _databaseConnecctionManager: IDatabaseConnectionManager<any>;
 
 	/** Manejador de conección a servidor caché */
 	private readonly _cacheConnectionManager: ICacheConnectionManager;
@@ -78,9 +83,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 		this._containerManager = deps.containerManager;
 
 		/** Agregamos el manejador de conección */
-		this._databaseConnecctionManager = new DatabaseConnectionManager({
+		this._databaseConnecctionManager = new DatabaseConnectionManager<any, any>({
 			containerManager: this._containerManager,
-			configurationSettings: this._configurationSettings
+			configurationSettings: this._configurationSettings,
+			options: {
+				connectionEnvironment: ConnectionEnvironment.internal,
+				databaseInstanceName: INTERNAL_DATABASE_INSTANCE_NAME,
+			}
 		});
 
 		/** Agregamos el manejador de conección caché */
@@ -133,6 +142,22 @@ export class InternalServiceManager implements IInternalServiceManager {
 		}
 	}
 
+	/** Permite añadir los repositorios de uso interno al contenedor de dependencias */
+	public async AddInternalRepositories(): Promise<void> {
+		try {
+			this._logger.Activity("AddInternalRepositories");
+
+			this._serviceManager.AddService<IProyectsInternalRepository, ProyectsInternalRepository>("proyectsInternalRepository", ProyectsInternalRepository);
+			this._serviceManager.AddService<ITenantsInternalRepository, TenantsInternalRepository>("tenantsInternalRepository", TenantsInternalRepository);
+			this._serviceManager.AddService<ITenantDetailsInternalRepository, TenantDetailsInternalRepository>("tenantDetailsInternalRepository", TenantDetailsInternalRepository);
+		
+		}
+		catch(err:any){
+			this._logger.Error("FATAL", "AddInternalRepositories", err);
+			throw err;
+		}
+	}
+
 	/** Agregamos las estrategias de desarrollo interno */
 	public async AddInternalStrategies(): Promise<void> {
 		try {
@@ -155,7 +180,6 @@ export class InternalServiceManager implements IInternalServiceManager {
 			this._serviceManager.AddService<ITokenManager, TokenManager>("tokenManager", TokenManager);
 			this._serviceManager.AddService<IEmailManager, EmailManager>("emailManager", EmailManager);
 			this._serviceManager.AddService<IFileManager, FileManager>("fileManager", FileManager);
-			this._serviceManager.AddService<ITranslationProvider, SystemTranslatorProvider>("systemTranslatorProvider", SystemTranslatorProvider);
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalManagers", err);
@@ -227,7 +251,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 			this._logger.Activity("RunConnectionServices");
 
 			/** Realizamos la conección a la base de datos */
-			await this._databaseConnecctionManager.Connect();
+			await this._databaseConnecctionManager.SetConnectionStrategy().Connect();
 
 			/** Realiza conección con el cliente de caché (Redis) */
 			await this._cacheConnectionManager.Connect();

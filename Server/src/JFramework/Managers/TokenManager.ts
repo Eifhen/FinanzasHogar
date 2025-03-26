@@ -32,7 +32,7 @@ export default class TokenManager implements ITokenManager {
 		});
 
 		this._applicationContext = deps.applicationContext;
-		this.secret = this._applicationContext.settings.apiData.tokenKey;
+		this.secret = this._applicationContext.settings.apiData.authTokenSecret;
 	}
 
 	/** Permite generar un token jwt con un payload del tipo ingresado */

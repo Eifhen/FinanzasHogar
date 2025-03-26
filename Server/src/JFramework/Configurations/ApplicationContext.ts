@@ -1,10 +1,9 @@
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 import { ITranslationProvider } from "../Translations/Interfaces/ITranslatorProvider";
-import SystemTranslatorProvider from "../Translations/SystemTranslatorProvider";
+import SystemTranslatorProvider from "../Translations/Providers/SystemTranslatorProvider";
 import TranslatorHandler from "../Translations/TranslatorHandler";
-import TranslatorProvider from "../Translations/TranslatorProvider";
+import TranslatorProvider from "../Translations/Providers/TranslatorProvider";
 import { ApplicationLenguages } from "../Translations/Types/ApplicationLenguages";
-import { NO_REQUEST_ID } from "../Utils/const";
 import { ClassConstructor } from "../Utils/Types/CommonTypes";
 
 

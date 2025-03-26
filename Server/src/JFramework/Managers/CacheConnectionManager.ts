@@ -44,7 +44,7 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 	/** Permite crear el cliente de Redis para manejar el cache */
 	public async Connect(): Promise<void> {
 		try {
-			this._logger.Activity("CreateClient");
+			this._logger.Activity("Connect");
 
 			const environment = this._configurationSettings.environment;
 			let redisClient;
@@ -92,13 +92,13 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 
 		}
 		catch (err: any) {
-			this._logger.Error("ERROR", "CreateClient", err);
+			this._logger.Error("ERROR", "Connect", err);
 			if (err instanceof ApplicationException) {
 				throw err;
 			}
 
 			throw new ApplicationException(
-				"CreateClient",
+				"Connect",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
@@ -124,7 +124,7 @@ export default class CacheConnectionManager implements ICacheConnectionManager {
 		catch (err: any) {
 			this._logger.Error("ERROR", "Disconnect", err);
 			throw new ApplicationException(
-				"AddService",
+				"Disconnect",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,

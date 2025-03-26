@@ -1,5 +1,7 @@
 import { Generated } from "kysely";
-
+import * as tedious from 'tedious';
+import { DatabaseConnectionData } from "../../../Configurations/Types/IConfigurationSettings";
+import { ConnectionEnvironment } from "../../../Configurations/Types/IConnectionService";
 
 /** Tipos de bases de datos contemplados por el sistema */
 export const DatabaseType = {
@@ -28,3 +30,11 @@ export type UnwrapGenerated<T> = T extends Generated<infer U> ? U : T;
 
 /** Excluye el primary key a nivel de tipos*/
 export type WithoutPrimaryKey<Table, PrimaryKey extends keyof Table> = Omit<Table, PrimaryKey>;
+
+
+/** Objeto de conexión de para el SqlConnectionStrategy */
+export type SqlStrategyConnectionData = {
+  env: ConnectionEnvironment;
+  connectionConfig: tedious.ConnectionConfiguration,
+  connectionData: DatabaseConnectionData,
+}

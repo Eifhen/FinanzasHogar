@@ -27,3 +27,9 @@ export const DEFAULT_NUMBER = 0;
 
 /** Representa la longitud de los tokens en la app */
 export const DEFAULT_TOKEN_LENGTH = 32;
+
+/** Nombre de la base da datos de uso interno en el contenedor de dependencias */
+export const INTERNAL_DATABASE_INSTANCE_NAME = "internalDatabase";
+
+/** Nombre de la base da datos de uso del negocio en el contenedor de dependencias */
+export const BUSINESS_DATABASE_INSTANCE_NAME = "database";

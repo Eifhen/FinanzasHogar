@@ -4,6 +4,11 @@ import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
 import { UnwrapGenerated } from "../Types/DatabaseType";
 
 
+export type QueryExpression<DataBaseEntity extends object, TableName extends Extract<keyof DataBaseEntity, string>> = [
+  columnName: keyof DataBaseEntity[TableName],
+  operator: string,
+  value: any
+];
 
 /** Definición interfaz para repositorio genérico */
 export default interface IGenericRepository<
@@ -26,11 +31,10 @@ export default interface IGenericRepository<
   FindById(id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>): IApplicationPromise<OutputEntity>
 
   /** Permite buscar un registro en base a un predicado */
-  Find (
-    columnName: keyof DataBaseEntity[TableName],
-    operator: string,
-    value: any
-  ): IApplicationPromise<OutputEntity | null>
+  Find (expresion: QueryExpression<DataBaseEntity, TableName>[] | QueryExpression<DataBaseEntity, TableName>): IApplicationPromise<OutputEntity | null>
+
+  /** Permite buscar un registro según las condiciones ingresadas */
+  Where(expresion: QueryExpression<DataBaseEntity, TableName>[] | QueryExpression<DataBaseEntity, TableName>) : IApplicationPromise<OutputEntity[] | null>;
 
   /** Permite crear un registro */
   Create(record: InsertType): IApplicationPromise<InsertOutput>;

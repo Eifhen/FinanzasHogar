@@ -7,24 +7,24 @@ import * as tarn from 'tarn';
 import * as tedious from 'tedious';
 import { HttpStatusCode, HttpStatusName } from "../../../Utils/HttpCodes";
 import ApplicationException from "../../../ErrorHandling/ApplicationException";
-import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException } from "../../../ErrorHandling/Exceptions";
-import { AutoBind, AutoClassBinder } from "../../../Helpers/Decorators/AutoBind";
+import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException, InternalServerException, NullParameterException } from "../../../ErrorHandling/Exceptions";
+import { AutoClassBinder } from "../../../Helpers/Decorators/AutoBind";
 import IDatabaseConnectionStrategy from "../Interfaces/IDatabaseConnectionStrategy";
 import ApplicationContext from "../../../Configurations/ApplicationContext";
+import { ConnectionEnvironment } from "../../../Configurations/Types/IConnectionService";
+import { SqlStrategyConnectionData } from "../Types/DatabaseType";
 
 
 
-/** 
-	Si la connección no funciona revisar las credenciales de acceso y 
-	que el Sql Agent esté corriendo
-*/
+/**  Si la connección no funciona revisar las 
+ * credenciales de acceso y que el Sql Agent esté corriendo */
 interface ISqlStrategyDependencies {
 	applicationContext: ApplicationContext;
 }
 
 /** Estrategia de conección a SQL usandoy Kysely */
 @AutoClassBinder
-export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseConnectionStrategy<MssqlDialect, Kysely<DataBaseEntity>> {
+export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseConnectionStrategy<MssqlDialect, Kysely<DataBaseEntity>, SqlStrategyConnectionData> {
 
 	/** Logger Manager Instance */
 	private _loggerManager: ILoggerManager;
@@ -38,6 +38,12 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 	/** Contexto de applicación */
 	private _applicationContext: ApplicationContext;
 
+
+	/** Objeto de conexión de para el SqlConnectionStrategy 
+	 *  -connectionData = Datos de conexión a la DB 
+	 *  -connectionConfig = Configuración de conexión de tedious */
+	private _strategyConnectionData?: SqlStrategyConnectionData;
+
 	constructor(deps: ISqlStrategyDependencies) {
 		this._loggerManager = new LoggerManager({
 			entityCategory: LoggEntityCategorys.STRATEGY,
@@ -45,24 +51,74 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 			entityName: "SqlConnectionStrategy"
 		});
 
+		/** Seteamos el contexto */
 		this._applicationContext = deps.applicationContext;
+
+		/** Seteamos el ambiente de conexión */
+		this.SetConnectionEnvironment(ConnectionEnvironment.internal);
+	}
+
+	/** Método que permite setear el ambiente de conexión */
+	public SetConnectionEnvironment(env: ConnectionEnvironment) : void {
+		try {
+			this._loggerManager.Activity("SetConnectionEnvironment");
+
+			/** Actualizamos el tipo de ambiente de conexión */
+			this._strategyConnectionData = {
+				env,
+				connectionConfig: this._applicationContext.settings.databaseConnectionConfig[env].sqlConnectionConfig,
+				connectionData: this._applicationContext.settings.databaseConnectionData[env],
+			}
+		}
+		catch(err:any){
+			this._loggerManager.Error("FATAL", "Connect", err);
+			throw new InternalServerException(
+				"SetConnectionEnvironment",
+				"connection-env-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
+		}
+	}
+
+	/** SetConnectionConfiguration
+	 *  @description 
+	 * Permite sobreescribir la configuración de conexión, originalmente se utilizan los datos de 
+	 * conexión proporcionados por el objeto de configuraciones, según el ambiente de conexión. 
+	 * Pero este método nos permite configurar nuestros datos de conexión de forma manual */
+	public SetConnectionConfiguration(data: SqlStrategyConnectionData) : void {
+		try {
+			this._loggerManager.Activity("SetConnectionConfiguration");
+			this._strategyConnectionData = data;
+		}
+		catch(err:any){
+			this._loggerManager.Error("FATAL", "Connect", err);
+			throw new InternalServerException(
+				"SetConnectionEnvironment",
+				"connection-config-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
+		}
 	}
 
 	/** Método que permite realizar la conección a SQL Server */
-	@AutoBind
 	public async Connect() {
 		try {
 			this._loggerManager.Activity("Connect");
 
-			/** Probamos si la conección se establece correctamente */
-			// await this.TestConnection();
+			if(!this._strategyConnectionData){
+				throw new NullParameterException("CreateConnection", "_strategyConnectionData", this._applicationContext, __filename);
+			}
 
 			const dialect = new MssqlDialect({
 				tarn: {
 					...tarn,
 					options: {
-						min: this._applicationContext.settings.databaseConnectionData.connectionPoolMinSize,
-						max: this._applicationContext.settings.databaseConnectionData.connectionPoolMaxSize,
+						min: this._strategyConnectionData.connectionData.connectionPoolMinSize,
+						max: this._strategyConnectionData.connectionData.connectionPoolMaxSize,
 						// propagateCreateError: true, // Propaga los errores de creación de conexión
 					},
 				},
@@ -87,16 +143,18 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 	};
 
 	/** Crea la connección a sqlserver */
-	@AutoBind
 	private CreateConnection(): tedious.Connection {
 		this._loggerManager.Register("INFO", "CreateConnection");
-		const connectionSettings = this._applicationContext.settings.databaseConnectionConfig.sqlConnectionConfig
-		const connection = new tedious.Connection(connectionSettings);
+
+		if(!this._strategyConnectionData){
+			throw new NullParameterException("CreateConnection", "_connectionSettings", this._applicationContext, __filename);
+		}
+
+		const connection = new tedious.Connection(this._strategyConnectionData.connectionConfig);
 		return connection;
 	}
 
 	/** Permite generar connecciones nuevas */
-	@AutoBind
 	private ConnectionFactory(): TediousConnection {
 		this._loggerManager.Register("INFO", "ConnectionFactory");
 
@@ -192,35 +250,6 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 			);
 		}
 	}
-
-	/** Prueba la conección a la base de datos */
-	// private TestConnection(): Promise<void> {
-
-	//   const connection = this.CreateConnection();
-
-	//   return new Promise((resolve, reject) => {
-
-	//     /** Iniciamos la coneccion */
-	//     connection.connect((err) => {
-	//       this._loggerManager.Message("INFO", "Testing connection to the database");
-	//       if (err) {
-	//         // Si ocurre un error al conectar, se rechaza la promesa
-	//         this._loggerManager.Message("FATAL", "Testing connection | Database Connection failed", err);
-
-	//         /** Si ocurre un error cerramos la coneccion */
-	//         connection.close();
-	//         reject(err);
-	//       } else {
-	//         // Si la conexión es exitosa, se resuelve la promesa
-	//         this._loggerManager.Message("INFO", "Testing connection | Database Connection established");
-
-	//         /** Si la conneccion es exitosa cerramos la conección */
-	//         connection.close();
-	//         resolve();
-	//       }
-	//     });
-	//   });
-	// }
 
 }
 

@@ -1,11 +1,11 @@
-import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../Managers/LoggerManager";
-import { ITranslationProvider } from "./Interfaces/ITranslatorProvider";
-import { EN_US_SYSTEM } from "./Dictionaries/en_US_SYSTEM";
-import { ES_DO_SYSTEM } from "./Dictionaries/es_DO_SYSTEM";
-import { ApplicationLenguages } from "./Types/ApplicationLenguages";
-import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
-import { RequestData } from "../Configurations/ApplicationContext";
+import ILoggerManager from "../../Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../../Managers/LoggerManager";
+import { ITranslationProvider } from "../Interfaces/ITranslatorProvider";
+import { EN_US_SYSTEM } from "../Dictionaries/en_US_SYSTEM";
+import { ES_DO_SYSTEM } from "../Dictionaries/es_DO_SYSTEM";
+import { ApplicationLenguages } from "../Types/ApplicationLenguages";
+import { AutoClassBinder } from "../../Helpers/Decorators/AutoBind";
+import { RequestData } from "../../Configurations/ApplicationContext";
 
 
 
