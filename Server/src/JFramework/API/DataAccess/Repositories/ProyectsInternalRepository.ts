@@ -15,13 +15,13 @@ interface IProyectsInternalRepositoryDependencies {
 }
 
 /** Repositorio para la entidad ahorros */
-export default class ProyectsInternalRepository extends SqlGenericRepository<InternalDatabase, "proyects", "id"> implements IProyectsInternalRepository {
+export default class ProyectsInternalRepository extends SqlGenericRepository<InternalDatabase, "gj_proyects", "id"> implements IProyectsInternalRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;
 
 	constructor(deps: IProyectsInternalRepositoryDependencies) {
-		super(deps.internalDatabase, "proyects", "id", deps.applicationContext);
+		super(deps.internalDatabase, "gj_proyects", "id", deps.applicationContext);
 
 		// Instanciamos el logger
 		this._logger = new LoggerManager({

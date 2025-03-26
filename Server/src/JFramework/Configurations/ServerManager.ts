@@ -251,6 +251,7 @@ export default class ServerManager {
 			/** Se agregan servicios internos */
 			await this._internalServiceManager.AddInternalStrategies();
 			await this._internalServiceManager.AddInternalManagers();
+			await this._internalServiceManager.AddInternalRepositories();
 			await this._internalServiceManager.AddInternalServices();
 			await this._internalServiceManager.AddInternalEndpoints();
 

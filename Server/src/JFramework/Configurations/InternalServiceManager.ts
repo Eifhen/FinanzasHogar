@@ -101,7 +101,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 		 * manejador de conexión para la base de datos del negocio */
 		if (!this._configurationSettings.databaseConnectionData.isMultitenants) {
 			/** Agregamos el manejador de conexión */
-			this._internalDatabaseConnecctionManager = new DatabaseConnectionManager<any>({
+			this._businessDatabaseConnectionManager = new DatabaseConnectionManager<any>({
 				containerManager: this._containerManager,
 				configurationSettings: this._configurationSettings,
 				options: {

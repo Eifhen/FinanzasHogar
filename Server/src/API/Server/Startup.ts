@@ -44,6 +44,7 @@ import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEma
 import ILoggerManager from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
 import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
+import TenantResolverMiddleware from "../../JFramework/Middlewares/TenantResolverMiddleware";
 
 
 export default class Startup implements IStartup {
@@ -108,6 +109,9 @@ export default class Startup implements IStartup {
 			
 			/** Middleware para validación del apiKey */
 			this._serviceManager.AddMiddleware(ApiValidationMiddleware);
+
+			/** Middleware para resolver el Tenant de la request */
+			this._serviceManager.AddMiddleware(TenantResolverMiddleware);
 
 			/** Middleware para validación de token Csrf Este token debe ser aplicado por ruta */
 			// this._serviceManager.AddMiddleware(CsrfValidationMiddleware);

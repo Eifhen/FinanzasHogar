@@ -8,13 +8,13 @@ import { ProyectTable } from "./Models/Proyects";
 export interface InternalDatabase {
   
   /** No exponemos la tabla proyectos */
-  proyects: ProyectTable,
+  gj_proyects: ProyectTable,
 
   /** Tabla de tenants */
-  tenants: TenantTable;
+  gj_tenants: TenantTable;
   
   /** Tabla de detalles de un tenant */
-  tenantDetails: TenantDetailTable;
+  gj_tenant_details: TenantDetailTable;
 };
 
 

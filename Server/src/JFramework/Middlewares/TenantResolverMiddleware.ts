@@ -22,7 +22,7 @@ import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
 interface TenantResolverMiddlewareDependencies {
 	applicationContext: ApplicationContext;
 	tenantsInternalRepository: ITenantsInternalRepository;
-	tenantDetailInternalRepository: ITenantDetailsInternalRepository;
+	tenantDetailsInternalRepository: ITenantDetailsInternalRepository;
 }
 
 @AutoClassBinder
@@ -38,7 +38,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 	private readonly _tenantsInternalRepository: ITenantsInternalRepository;
 
 	/** Repositorio para consultar el detalle de un tenant */
-	private readonly _tenantDetailInternalRepository: ITenantDetailsInternalRepository;
+	private readonly _tenantDetailsInternalRepository: ITenantDetailsInternalRepository;
 
 
 	constructor(deps: TenantResolverMiddlewareDependencies) {
@@ -55,7 +55,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 		this._applicationContext = deps.applicationContext;
 
 		this._tenantsInternalRepository = deps.tenantsInternalRepository;
-		this._tenantDetailInternalRepository = deps.tenantDetailInternalRepository;
+		this._tenantDetailsInternalRepository = deps.tenantDetailsInternalRepository;
 	}
 
 	/** Obtiene el tenant */
@@ -107,7 +107,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 			this._logger.Activity("GetTenantDetail");
 
 			/** Obtenemos el detalle de la configuración del tenant  */
-			const [errTenantDetail, tenantDetail] = await this._tenantDetailInternalRepository.Find(["tenant_key", "=", tenantKey]);
+			const [errTenantDetail, tenantDetail] = await this._tenantDetailsInternalRepository.Find(["tenant_key", "=", tenantKey]);
 
 			/** Validamos la data */
 			if (errTenantDetail || !tenantDetail) {
@@ -289,10 +289,12 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 			/** Iniciamos la conexión con la base de datos */
 			await multiTenantManager.Connect();
 
+			/** Si todo va bien entonces seguimos adelante */
+			return next();
 		}
 		catch (err: any) {
 			this._logger.Error("ERROR", "Intercept", err);
-			next(err);
+			return next(err);
 		}
 	}
 

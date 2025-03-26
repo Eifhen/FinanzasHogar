@@ -39,9 +39,6 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 	/** Objeto de configuraciones del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
 
-	/** Contexto de aplicación */
-	private readonly _applicationContext: ApplicationContext;
-
 	/** Estrategia de conneccion */
 	private _strategy?: IDatabaseConnectionStrategy<any, any>;
 
@@ -60,8 +57,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 
 		this._containerManager = deps.containerManager;
 		this._configurationSettings = deps.configurationSettings;
-		this._applicationContext = this._containerManager.Resolve("applicationContext");
-
+	
 		/** seteamos el ambiente de conexión */
 		this._connectionEnv = deps.options.connectionEnvironment ?? ConnectionEnvironment.internal;
 
@@ -78,6 +74,8 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 	private SetConnectionStrategy(): void {
 		this._logger.Activity("SetConnectionStrategy");
 
+		const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
+
 		/** Ejecutamos una estrategía de conección según el tipo de base de datos
 		 * especificado en la configuración */
 		switch (this._options.databaseType) {
@@ -85,7 +83,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 
 				/** Resolvemos la estrategía */
 				this._strategy = new SqlConnectionStrategy<DataBaseEntity>({
-					applicationContext: this._applicationContext,
+					applicationContext,
 					connectionOptions: {
 						env: this._connectionEnv,
 						connectionConfig: this._configurationSettings.databaseConnectionConfig[this._connectionEnv].sqlConnectionConfig,

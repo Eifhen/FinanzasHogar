@@ -44,7 +44,7 @@ export class MultiTenantConnectionManager implements IConnectionService {
 	constructor(deps: MultiTenantConnectionManagerDependencies) {
 		this._logger = new LoggerManager({
 			entityCategory: "MANAGER",
-			// applicationContext: deps.applicationContext,
+			applicationContext: deps.applicationContext,
 			entityName: "MultiTenantConnectionManager"
 		});
 

@@ -15,13 +15,13 @@ interface ITenantDetailsInternalRepositoryDependencies {
 }
 
 /** Repositorio para la entidad ahorros */
-export default class TenantDetailsInternalRepository extends SqlGenericRepository<InternalDatabase, "tenantDetails", "id"> implements ITenantDetailsInternalRepository {
+export default class TenantDetailsInternalRepository extends SqlGenericRepository<InternalDatabase, "gj_tenant_details", "id"> implements ITenantDetailsInternalRepository {
 
 	/** Instancia del logger */
 	private _logger: ILoggerManager;
 
 	constructor(deps: ITenantDetailsInternalRepositoryDependencies) {
-		super(deps.internalDatabase, "tenantDetails", "id", deps.applicationContext);
+		super(deps.internalDatabase, "gj_tenant_details", "id", deps.applicationContext);
 
 		// Instanciamos el logger
 		this._logger = new LoggerManager({

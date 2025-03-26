@@ -4,6 +4,6 @@ import { InternalDatabase } from "../../InternalDatabase";
 
 
 
-export default interface IProyectsInternalRepository extends ISqlGenericRepository<InternalDatabase, "proyects", "id"> {
+export default interface IProyectsInternalRepository extends ISqlGenericRepository<InternalDatabase, "gj_proyects", "id"> {
 
 }
