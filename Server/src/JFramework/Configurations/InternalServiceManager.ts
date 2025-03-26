@@ -22,7 +22,7 @@ import LoggerManager from "../Managers/LoggerManager";
 import TokenManager from "../Managers/TokenManager";
 import { limiterConfig, Limiters } from "../Security/RateLimiter/Limiters";
 import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
-import { INTERNAL_DATABASE_INSTANCE_NAME, NO_REQUEST_ID } from "../Utils/const";
+import { BUSINESS_DATABASE_INSTANCE_NAME, INTERNAL_DATABASE_INSTANCE_NAME, NO_REQUEST_ID } from "../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
 import ConfigurationSettings from "./ConfigurationSettings";
 import IContainerManager from "./Interfaces/IContainerManager";
@@ -62,8 +62,12 @@ export class InternalServiceManager implements IInternalServiceManager {
 	/** contenedor de dependencias */
 	private readonly _containerManager: IContainerManager;
 
-	/** Manejador de conección a la base de datos */
-	private readonly _databaseConnecctionManager: IDatabaseConnectionManager<any>;
+	/** Manejador de conexón a la base de datos de uso interno */
+	private readonly _internalDatabaseConnecctionManager: IDatabaseConnectionManager;
+
+	/** Manejador de conexión de base de datos para el negocio si la variable isMultitenant 
+	 * en el objeto de configuración es true, entonces este objeto será undefined*/
+	private readonly _businessDatabaseConnectionManager?: IDatabaseConnectionManager;
 
 	/** Manejador de conección a servidor caché */
 	private readonly _cacheConnectionManager: ICacheConnectionManager;
@@ -82,8 +86,9 @@ export class InternalServiceManager implements IInternalServiceManager {
 		this._configurationSettings = deps.configurationSettings;
 		this._containerManager = deps.containerManager;
 
-		/** Agregamos el manejador de conección */
-		this._databaseConnecctionManager = new DatabaseConnectionManager<any, any>({
+
+		/** Agregamos el manejador de conexión para la base de datos de uso interno */
+		this._internalDatabaseConnecctionManager = new DatabaseConnectionManager<any>({
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings,
 			options: {
@@ -91,6 +96,20 @@ export class InternalServiceManager implements IInternalServiceManager {
 				databaseInstanceName: INTERNAL_DATABASE_INSTANCE_NAME,
 			}
 		});
+
+		/** Si la aplicación NO implementa multi-tenants, agregamos 
+		 * manejador de conexión para la base de datos del negocio */
+		if (!this._configurationSettings.databaseConnectionData.isMultitenants) {
+			/** Agregamos el manejador de conexión */
+			this._internalDatabaseConnecctionManager = new DatabaseConnectionManager<any>({
+				containerManager: this._containerManager,
+				configurationSettings: this._configurationSettings,
+				options: {
+					connectionEnvironment: ConnectionEnvironment.business,
+					databaseInstanceName: BUSINESS_DATABASE_INSTANCE_NAME,
+				}
+			});
+		}
 
 		/** Agregamos el manejador de conección caché */
 		this._cacheConnectionManager = new CacheConnectionManager({
@@ -150,9 +169,9 @@ export class InternalServiceManager implements IInternalServiceManager {
 			this._serviceManager.AddService<IProyectsInternalRepository, ProyectsInternalRepository>("proyectsInternalRepository", ProyectsInternalRepository);
 			this._serviceManager.AddService<ITenantsInternalRepository, TenantsInternalRepository>("tenantsInternalRepository", TenantsInternalRepository);
 			this._serviceManager.AddService<ITenantDetailsInternalRepository, TenantDetailsInternalRepository>("tenantDetailsInternalRepository", TenantDetailsInternalRepository);
-		
+
 		}
-		catch(err:any){
+		catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalRepositories", err);
 			throw err;
 		}
@@ -250,11 +269,16 @@ export class InternalServiceManager implements IInternalServiceManager {
 		try {
 			this._logger.Activity("RunConnectionServices");
 
-			/** Realizamos la conección a la base de datos */
-			await this._databaseConnecctionManager.SetConnectionStrategy().Connect();
-
 			/** Realiza conección con el cliente de caché (Redis) */
 			await this._cacheConnectionManager.Connect();
+
+			/** Realizamos la conexión a la base de datos de uso interno*/
+			await this._internalDatabaseConnecctionManager.Connect();
+
+			/** Realizamos conexión a base de datos del negocio */
+			if(this._businessDatabaseConnectionManager){
+				await this._businessDatabaseConnectionManager.Connect();
+			}
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "RunConnectionServices", err);
@@ -267,11 +291,16 @@ export class InternalServiceManager implements IInternalServiceManager {
 		try {
 			this._logger.Activity("DisconnectConnectionServices");
 
-			/** Cerramos la conección con la base de datos */
-			await this._databaseConnecctionManager.Disconnect();
-
-			/** Cerramos la conección con el servidor caché */
+			/** Cerramos la conexión con el servidor caché */
 			await this._cacheConnectionManager.Disconnect();
+
+			/** Cerramos la conexión con la base de datos */
+			await this._internalDatabaseConnecctionManager.Disconnect();
+
+			/** Cerramos la conexión a base de datos del negocio */
+			if(this._businessDatabaseConnectionManager){
+				await this._businessDatabaseConnectionManager.Disconnect();
+			}
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "DisconnectConnectionServices", err);

@@ -32,9 +32,50 @@ export type UnwrapGenerated<T> = T extends Generated<infer U> ? U : T;
 export type WithoutPrimaryKey<Table, PrimaryKey extends keyof Table> = Omit<Table, PrimaryKey>;
 
 
-/** Objeto de conexión de para el SqlConnectionStrategy */
+/** Objeto de conexión para el SqlConnectionStrategy */
 export type SqlStrategyConnectionData = {
+  /** Ambiente de conexión */
   env: ConnectionEnvironment;
+
+  /** Configuración de la conexión de tedious */
   connectionConfig: tedious.ConnectionConfiguration,
+
+  /** Datos de conexión */
   connectionData: DatabaseConnectionData,
+}
+
+/** Objeto de conexión para MongodbConnectionStrategy */
+export type MongodbStrategyConnectionData = {
+  env: ConnectionEnvironment;
+
+  /** Configuración de la conexión a monogodb */
+  connectionConfig: any,
+
+  /** Datos de conexión */
+  connectionData: any,
+}
+
+/** Objecto de opciones para manejadores de conexión de base de datos*/
+export type DatabaseConnectionManagerOptions = {
+  /** Define el ambiente de conexión */
+  connectionEnvironment: ConnectionEnvironment;
+
+  /** Tipo de base de datos (mongodb o sql), si el tipo NO es especificado se toamará desde el objeto de configuración */
+  databaseType: DatabaseType
+
+  /** Define el nombre que tendrá la instancia de la base de datos dentro del contenedor de dependencias */
+  databaseInstanceName: string;
+}
+
+/** Objecto de opciones para manejadores de conexión de base de datos multi-tenant*/
+export type MultiTenantConnectionManagerOptions = {
+  
+  /** Opciones de configuración según la estrategia de conexión */
+  strategyOptions: SqlStrategyConnectionData|MongodbStrategyConnectionData;
+
+  /** Tipo de base de datos */
+  databaseType: DatabaseType;
+
+  /** Define el nombre que tendrá la instancia de la base de datos dentro del contenedor de dependencias */
+  databaseInstanceName: string;
 }

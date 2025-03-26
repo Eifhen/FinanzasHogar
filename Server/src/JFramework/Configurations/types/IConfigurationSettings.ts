@@ -154,7 +154,19 @@ export type DatabaseConnectionData = {
 }
 
 /** Define los ambientes de conección del sistema */
-export type DatabaseEnvironmentConnectionData = Record<ConnectionEnvironment, DatabaseConnectionData>;
+export type DatabaseEnvironmentConnectionData = {
+
+	/** Indica si la app es multi-tenants o no, si `isMultitenants` es false, entonces la aplicación
+	 *  inicializará dos conecciones al iniciar, una conexión para la base de datos interna y una conexión
+	 *  para la base de datos del negocio. En el caso de que `isMultitenants` sea true, la app solo
+	 * inicializará una conexión hacia la base de datos interna. La conexión a la BD del cliente, se realizará
+	 * por medio del middleware encargado de manejar los multi-tenants
+	 */
+	isMultitenants: boolean;
+
+	/** Datos de conección según el ambiente */
+	connections: Record<ConnectionEnvironment, DatabaseConnectionData>;
+};
 
 
 

@@ -1,75 +1,61 @@
-
 import ApplicationContext from "../../Configurations/ApplicationContext";
-import ConfigurationSettings from "../../Configurations/ConfigurationSettings";
 import IContainerManager from "../../Configurations/Interfaces/IContainerManager";
-import { ConnectionEnvironment } from "../../Configurations/Types/IConnectionService";
+import { IConnectionService } from "../../Configurations/Types/IConnectionService";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
-import ILoggerManager, { LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
+import ILoggerManager from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
 import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
-import IDatabaseConnectionManager from "./Interfaces/IDatabaseConnectionManager";
 import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
 import SqlConnectionStrategy from "./Strategies/SqlConnectionStrategy";
-import { DatabaseConnectionManagerOptions, DatabaseType } from "./Types/DatabaseType";
+import { DatabaseType, MultiTenantConnectionManagerOptions, SqlStrategyConnectionData } from "./Types/DatabaseType";
 
 
 
+interface MultiTenantConnectionManagerDependencies {
+	/** Contexto de aplicación */
+	applicationContext: ApplicationContext;
 
-interface DatabaseConnectionManagerDependencies {
-
-	/** Manejador del contenedor de dependencias  */
-	containerManager: IContainerManager;
-
-	/** Objeto de configuración del sistema */
-	configurationSettings: ConfigurationSettings;
+	/** ContainerManager de la request en curso */
+	scopedContainerManager: IContainerManager;
 
 	/** Opciones de configuración para el Manager */
-	options: Partial<DatabaseConnectionManagerOptions>
+	options: MultiTenantConnectionManagerOptions;
 }
 
-export default class DatabaseConnectionManager<DataBaseEntity> implements IDatabaseConnectionManager {
 
-	/** Instancia del logger */
+export class MultiTenantConnectionManager implements IConnectionService {
+
+	/** Logger Manager Instance */
 	private readonly _logger: ILoggerManager;
-
-	/** Contenedor de dependencias*/
-	private readonly _containerManager: IContainerManager;
-
-	/** Objeto de configuraciones del sistema */
-	private readonly _configurationSettings: ConfigurationSettings;
 
 	/** Contexto de aplicación */
 	private readonly _applicationContext: ApplicationContext;
 
-	/** Estrategia de conneccion */
+	/** ContainerManager de la request en curso */
+	private readonly _scopedContainerManager: IContainerManager;
+
+	/** Estrategia de conexión */
 	private _strategy?: IDatabaseConnectionStrategy<any, any>;
 
 	/** Opciones de configuración */
-	private _options: DatabaseConnectionManagerOptions;
+	private _options: MultiTenantConnectionManagerOptions;
 
-	/** Ambiente de conección */
-	private _connectionEnv: ConnectionEnvironment;
-
-	constructor(deps: DatabaseConnectionManagerDependencies) {
-		/** Instanciamos el logger */
+	constructor(deps: MultiTenantConnectionManagerDependencies) {
 		this._logger = new LoggerManager({
 			entityCategory: "MANAGER",
-			entityName: "DatabaseConnectionManager"
+			// applicationContext: deps.applicationContext,
+			entityName: "MultiTenantConnectionManager"
 		});
 
-		this._containerManager = deps.containerManager;
-		this._configurationSettings = deps.configurationSettings;
-		this._applicationContext = this._containerManager.Resolve("applicationContext");
+		/** Agregamos el contexto de aplicación */
+		this._applicationContext = deps.applicationContext;
 
-		/** seteamos el ambiente de conexión */
-		this._connectionEnv = deps.options.connectionEnvironment ?? ConnectionEnvironment.internal;
+		/** ContainerManager de la request en curso */
+		this._scopedContainerManager = deps.scopedContainerManager;
 
-		this._options = {
-			connectionEnvironment: this._connectionEnv,
-			databaseType: deps.options.databaseType ?? this._configurationSettings.databaseConnectionData.connections[this._connectionEnv].type,
-			databaseInstanceName: deps.options.databaseInstanceName ?? "",
-		};
+		/** Agregamos opciones de configuración */
+		this._options = deps.options;
 
 	}
 
@@ -84,13 +70,9 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 			case DatabaseType.ms_sql_database:
 
 				/** Resolvemos la estrategía */
-				this._strategy = new SqlConnectionStrategy<DataBaseEntity>({
+				this._strategy = new SqlConnectionStrategy({
 					applicationContext: this._applicationContext,
-					connectionOptions: {
-						env: this._connectionEnv,
-						connectionConfig: this._configurationSettings.databaseConnectionConfig[this._connectionEnv].sqlConnectionConfig,
-						connectionData: this._configurationSettings.databaseConnectionData.connections[this._connectionEnv],
-					}
+					connectionOptions: this._options.strategyOptions as SqlStrategyConnectionData
 				});
 
 				break;
@@ -118,10 +100,10 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 				const instance = this._strategy.GetInstance();
 
 				/** Agrega la instancia de la base de datos al contenedor de dependencias */
-				this._containerManager.AddInstance(this._options.databaseInstanceName, instance);
+				this._scopedContainerManager.AddInstance(this._options.databaseInstanceName, instance);
 
 				/** Notifcamos el environment al cual nos hemos conectado */
-				this._logger.Message("INFO", `El servidor está conectado a la base de datos [${this._options.connectionEnvironment.toUpperCase()}]`);
+				this._logger.Message("INFO", `El servidor está conectado a la base de datos [${this._options.strategyOptions.env.toUpperCase()}]`);
 			}
 			else {
 				throw new ApplicationException(
@@ -135,7 +117,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 			}
 		}
 		catch (err: any) {
-			this._logger.Error(LoggerTypes.FATAL, "Connect", err);
+			this._logger.Error("FATAL", "Connect", err);
 
 			// Si ya se creó parcialmente una instancia, intenta cerrarla para liberar recursos
 			if (this._strategy && this._strategy.GetInstance()) {
@@ -161,6 +143,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 				err
 			);
 		}
+
 	}
 
 	/** Cierra la conección a la base de datos */
@@ -186,7 +169,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 			}
 		}
 		catch (err: any) {
-			this._logger.Error(LoggerTypes.FATAL, "Desconnect", err);
+			this._logger.Error("FATAL", "Desconnect", err);
 
 			if (err instanceof ApplicationException) {
 				throw err;
@@ -205,3 +188,4 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 	}
 
 }
+

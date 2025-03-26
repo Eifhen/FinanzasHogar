@@ -296,15 +296,21 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	private GetDatabaseConnectionDataByEnvironment(): DatabaseEnvironmentConnectionData {
 		const dbConfig = JSON.parse(process.env.DATABASE ?? "");
 
+		/** Indica si la app es multi-tenants o no */
+		const isMultitenants = dbConfig.MULTI_TENANTS;
+
 		/** Representa los datos de conección para la base de datos de uso interno */
-		const internal = dbConfig.INTERNAL_CONNECTION;
+		const internal = dbConfig.CONNECTIONS.INTERNAL_CONNECTION;
 
 		/** Representa los datos de conección para la base de datos del negocio */
-		const business = dbConfig.BUSINESS_CONNECTION;
+		const business = dbConfig.CONNECTIONS.BUSINESS_CONNECTION;
 
 		return {
-			internal: this.GetDatabaseConnectionData(internal),
-			business: this.GetDatabaseConnectionData(business)
+			isMultitenants,
+			connections: {
+				internal: this.GetDatabaseConnectionData(internal),
+				business: this.GetDatabaseConnectionData(business)
+			}
 		} as DatabaseEnvironmentConnectionData;
 	}
 
@@ -349,10 +355,10 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 
 		return {
 			/** Representa los datos de conección para la base de datos de uso interno */
-			internal: this.GetDatabaseConnectionConfig(data.internal),
+			internal: this.GetDatabaseConnectionConfig(data.connections.internal),
 
 			/** Representa los datos de conección para la base de datos del negocio */
-			business: this.GetDatabaseConnectionConfig(data.business)
+			business: this.GetDatabaseConnectionConfig(data.connections.business)
 		}
 	}
 

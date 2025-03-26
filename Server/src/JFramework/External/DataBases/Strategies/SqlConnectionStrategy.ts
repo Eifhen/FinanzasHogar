@@ -7,11 +7,10 @@ import * as tarn from 'tarn';
 import * as tedious from 'tedious';
 import { HttpStatusCode, HttpStatusName } from "../../../Utils/HttpCodes";
 import ApplicationException from "../../../ErrorHandling/ApplicationException";
-import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException, InternalServerException, NullParameterException } from "../../../ErrorHandling/Exceptions";
+import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInstanceException, NullParameterException } from "../../../ErrorHandling/Exceptions";
 import { AutoClassBinder } from "../../../Helpers/Decorators/AutoBind";
 import IDatabaseConnectionStrategy from "../Interfaces/IDatabaseConnectionStrategy";
 import ApplicationContext from "../../../Configurations/ApplicationContext";
-import { ConnectionEnvironment } from "../../../Configurations/Types/IConnectionService";
 import { SqlStrategyConnectionData } from "../Types/DatabaseType";
 
 
@@ -20,11 +19,12 @@ import { SqlStrategyConnectionData } from "../Types/DatabaseType";
  * credenciales de acceso y que el Sql Agent esté corriendo */
 interface ISqlStrategyDependencies {
 	applicationContext: ApplicationContext;
+	connectionOptions: SqlStrategyConnectionData;
 }
 
 /** Estrategia de conección a SQL usandoy Kysely */
 @AutoClassBinder
-export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseConnectionStrategy<MssqlDialect, Kysely<DataBaseEntity>, SqlStrategyConnectionData> {
+export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseConnectionStrategy<MssqlDialect, Kysely<DataBaseEntity>> {
 
 	/** Logger Manager Instance */
 	private _loggerManager: ILoggerManager;
@@ -38,11 +38,10 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 	/** Contexto de applicación */
 	private _applicationContext: ApplicationContext;
 
-
 	/** Objeto de conexión de para el SqlConnectionStrategy 
 	 *  -connectionData = Datos de conexión a la DB 
 	 *  -connectionConfig = Configuración de conexión de tedious */
-	private _strategyConnectionData?: SqlStrategyConnectionData;
+	private _connectionOptions?: SqlStrategyConnectionData;
 
 	constructor(deps: ISqlStrategyDependencies) {
 		this._loggerManager = new LoggerManager({
@@ -54,54 +53,8 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 		/** Seteamos el contexto */
 		this._applicationContext = deps.applicationContext;
 
-		/** Seteamos el ambiente de conexión */
-		this.SetConnectionEnvironment(ConnectionEnvironment.internal);
-	}
-
-	/** Método que permite setear el ambiente de conexión */
-	public SetConnectionEnvironment(env: ConnectionEnvironment) : void {
-		try {
-			this._loggerManager.Activity("SetConnectionEnvironment");
-
-			/** Actualizamos el tipo de ambiente de conexión */
-			this._strategyConnectionData = {
-				env,
-				connectionConfig: this._applicationContext.settings.databaseConnectionConfig[env].sqlConnectionConfig,
-				connectionData: this._applicationContext.settings.databaseConnectionData[env],
-			}
-		}
-		catch(err:any){
-			this._loggerManager.Error("FATAL", "Connect", err);
-			throw new InternalServerException(
-				"SetConnectionEnvironment",
-				"connection-env-error",
-				this._applicationContext,
-				__filename,
-				err
-			);
-		}
-	}
-
-	/** SetConnectionConfiguration
-	 *  @description 
-	 * Permite sobreescribir la configuración de conexión, originalmente se utilizan los datos de 
-	 * conexión proporcionados por el objeto de configuraciones, según el ambiente de conexión. 
-	 * Pero este método nos permite configurar nuestros datos de conexión de forma manual */
-	public SetConnectionConfiguration(data: SqlStrategyConnectionData) : void {
-		try {
-			this._loggerManager.Activity("SetConnectionConfiguration");
-			this._strategyConnectionData = data;
-		}
-		catch(err:any){
-			this._loggerManager.Error("FATAL", "Connect", err);
-			throw new InternalServerException(
-				"SetConnectionEnvironment",
-				"connection-config-error",
-				this._applicationContext,
-				__filename,
-				err
-			);
-		}
+		/** Seteamos las opciones de conexión */
+		this._connectionOptions = deps.connectionOptions;
 	}
 
 	/** Método que permite realizar la conección a SQL Server */
@@ -109,7 +62,7 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 		try {
 			this._loggerManager.Activity("Connect");
 
-			if(!this._strategyConnectionData){
+			if(!this._connectionOptions){
 				throw new NullParameterException("CreateConnection", "_strategyConnectionData", this._applicationContext, __filename);
 			}
 
@@ -117,8 +70,8 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 				tarn: {
 					...tarn,
 					options: {
-						min: this._strategyConnectionData.connectionData.connectionPoolMinSize,
-						max: this._strategyConnectionData.connectionData.connectionPoolMaxSize,
+						min: this._connectionOptions.connectionData.connectionPoolMinSize,
+						max: this._connectionOptions.connectionData.connectionPoolMaxSize,
 						// propagateCreateError: true, // Propaga los errores de creación de conexión
 					},
 				},
@@ -146,11 +99,11 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 	private CreateConnection(): tedious.Connection {
 		this._loggerManager.Register("INFO", "CreateConnection");
 
-		if(!this._strategyConnectionData){
-			throw new NullParameterException("CreateConnection", "_connectionSettings", this._applicationContext, __filename);
+		if(!this._connectionOptions){
+			throw new NullParameterException("CreateConnection", "_connectionOptions", this._applicationContext, __filename);
 		}
 
-		const connection = new tedious.Connection(this._strategyConnectionData.connectionConfig);
+		const connection = new tedious.Connection(this._connectionOptions.connectionConfig);
 		return connection;
 	}
 
