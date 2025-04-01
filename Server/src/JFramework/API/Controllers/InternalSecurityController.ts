@@ -10,7 +10,7 @@ import { HttpStatusCode, HttpStatusMessage } from "../../Utils/HttpCodes";
 import { ApplicationResponse } from "../../Helpers/ApplicationResponse";
 import CsrfToken from "../../Helpers/DTOs/CsrfToken";
 import ApplicationContext from "../../Configurations/ApplicationContext";
-import IInternalSecurityService from "../Services/Interfaces/InternalSecurityService";
+import IInternalSecurityService from "../Services/Interfaces/IInternalSecurityService";
 
 
 interface InternalSecurityControllerDependencies {

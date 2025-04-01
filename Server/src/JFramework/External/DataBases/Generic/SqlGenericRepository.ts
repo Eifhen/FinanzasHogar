@@ -10,7 +10,7 @@ import { UpdateObjectExpression } from "kysely/dist/cjs/parser/update-set-parser
 import { ApplicationPromise, IApplicationPromise } from "../../../Helpers/ApplicationPromise";
 import IPaginationArgs from "../../../Helpers/Interfaces/IPaginationArgs";
 import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
-import { DEFAULT_NUMBER } from "../../../Utils/const";
+import { ARRAY_INDEX_NEGATIVE, ARRAY_START_INDEX, DEFAULT_NUMBER } from "../../../Utils/const";
 import ISqlGenericRepository from "../Interfaces/ISqlGenericRepository";
 import { UnwrapGenerated } from "../Types/DatabaseType";
 import ApplicationContext from "../../../Configurations/ApplicationContext";
@@ -97,18 +97,48 @@ export default class SqlGenericRepository<
 	};
 
 	/** Permite buscar un registro en base a un predicado */
-	public Find = async (expressions: QueryExpression<DataBaseEntity, TableName>[]): IApplicationPromise<Selectable<DataBaseEntity[TableName]> | null> => {
+	public Find = async (expressions: QueryExpression<DataBaseEntity, TableName>[] | QueryExpression<DataBaseEntity, TableName>): IApplicationPromise<Selectable<DataBaseEntity[TableName]> | null> => {
 		const query: any = this._transaction ?
 			this._transaction.selectFrom(this._tableName).selectAll()
 			:
 			this._database.selectFrom(this._tableName).selectAll()
 
-		// Aseguramos que 'expressions' sea siempre un array
-  	const expressionsArray = Array.isArray(expressions) ? expressions : [expressions];
 
-		// Encadenamos las condiciones para cada expresión
-		expressionsArray.forEach(([columnName, operator, value]) => {
-			query.where(columnName as string, operator, value);
+		// Aseguramos que 'expressions' sea siempre un array
+		const expressionsArray: QueryExpression<DataBaseEntity, TableName>[] =
+			Array.isArray(expressions[ARRAY_START_INDEX]) ?
+					(expressions as QueryExpression<DataBaseEntity, TableName>[]) :
+					[expressions as QueryExpression<DataBaseEntity, TableName>];
+
+		query.where((eb:any) => {
+			let conditionBuilder = null;
+			let i = 0;
+			while (i < expressionsArray.length) {
+				const current = expressionsArray[i];
+				// Si el elemento es una cadena ("or" o "and"), se omite y se utiliza en la siguiente iteración
+				if (typeof current === "string") {
+					i++;
+					continue;
+				}
+				// current es una condición: [columnName, operator, value]
+				const [columnName, operator, value] = current;
+				if (conditionBuilder === null) {
+					// Primera condición: se establece con where(...)
+					conditionBuilder = eb(columnName as string, operator, value);
+				} else {
+					// Miramos el operador lógico que precede a esta condición (si existe)
+					const prevOp = expressionsArray[i - ARRAY_INDEX_NEGATIVE];
+					if (prevOp === "or") {
+						// Se encadena usando OR
+						conditionBuilder = conditionBuilder.or((qb:any) => qb(columnName as string, operator, value));
+					} else {
+						// Por defecto o si es "and", se encadena con AND
+						conditionBuilder = conditionBuilder.and((qb:any) => qb(columnName as string, operator, value));
+					}
+				}
+				i++;
+			}
+			return conditionBuilder;
 		});
 
 		const result = query.executeTakeFirst();
@@ -120,18 +150,47 @@ export default class SqlGenericRepository<
 	};
 
 	/** Permite buscar un registro según las condiciones ingresadas */
-	public Where = async (expressions: QueryExpression<DataBaseEntity, TableName>[]|QueryExpression<DataBaseEntity, TableName>): IApplicationPromise<Selectable<DataBaseEntity[TableName]>[]> => {
+	public Where = async (expressions: QueryExpression<DataBaseEntity, TableName>[] | QueryExpression<DataBaseEntity, TableName>): IApplicationPromise<Selectable<DataBaseEntity[TableName]>[]> => {
 		const query: any = this._transaction ?
 			this._transaction.selectFrom(this._tableName).selectAll()
 			:
 			this._database.selectFrom(this._tableName).selectAll()
 
 		// Aseguramos que 'expressions' sea siempre un array
-  	const expressionsArray = Array.isArray(expressions) ? expressions : [expressions];
+		const expressionsArray: QueryExpression<DataBaseEntity, TableName>[] =
+		Array.isArray(expressions[ARRAY_START_INDEX]) ?
+				(expressions as QueryExpression<DataBaseEntity, TableName>[]) :
+				[expressions as QueryExpression<DataBaseEntity, TableName>];
 
-		// Encadenamos las condiciones para cada expresión
-		expressionsArray.forEach(([columnName, operator, value]) => {
-			query.where(columnName as string, operator, value);
+		query.where((eb:any) => {
+			let conditionBuilder = null;
+			let i = 0;
+			while (i < expressionsArray.length) {
+				const current = expressionsArray[i];
+				// Si el elemento es una cadena ("or" o "and"), se omite y se utiliza en la siguiente iteración
+				if (typeof current === "string") {
+					i++;
+					continue;
+				}
+				// current es una condición: [columnName, operator, value]
+				const [columnName, operator, value] = current;
+				if (conditionBuilder === null) {
+					// Primera condición: se establece con where(...)
+					conditionBuilder = eb(columnName as string, operator, value);
+				} else {
+					// Miramos el operador lógico que precede a esta condición (si existe)
+					const prevOp = expressionsArray[i - ARRAY_INDEX_NEGATIVE];
+					if (prevOp === "or") {
+						// Se encadena usando OR
+						conditionBuilder = conditionBuilder.or((qb:any) => qb(columnName as string, operator, value));
+					} else {
+						// Por defecto o si es "and", se encadena con AND
+						conditionBuilder = conditionBuilder.and((qb:any) => qb(columnName as string, operator, value));
+					}
+				}
+				i++;
+			}
+			return conditionBuilder;
 		});
 
 		const result = query.execute();

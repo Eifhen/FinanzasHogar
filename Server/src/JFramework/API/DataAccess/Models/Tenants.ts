@@ -15,7 +15,7 @@ export interface TenantTable {
   tenant_key: string;
 
   /** Tipo de base de datos: sql o mongodb */
-  databaseType: DatabaseType;
+  database_type: DatabaseType;
 
   /** Nombre del tenant */
   name: string;

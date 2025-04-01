@@ -1,0 +1,75 @@
+
+
+
+/*****************************************************************************************
+####### INSERTS ##########################################################################
+******************************************************************************************/
+
+-- Insertar proyectos en la tabla gj_proyects
+INSERT INTO gj_proyects (
+	proyect_key,
+	name, 
+	description, 
+	creation_date, 
+	status
+)
+VALUES 
+('F6902E91-8A64-4EAE-96BD-60EAE1E4B584','HomeBudget', 'Sistema de gestión de finanzas del hogar', GETDATE(), 1);
+
+
+select * from gj_proyects;
+
+delete from gj_proyects;
+
+
+-- Insertar tenants en la tabla gj_tenants usando los proyect_key generados
+INSERT INTO gj_tenants (
+	proyect_key,
+	tenant_key,
+	name, 
+	description, 
+	database_type, 
+	status, 
+	creation_date
+)
+VALUES
+('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '0B7BB829-745E-4A16-9FEB-04C0A8AA61B1', 'PERSONAL', 'implementación de HomeBudget para uso personal', 'ms_sql_database', 1, GETDATE()),
+('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '6BD09220-3143-4BAF-B7E4-3495C843B7B4', 'Cliente Z', 'Cliente de condominio que quiere administrar finanzas de hogar', 'ms_sql_database', 0, GETDATE()),
+('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '0202417F-1806-4A8C-8301-70E2B2CC3E9D','Cliente Y', 'Cliente del sector salud que quiere administrar finanzas de hogar', 'mongo_database', 1, GETDATE());
+
+
+select * from gj_tenants;
+
+delete from gj_tenants;
+
+
+INSERT INTO gj_tenant_details (
+	tenant_key, -- key de gj_clients
+	databaseName, -- nombre de la base de datos
+	connectionString, -- permite conectar a la base de datos del cliente
+	connectionObject, -- almacena datos de conexión en formato JSON
+	style_parameters, -- almacena parámetros de estilo en formato JSON
+	logo -- ruta del logo del cliente
+) VALUES (
+'0B7BB829-745E-4A16-9FEB-04C0A8AA61B', 
+'FinanzasHogar', 
+'', 
+'{
+	"userName": "eifhen",
+	"password": "thetrue123",
+	"domain": "JIMENEZG",
+	"server": "JIMENEZG",
+	"databaseName": "FinanzasHogar",
+	"databasePort": 1433,
+	"instanceName": "MSSQLSERVER",
+	"connectionTimeout": 3000,
+	"connectionPoolMinSize": 1,
+	"connectionPoolMaxSize": 10
+}', 
+'{}',
+'https://res.cloudinary.com/deeho16gc/image/upload/v1738149910/HomeBudget_nebkjj.png'
+);
+
+select * from gj_tenant_details;
+
+delete from gj_tenant_details;

@@ -4,11 +4,10 @@ import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
 import { UnwrapGenerated } from "../Types/DatabaseType";
 
 
-export type QueryExpression<DataBaseEntity extends object, TableName extends Extract<keyof DataBaseEntity, string>> = [
-  columnName: keyof DataBaseEntity[TableName],
-  operator: string,
-  value: any
-];
+export type QueryExpression<DataBaseEntity extends object, TableName extends Extract<keyof DataBaseEntity, string>> =
+  | [keyof DataBaseEntity[TableName], string, any] // Condición normal
+  | "or"
+  | "and"; // Operadores lógicos
 
 /** Definición interfaz para repositorio genérico */
 export default interface IGenericRepository<

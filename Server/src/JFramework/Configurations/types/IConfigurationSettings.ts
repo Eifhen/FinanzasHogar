@@ -1,4 +1,3 @@
-import { ConnectionConfiguration } from "tedious";
 import { Environment } from "../../Utils/Environment";
 import { DatabaseType } from "../../External/DataBases/Types/DatabaseType";
 import { CloudStorageProviders } from "../../External/CloudStorage/Types/CloudStorageProviders";
@@ -97,23 +96,7 @@ export type CloudProviderConfig = {
 	providers: CloudProvider[];
 }
 
-/** Objeto de connección a base de datos */
-export type DatabaseConnectionConfig = {
-	/** Objeto de connección a sql */
-	sqlConnectionConfig: ConnectionConfiguration
-}
 
-/** Objeto de conección a la base de datos, según el ambiente */
-export type DatabaseEnvironmentConnectionConfig = {
-
-	/** Representa los datos de conección para la base de datos de uso interno */
-	internal: DatabaseConnectionConfig;
-
-	/** Representa los datos de conección para la base de datos del negocio */
-	business: DatabaseConnectionConfig;
-}
-
-/** Objeto de configuración de conección a base de datos */
 export type DatabaseConnectionData = {
 
 	/** Tipo de base de datos o a Aqué */
@@ -202,6 +185,9 @@ export type ApplicationHeaders = {
 
 	/** Nombre del header donde se espera el token JWT */
 	jwtTokenHeader: string;
+
+	/** Nombre del header donde se espera el tenant token */
+	tenantTokenHeader: string;
 }
 
 
@@ -296,11 +282,6 @@ export default interface IConfigurationSettings {
 
 	/** objeto que contiene los datos de conección a la base de datos */
 	databaseConnectionData: DatabaseEnvironmentConnectionData;
-
-	/** Objeto de configuración de conección 
-	 * @description
-	 * - `sqlConnectionConfig` - Objeto de connección a sql server */
-	databaseConnectionConfig: DatabaseEnvironmentConnectionConfig;
 
 	/** Objeto de configuración de proveedores de email */
 	emailProviderConfig: EmailProviderConfig;

@@ -64,7 +64,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 		this._options = {
 			connectionEnvironment: this._connectionEnv,
 			databaseType: deps.options.databaseType ?? this._configurationSettings.databaseConnectionData.connections[this._connectionEnv].type,
-			databaseInstanceName: deps.options.databaseInstanceName ?? "",
+			databaseContainerInstanceName: deps.options.databaseContainerInstanceName ?? "",
 		};
 
 	}
@@ -86,7 +86,6 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 					applicationContext,
 					connectionOptions: {
 						env: this._connectionEnv,
-						connectionConfig: this._configurationSettings.databaseConnectionConfig[this._connectionEnv].sqlConnectionConfig,
 						connectionData: this._configurationSettings.databaseConnectionData.connections[this._connectionEnv],
 					}
 				});
@@ -94,6 +93,8 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 				break;
 			case DatabaseType.mongo_database:
 				throw new Error("Estrategía de conexión No implementada");
+			default:
+				throw new Error(`La estrategía ${this._options.databaseType as string} no está implementada`);
 		}
 
 	}
@@ -116,7 +117,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 				const instance = this._strategy.GetInstance();
 
 				/** Agrega la instancia de la base de datos al contenedor de dependencias */
-				this._containerManager.AddInstance(this._options.databaseInstanceName, instance);
+				this._containerManager.AddInstance(this._options.databaseContainerInstanceName, instance);
 
 				/** Notifcamos el environment al cual nos hemos conectado */
 				this._logger.Message("INFO", `El servidor está conectado a la base de datos [${this._options.connectionEnvironment.toUpperCase()}]`);

@@ -60,6 +60,8 @@ export const ES_DO_SYSTEM: Record<LenguageKeys, string> = {
 	"out-of-range": "La solicitud en curso está fuera de rango",
 	"connection-env-error": "Ha ocurrido un error al definir el tipo de ambiente de conexión",
 	"connection-config-error": "Ha ocurrido un error al definir la configuración de conexión",
+	"no-tenant": "Error, no se ha enviado un tenant válido",
+	"tenant-error": "Ha ocurrido un error al buscar el tenant indicado",
 	/** END Errores Custom */
 
 	/** Zod errors */

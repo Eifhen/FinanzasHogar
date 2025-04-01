@@ -30,7 +30,7 @@ import IInternalServiceManager from "./Interfaces/IInternalServiceManager";
 import IServiceManager from "./Interfaces/IServiceManager";
 import ApplicationContext from "./ApplicationContext";
 import CloudStorageManager from "../External/CloudStorage/CloudStorageManager";
-import IInternalSecurityService from "../API/Services/Interfaces/InternalSecurityService";
+import IInternalSecurityService from "../API/Services/Interfaces/IInternalSecurityService";
 import InternalSecurityService from "../API/Services/InternalSecurityService";
 import { ConnectionEnvironment } from "./Types/IConnectionService";
 import IProyectsInternalRepository from "../API/DataAccess/Repositories/Interfaces/IProyectsInternalRepository";
@@ -39,6 +39,8 @@ import ITenantsInternalRepository from "../API/DataAccess/Repositories/Interface
 import TenantsInternalRepository from "../API/DataAccess/Repositories/TenantsInternalRepository";
 import ITenantDetailsInternalRepository from "../API/DataAccess/Repositories/Interfaces/ITenantDetailsInternalRepository";
 import TenantDetailsInternalRepository from "../API/DataAccess/Repositories/TenantDetailsInternalRepository";
+import IInternalTenantService from "../API/Services/Interfaces/IInternalTenantService";
+import InternalTenantService from "../API/Services/InternalTenantService";
 
 
 export interface InternalServiceManagerDependencies {
@@ -93,7 +95,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 			configurationSettings: this._configurationSettings,
 			options: {
 				connectionEnvironment: ConnectionEnvironment.internal,
-				databaseInstanceName: INTERNAL_DATABASE_INSTANCE_NAME,
+				databaseContainerInstanceName: INTERNAL_DATABASE_INSTANCE_NAME,
 			}
 		});
 
@@ -106,7 +108,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 				configurationSettings: this._configurationSettings,
 				options: {
 					connectionEnvironment: ConnectionEnvironment.business,
-					databaseInstanceName: BUSINESS_DATABASE_INSTANCE_NAME,
+					databaseContainerInstanceName: BUSINESS_DATABASE_INSTANCE_NAME,
 				}
 			});
 		}
@@ -153,6 +155,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 
 			/** Servicio para manejo interno de cookies */
 			this._serviceManager.AddService<IInternalSecurityService, InternalSecurityService>("internalSecurityService", InternalSecurityService);
+			this._serviceManager.AddService<IInternalTenantService, InternalTenantService>("internalTenantService", InternalTenantService);
 
 		}
 		catch (err: any) {
@@ -252,14 +255,14 @@ export class InternalServiceManager implements IInternalServiceManager {
 	/** Se agregan los manejadores de excepciones */
 	public async AddExceptionManager(): Promise<void> {
 		try {
-			this._logger.Activity("AddExceptionHandlers");
+			this._logger.Activity("AddExceptionManager");
 
 			/** Agregamos el middleware para manejo de errores 
 			* Debe ser el último de la lista siempre*/
 			this._serviceManager.AddMiddleware(ErrorHandlerMiddleware);
 
 		} catch (err: any) {
-			this._logger.Error("FATAL", "AddExceptionHandlers", err);
+			this._logger.Error("FATAL", "AddExceptionManager", err);
 			throw err;
 		}
 	}

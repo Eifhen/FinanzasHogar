@@ -58,6 +58,8 @@ export const EN_US_SYSTEM = {
 	"out-of-range": "The current request is out of range",
 	"connection-env-error": "An error occurred while defining the connection environment type.",
 	"connection-config-error": "An error ocurred while setting the connection configuration.",
+	"no-tenant": "Error, a valid tenant has not been sent",
+	"tenant-error": "An error occurred while searching for the indicated tenant.",
 	/** END Errores Custom */
 
 	/** Zod Errors */

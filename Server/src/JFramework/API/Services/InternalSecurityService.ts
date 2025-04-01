@@ -9,7 +9,7 @@ import LoggerManager from "../../Managers/LoggerManager";
 import { Cookie } from "../../Helpers/DTOs/Cookie";
 import { Environment } from "../../Utils/Environment";
 import { TimeUnitConverter } from "../../Utils/TimeUnitConverter";
-import IInternalSecurityService from "./Interfaces/InternalSecurityService";
+import IInternalSecurityService from "./Interfaces/IInternalSecurityService";
 
 interface InternalSecurityServiceDependencies {
 	applicationContext: ApplicationContext;

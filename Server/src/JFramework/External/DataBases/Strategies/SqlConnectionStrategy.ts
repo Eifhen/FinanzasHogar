@@ -11,7 +11,8 @@ import { DatabaseConnectionException, DatabaseNoDialectException, DatabaseNoInst
 import { AutoClassBinder } from "../../../Helpers/Decorators/AutoBind";
 import IDatabaseConnectionStrategy from "../Interfaces/IDatabaseConnectionStrategy";
 import ApplicationContext from "../../../Configurations/ApplicationContext";
-import { SqlStrategyConnectionData } from "../Types/DatabaseType";
+import { ConnectionStrategyData } from "../Types/DatabaseType";
+import { DEFAULT_DATABASE_TIMEOUT } from "../../../Utils/const";
 
 
 
@@ -19,7 +20,7 @@ import { SqlStrategyConnectionData } from "../Types/DatabaseType";
  * credenciales de acceso y que el Sql Agent esté corriendo */
 interface ISqlStrategyDependencies {
 	applicationContext: ApplicationContext;
-	connectionOptions: SqlStrategyConnectionData;
+	connectionOptions: ConnectionStrategyData;
 }
 
 /** Estrategia de conección a SQL usandoy Kysely */
@@ -41,7 +42,7 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 	/** Objeto de conexión de para el SqlConnectionStrategy 
 	 *  -connectionData = Datos de conexión a la DB 
 	 *  -connectionConfig = Configuración de conexión de tedious */
-	private _connectionOptions?: SqlStrategyConnectionData;
+	private _connectionOptions?: ConnectionStrategyData;
 
 	constructor(deps: ISqlStrategyDependencies) {
 		this._loggerManager = new LoggerManager({
@@ -62,7 +63,7 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 		try {
 			this._loggerManager.Activity("Connect");
 
-			if(!this._connectionOptions){
+			if (!this._connectionOptions) {
 				throw new NullParameterException("CreateConnection", "_strategyConnectionData", this._applicationContext, __filename);
 			}
 
@@ -99,11 +100,38 @@ export default class SqlConnectionStrategy<DataBaseEntity> implements IDatabaseC
 	private CreateConnection(): tedious.Connection {
 		this._loggerManager.Register("INFO", "CreateConnection");
 
-		if(!this._connectionOptions){
+		if (!this._connectionOptions) {
 			throw new NullParameterException("CreateConnection", "_connectionOptions", this._applicationContext, __filename);
 		}
 
-		const connection = new tedious.Connection(this._connectionOptions.connectionConfig);
+		const connection = new tedious.Connection({
+			/** Nombre del servidor */
+			server: this._connectionOptions.connectionData.server ?? "",
+
+			/** Opciones de configuración */
+			options: {
+				/** Nombre de la base de datos */
+				database: this._connectionOptions.connectionData.databaseName ?? "",
+				/** Nombre de la instancia */
+				instanceName: this._connectionOptions.connectionData.instance ?? "",
+				// port: Number(process.env.DB_PORT ?? 0),
+				trustServerCertificate: true,
+				// Aborta cualquier transacción automaticamente si ocurre un error en sql.
+				abortTransactionOnError: true,
+				// The number of milliseconds before the attempt to connect is considered failed (default: 15000).
+				connectTimeout: this._connectionOptions.connectionData.connectionTimeout ?? DEFAULT_DATABASE_TIMEOUT,
+			},
+			/** Datos de autenticación */
+			authentication: {
+				type: 'default',
+				options: {
+					userName: this._connectionOptions.connectionData.userName ?? "",
+					password: this._connectionOptions.connectionData.password ?? "",
+					//domain: process.env.DB_DOMAIN ?? "",
+				},
+			}
+		});
+
 		return connection;
 	}
 

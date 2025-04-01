@@ -1,5 +1,4 @@
 import { Generated } from "kysely";
-import * as tedious from 'tedious';
 import { DatabaseConnectionData } from "../../../Configurations/Types/IConfigurationSettings";
 import { ConnectionEnvironment } from "../../../Configurations/Types/IConnectionService";
 
@@ -33,26 +32,12 @@ export type WithoutPrimaryKey<Table, PrimaryKey extends keyof Table> = Omit<Tabl
 
 
 /** Objeto de conexión para el SqlConnectionStrategy */
-export type SqlStrategyConnectionData = {
+export type ConnectionStrategyData = {
   /** Ambiente de conexión */
   env: ConnectionEnvironment;
 
-  /** Configuración de la conexión de tedious */
-  connectionConfig: tedious.ConnectionConfiguration,
-
   /** Datos de conexión */
   connectionData: DatabaseConnectionData,
-}
-
-/** Objeto de conexión para MongodbConnectionStrategy */
-export type MongodbStrategyConnectionData = {
-  env: ConnectionEnvironment;
-
-  /** Configuración de la conexión a monogodb */
-  connectionConfig: any,
-
-  /** Datos de conexión */
-  connectionData: any,
 }
 
 /** Objecto de opciones para manejadores de conexión de base de datos*/
@@ -64,18 +49,18 @@ export type DatabaseConnectionManagerOptions = {
   databaseType: DatabaseType
 
   /** Define el nombre que tendrá la instancia de la base de datos dentro del contenedor de dependencias */
-  databaseInstanceName: string;
+  databaseContainerInstanceName: string;
 }
 
 /** Objecto de opciones para manejadores de conexión de base de datos multi-tenant*/
 export type MultiTenantConnectionManagerOptions = {
   
   /** Opciones de configuración según la estrategia de conexión */
-  strategyOptions: SqlStrategyConnectionData|MongodbStrategyConnectionData;
+  strategyOptions: ConnectionStrategyData;
 
   /** Tipo de base de datos */
   databaseType: DatabaseType;
 
   /** Define el nombre que tendrá la instancia de la base de datos dentro del contenedor de dependencias */
-  databaseInstanceName: string;
+  databaseContainerInstanceName: string;
 }

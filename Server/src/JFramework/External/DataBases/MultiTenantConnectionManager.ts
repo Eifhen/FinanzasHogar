@@ -8,7 +8,7 @@ import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
 import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
 import SqlConnectionStrategy from "./Strategies/SqlConnectionStrategy";
-import { DatabaseType, MultiTenantConnectionManagerOptions, SqlStrategyConnectionData } from "./Types/DatabaseType";
+import { DatabaseType, MultiTenantConnectionManagerOptions } from "./Types/DatabaseType";
 
 
 
@@ -72,12 +72,14 @@ export class MultiTenantConnectionManager implements IConnectionService {
 				/** Resolvemos la estrategía */
 				this._strategy = new SqlConnectionStrategy({
 					applicationContext: this._applicationContext,
-					connectionOptions: this._options.strategyOptions as SqlStrategyConnectionData
+					connectionOptions: this._options.strategyOptions
 				});
 
 				break;
 			case DatabaseType.mongo_database:
 				throw new Error("Estrategía de conexión No implementada");
+			default:
+				throw new Error(`La estrategía ${this._options.databaseType as string} no está implementada`);
 		}
 
 	}
@@ -100,7 +102,7 @@ export class MultiTenantConnectionManager implements IConnectionService {
 				const instance = this._strategy.GetInstance();
 
 				/** Agrega la instancia de la base de datos al contenedor de dependencias */
-				this._scopedContainerManager.AddInstance(this._options.databaseInstanceName, instance);
+				this._scopedContainerManager.AddInstance(this._options.databaseContainerInstanceName, instance);
 
 				/** Notifcamos el environment al cual nos hemos conectado */
 				this._logger.Message("INFO", `El servidor está conectado a la base de datos [${this._options.strategyOptions.env.toUpperCase()}]`);

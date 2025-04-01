@@ -235,7 +235,11 @@ export default class ServerManager {
 			/** Agregamos la configuración de seguridad interna */
 			await this._internalServiceManager.AddInternalSecurity();
 
-
+			/** Se agregan servicios internos */
+			await this._internalServiceManager.AddInternalStrategies();
+			await this._internalServiceManager.AddInternalManagers();
+			await this._internalServiceManager.AddInternalRepositories();
+			await this._internalServiceManager.AddInternalServices();
 
 			/** Agregamos la configuración de seguridad del negocio */
 			await this._startup.AddSecurityConfiguration();
@@ -247,12 +251,8 @@ export default class ServerManager {
 			 * simplemente se llena el contenedor de dependencias */
 			await this._startup.AddBusinessRepositories();
 			await this._startup.AddBusinessServices();
-
-			/** Se agregan servicios internos */
-			await this._internalServiceManager.AddInternalStrategies();
-			await this._internalServiceManager.AddInternalManagers();
-			await this._internalServiceManager.AddInternalRepositories();
-			await this._internalServiceManager.AddInternalServices();
+			
+			/** Se agregan endpoints de uso interno */
 			await this._internalServiceManager.AddInternalEndpoints();
 
 			/** Se agrega middleware interno para manejo de errores */
