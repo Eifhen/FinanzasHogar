@@ -11,13 +11,11 @@ import ITenantDetailsInternalRepository from "../DataAccess/Repositories/Interfa
 import ITenantsInternalRepository from "../DataAccess/Repositories/Interfaces/ITenantsInternalRepository";
 import IInternalTenantService from "./Interfaces/IInternalTenantService";
 
-
 interface TenantServiceDependencies {
 	applicationContext: ApplicationContext;
 	tenantsInternalRepository: ITenantsInternalRepository
 	tenantDetailsInternalRepository: ITenantDetailsInternalRepository
 }
-
 
 export default class InternalTenantService implements IInternalTenantService {
 
@@ -86,7 +84,7 @@ export default class InternalTenantService implements IInternalTenantService {
 
 		}
 		catch (err: any) {
-			this._logger.Error("ERROR", "GetTenant", err);
+			this._logger.Error("ERROR", "GetTenantByKey", err);
 
 			if (err instanceof ApplicationException) {
 				throw err;
@@ -94,6 +92,114 @@ export default class InternalTenantService implements IInternalTenantService {
 
 			throw new InternalServerException(
 				"GetTenantByKey",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
+		}
+	}
+
+	/** Obtiene un tenant según su proyectKey y su tenantCode */
+	public async GetTenantByCode(tenantCode: string): Promise<SelectTenants> {
+		try {
+			this._logger.Activity("GetTenantByCode");
+
+			if(IsNullOrEmpty(tenantCode)){
+				throw new BadRequestException("GetTenantByCode", "no-tenant", this._applicationContext, __filename);
+			}
+
+			/** Identificador del proyecto */
+			const proyectId = this._applicationContext.settings.apiData.proyect_token;
+
+			/** Obtenemos la data del Tenant */
+			const [errTenant, tenant] = await this._tenantsInternalRepository.Find([
+				["proyect_key", "=", proyectId],
+				"and",
+				["tenant_code", "=", tenantCode]
+			]);
+
+			if(errTenant){
+				throw new InternalServerException(
+					"GetTenantByCode",
+					"tenant-error",
+					this._applicationContext,
+					__filename,
+					errTenant ?? undefined
+				) 
+			}
+
+			if(!tenant){
+				throw new NotFoundException("GetTenantByCode", [tenantCode], this._applicationContext, __filename);
+			}
+
+			/** Devolvemos el tenant */
+			return tenant;
+
+		}
+		catch (err: any) {
+			this._logger.Error("ERROR", "GetTenantByCode", err);
+
+			if (err instanceof ApplicationException) {
+				throw err;
+			}
+
+			throw new InternalServerException(
+				"GetTenantByCode",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
+		}
+	}
+
+	/** Obtiene un tenant según su proyectKey y su nombre de dominio */
+	public async GetTenantByDomainName(domainName: string): Promise<SelectTenants> {
+		try {
+			this._logger.Activity("GetTenantByDomainName");
+
+			if(IsNullOrEmpty(domainName)){
+				throw new BadRequestException("GetTenantByDomainName", "no-tenant", this._applicationContext, __filename);
+			}
+
+			/** Identificador del proyecto */
+			const proyectId = this._applicationContext.settings.apiData.proyect_token;
+
+			/** Obtenemos la data del Tenant */
+			const [errTenant, tenant] = await this._tenantsInternalRepository.Find([
+				["proyect_key", "=", proyectId],
+				"and",
+				["domain", "=", domainName]
+			]);
+
+			if(errTenant){
+				throw new InternalServerException(
+					"GetTenantByDomainName",
+					"tenant-error",
+					this._applicationContext,
+					__filename,
+					errTenant ?? undefined
+				) 
+			}
+
+			if(!tenant){
+				throw new NotFoundException("GetTenantByDomainName", [domainName], this._applicationContext, __filename);
+			}
+
+			/** Devolvemos el tenant */
+			return tenant;
+
+		}
+		catch (err: any) {
+			this._logger.Error("ERROR", "GetTenantByDomainName", err);
+
+			if (err instanceof ApplicationException) {
+				throw err;
+			}
+
+			throw new InternalServerException(
+				"GetTenantByDomainName",
 				"internal-error",
 				this._applicationContext,
 				__filename,

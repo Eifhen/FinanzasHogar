@@ -17,7 +17,7 @@ type MiddlewareFactory = FunctionReturning<ApplicationRequestHandler> | Construc
  * @param middlewareFactory - La fábrica (o clase) que define el middleware y sus dependencias.
  */
 export default function Middlewares(middlewareFactory: MiddlewareFactory | MiddlewareFactory[]) {
-	return (target: any, propertyKey: string | symbol) => {
+	return (target: any, propertyKey?: string | symbol) => {
 
 		/**Normalizamos a array */
 		const factories: MiddlewareFactory[] = Array.isArray(middlewareFactory) ? middlewareFactory : [middlewareFactory];
@@ -61,11 +61,15 @@ export default function Middlewares(middlewareFactory: MiddlewareFactory | Middl
 			};
 		})
 
-		/** Convertir propertyKey a string en caso de que sea un symbol. */
-		const keyName = typeof propertyKey === 'string' ? propertyKey : propertyKey.toString();
+		if(propertyKey){
+			/** Convertir propertyKey a string en caso de que sea un symbol. */
+			const keyName = typeof propertyKey === 'string' ? propertyKey : propertyKey.toString();
+	
+			/** Usamos el decorador @before de awilix-express para que el middleware se ejecute
+				antes del método del controlador.*/
+			return before(wrappedMiddlewares)(target, keyName);
+		}
 
-		/** Usamos el decorador @before de awilix-express para que el middleware se ejecute
-			antes del método del controlador.*/
-		return before(wrappedMiddlewares)(target, keyName);
+		return before(wrappedMiddlewares)(target)
 	};
 }

@@ -1,5 +1,6 @@
 
-
+use master
+use gj_framework;
 
 /*****************************************************************************************
 ####### INSERTS ##########################################################################
@@ -17,15 +18,12 @@ VALUES
 ('F6902E91-8A64-4EAE-96BD-60EAE1E4B584','HomeBudget', 'Sistema de gestión de finanzas del hogar', GETDATE(), 1);
 
 
-select * from gj_proyects;
-
-delete from gj_proyects;
-
-
+/** PROJ-FH-000000000001 */
 -- Insertar tenants en la tabla gj_tenants usando los proyect_key generados
 INSERT INTO gj_tenants (
 	proyect_key,
 	tenant_key,
+	tenant_code,
 	name, 
 	description, 
 	database_type, 
@@ -33,14 +31,9 @@ INSERT INTO gj_tenants (
 	creation_date
 )
 VALUES
-('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '0B7BB829-745E-4A16-9FEB-04C0A8AA61B1', 'PERSONAL', 'implementación de HomeBudget para uso personal', 'ms_sql_database', 1, GETDATE()),
-('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '6BD09220-3143-4BAF-B7E4-3495C843B7B4', 'Cliente Z', 'Cliente de condominio que quiere administrar finanzas de hogar', 'ms_sql_database', 0, GETDATE()),
-('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '0202417F-1806-4A8C-8301-70E2B2CC3E9D','Cliente Y', 'Cliente del sector salud que quiere administrar finanzas de hogar', 'mongo_database', 1, GETDATE());
-
-
-select * from gj_tenants;
-
-delete from gj_tenants;
+('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '0B7BB829-745E-4A16-9FEB-04C0A8AA61B1', 'PROJ-FH-000000000001', 'PERSONAL', 'implementación de HomeBudget para uso personal', 'ms_sql_database', 1, GETDATE()),
+('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '6BD09220-3143-4BAF-B7E4-3495C843B7B4', 'PROJ-FH-000000000002', 'Cliente Z', 'Cliente de condominio que quiere administrar finanzas de hogar', 'ms_sql_database', 0, GETDATE()),
+('F6902E91-8A64-4EAE-96BD-60EAE1E4B584', '0202417F-1806-4A8C-8301-70E2B2CC3E9D', 'PROJ-FH-000000000003', 'Cliente Y', 'Cliente del sector salud que quiere administrar finanzas de hogar', 'mongo_database', 1, GETDATE());
 
 
 INSERT INTO gj_tenant_details (
@@ -51,7 +44,7 @@ INSERT INTO gj_tenant_details (
 	style_parameters, -- almacena parámetros de estilo en formato JSON
 	logo -- ruta del logo del cliente
 ) VALUES (
-'0B7BB829-745E-4A16-9FEB-04C0A8AA61B', 
+'0B7BB829-745E-4A16-9FEB-04C0A8AA61B1', 
 'FinanzasHogar', 
 '', 
 '{
@@ -70,6 +63,13 @@ INSERT INTO gj_tenant_details (
 'https://res.cloudinary.com/deeho16gc/image/upload/v1738149910/HomeBudget_nebkjj.png'
 );
 
-select * from gj_tenant_details;
 
+
+select * from gj_tenants;
+delete from gj_tenants;
+
+select * from gj_tenant_details;
 delete from gj_tenant_details;
+
+select * from gj_proyects;
+delete from gj_proyects;

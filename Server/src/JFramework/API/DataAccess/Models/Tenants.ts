@@ -14,6 +14,10 @@ export interface TenantTable {
   /** Clave unica del tenant */
   tenant_key: string;
 
+  /** Código único del tenant, este código se utiliza en el formulario de 
+   * login para luego con él obtener el tenant_key */
+  tenant_code: string;
+
   /** Tipo de base de datos: sql o mongodb */
   database_type: DatabaseType;
 

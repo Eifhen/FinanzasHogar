@@ -28,6 +28,7 @@ create table gj_tenants (
 	id int primary key identity(1,1) not null,
 	proyect_key UNIQUEIDENTIFIER not null, -- key de gj_proyects
 	tenant_key UNIQUEIDENTIFIER UNIQUE DEFAULT NEWID() not null,
+	tenant_code char(20) UNIQUE not null,
 	name char(20) not null, -- nombre del cliente
 	description varchar(max), -- descripcion del cliente
 	database_type varchar(max), -- tipo de base de datos ( "ms_sql_database" | "mongo_database")
