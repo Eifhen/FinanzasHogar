@@ -64,7 +64,6 @@ create table roles (
 	Esta tabla maneja la relación entre los usuarios, 
 	los hogares y los roles que tienen en cada hogar.
 ********************************************************/
-
 create table usuario_hogar (
 	id int primary key identity(1,1) not null,
 	id_usuario int not null, -- Referencia al usuario.
@@ -246,6 +245,7 @@ create table metas (
 	monto_ahorrado decimal(10, 2) not null,
 	fecha_limite datetime,
 	image_public_id nvarchar(max),
+
 	foreign key (id_hogar) references hogares(id_hogar)
 );
 

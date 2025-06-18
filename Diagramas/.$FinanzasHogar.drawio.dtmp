@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2025-02-13T10:46:09.195Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="tnE6gTYct9O63LL__r9-" version="22.1.2" type="device" pages="5">
+<mxfile host="Electron" modified="2025-06-17T10:45:16.806Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="U5OoMj7qTCLP_nmjIV82" version="22.1.2" type="device" pages="5">
   <diagram id="Gm47odLJpjWmuO-QlfPj" name="Arquitecture">
     <mxGraphModel dx="1886" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -113,7 +113,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="DataBase Entities">
-    <mxGraphModel dx="1863" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2046" dy="713" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
