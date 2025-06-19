@@ -103,7 +103,7 @@ export default class ApiValidationMiddleware extends ApplicationMiddleware {
 			/** Seteamos la configuración de idioma al contexto */
 			this._applicationContext.requestData.lang = this.GetLenguageConfig(req, this._applicationContext.settings);
 
-			/** Agregamos el ApiKey a la request */
+			/** Agregamos el request id a la request */
 			req.requestID = request_id;
 
 			return next();

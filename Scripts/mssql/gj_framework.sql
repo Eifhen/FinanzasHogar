@@ -43,13 +43,23 @@ create table gj_tenants (
 */
 create table gj_tenant_details (
 	id int primary key identity(1, 1) not null,
-	tenant_key UNIQUEIDENTIFIER UNIQUE not null, -- key de gj_clients
-	databaseName varchar(max), -- nombre de la base de datos
+	tenant_key UNIQUEIDENTIFIER UNIQUE not null, -- key de gj_tenants
 	connectionString varchar(max), -- permite conectar a la base de datos del cliente
-	connectionObject nvarchar(max) CHECK (ISJSON(connectionObject) > 0),
 	style_parameters nvarchar(max) CHECK (ISJSON(style_parameters) > 0), -- almacena parámetros de estilo en formato JSON
 	logo nvarchar(max), -- ruta del logo del cliente
+	-- databaseName varchar(max), -- nombre de la base de datos
+	-- connectionObject nvarchar(max) CHECK (ISJSON(connectionObject) > 0), -- Columna eliminada, solo se usará el connectionString |
 );
 
 
+use gj_framework;
 
+BEGIN TRANSACTION 
+
+ALTER TABLE gj_tenant_details DROP COLUMN databaseName;
+ALTER TABLE gj_tenant_details DROP COLUMN connectionObject;
+
+SELECT * FROM gj_tenant_details;
+
+COMMIT TRANSACTION
+-- ROLLBACK TRANSACTION

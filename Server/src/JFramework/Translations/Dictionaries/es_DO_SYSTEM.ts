@@ -45,6 +45,7 @@ export const ES_DO_SYSTEM: Record<LenguageKeys, string> = {
 	"record-exists": "Ya existe un registro con el {0} igual a {1}.",
 	"record-not-found": "No se encontró un registro con el identificador {0}.",
 	"null-parameter-exception": "El parámetro {0} no puede ser nulo.",
+	"database-desconnection-exception": "Ha ocurrido un error al intentar desconectarse de la base de datos.",
 	"database-connection-exception": "Ha ocurrido un error al conectarse a la base de datos.",
 	"database-no-instance-exception": "Por el momento no hay una instancia de la base de datos disponible.",
 	"database-no-dialect-exception": "Por el momento no hay un dialecto disponible.",

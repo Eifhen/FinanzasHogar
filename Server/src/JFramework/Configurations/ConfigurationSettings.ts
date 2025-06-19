@@ -270,27 +270,6 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			/** Tipo de base de datos */
 			type: dbConfig.TYPE,
 
-			/** Nombre de usuario de la base de datos */
-			userName: dbConfig.USERNAME,
-
-			/** Contraseña de usuario */
-			password: dbConfig.PASSWORD,
-
-			/** Nombre del dominio de la base de datos */
-			domain: dbConfig.DOMAIN,
-
-			/** Nombre del servidor */
-			server: dbConfig.SERVER,
-
-			/** Nombre de la base de datos */
-			databaseName: dbConfig.NAME,
-
-			/** Puerto de la base de datos */
-			port: dbConfig.PORT,
-
-			/** Nombre de la instancia */
-			instance: dbConfig.INSTANCE,
-
 			/** Cadena de conección */
 			connectionString: dbConfig.CONNECTION_STRING,
 
@@ -305,7 +284,10 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 		}
 	}
 
-	/** Obtiene los datos de connección a la base de datos */
+	/** Obtiene los datos de connección a la base de datos según 
+	 * el ambiente de conección 
+	 * - internal = base de datos del framework
+	 * - business = base de datos del negocio*/
 	private GetDatabaseConnectionDataByEnvironment(): DatabaseEnvironmentConnectionData {
 		const dbConfig = JSON.parse(process.env.DATABASE ?? "");
 

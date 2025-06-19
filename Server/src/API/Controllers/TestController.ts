@@ -87,7 +87,7 @@ export default class TestController {
 			this._logger.Activity("GetPromiseError");
 
 			// Generar un unhandledRejection
-			Promise.reject(new Error("Prueba Error GetPromiseError"));
+			await Promise.reject(new Error("Prueba Error GetPromiseError"));
 
 			// Responder para verificar comportamiento del cliente
 			return res.status(HttpStatusCode.OK).send({ message: "Este endpoint genera un unhandledRejection" });

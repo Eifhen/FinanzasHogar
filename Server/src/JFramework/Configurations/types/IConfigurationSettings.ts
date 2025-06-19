@@ -102,27 +102,6 @@ export type DatabaseConnectionData = {
 	/** Tipo de base de datos o a Aqué */
 	type: DatabaseType;
 
-	/** Nombre de usuario de la base de datos */
-	userName: string;
-
-	/** Contraseña de usuario */
-	password: string;
-	
-	/** Nombre del dominio de la base de datos */
-	domain: string;
-
-	/** Nombre del servidor */
-	server: string;
-
-	/** Nombre de la base de datos */
-	databaseName: string;
-
-	/** Puerto de la base de datos */
-	port: string;
-
-	/** Nombre de la instancia */
-	instance: string;
-
 	/** Cadena de conección */
 	connectionString: string;
 

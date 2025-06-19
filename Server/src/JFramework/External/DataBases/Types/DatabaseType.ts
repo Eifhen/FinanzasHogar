@@ -6,10 +6,14 @@ import { ConnectionEnvironment } from "../../../Configurations/Types/IConnection
 export const DatabaseType = {
 
 	/** Base de datos | MicroSoft SQL */
-	"ms_sql_database": "ms_sql_database",
+	ms_sql_database: "ms_sql_database",
+
+	/** Base de datos | PostgreSQL */
+	postgre_sql_database: "postgre_sql_database",
 
 	/** Base de datos | Mongo DB */
-	"mongo_database": "mongo_database",
+	mongo_database: "mongo_database",
+
 
 } as const;
 

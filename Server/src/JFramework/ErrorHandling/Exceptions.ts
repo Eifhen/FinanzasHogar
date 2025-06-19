@@ -203,6 +203,26 @@ export class DatabaseConnectionException extends ApplicationException {
 	}
 }
 
+/** Error al cerrar la conección a la base de datos */
+export class DatabaseDesconnectionException extends ApplicationException {
+	constructor(
+		methodName: string,
+		applicationContext: ApplicationContext,
+		path?: string,
+		innerException?: Error
+	) {
+		super(
+			methodName,
+			HttpStatusName.DatabaseDisconnectException,
+			applicationContext.translator.Translate("database-desconnection-exception"),
+			HttpStatusCode.InternalServerError,
+			applicationContext.requestData.requestId,
+			path,
+			innerException
+		)
+	}
+}
+
 /** Error que indica que no existe una instancia de la base de datos */
 export class DatabaseNoInstanceException extends ApplicationException {
 	constructor(

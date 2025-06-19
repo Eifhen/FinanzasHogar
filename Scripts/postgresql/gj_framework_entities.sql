@@ -35,7 +35,7 @@ CREATE TABLE gj_tenants (
 	tenant_code CHAR(20) UNIQUE NOT NULL, -- ej: PROJ-FH-000000000001
 	name CHAR(200) NOT NULL, -- nombre del cliente
 	description TEXT, -- descripcion del cliente
-	database_type TEXT NOT NULL, -- tipo de base de datos ( "ms_sql_database" | "mongo_database")
+	database_type TEXT NOT NULL, -- tipo de base de datos ( "ms_sql_database" | "postgres_sql_database" | "mongo_database")
 	status SMALLINT NOT NULL, -- active = 1, inactive = 0,
 	domain TEXT, -- nombre del dominio del tenant 
 	creation_date TIMESTAMP NOT NULL -- fecha de creación del cliente
@@ -48,12 +48,19 @@ CREATE TABLE gj_tenants (
 CREATE TABLE gj_tenant_details (
 	id SERIAL PRIMARY KEY NOT NULL,
 	tenant_key UUID UNIQUE NOT NULL, -- key de gj_tenants
-	databaseName TEXT, -- nombre de la base de datos
 	connectionString TEXT, -- permite conectar a la base de datos del cliente
-	connectionObject JSON, -- objeto de conexión en formato JSON
-	style_parameters JSON, -- almacena parámetros de estilo en formato JSON
+  style_parameters JSON, -- almacena parámetros de estilo en formato JSON
 	logo TEXT -- ruta del logo del cliente
+	-- databaseName TEXT, -- eliminado, ahora solo se usa el connectionString | nombre de la base de datos 
+	-- connectionObject JSON, -- Columna eliminada, solo se usará el connectionString | objeto de conexión en formato JSON
+
 );
+
+BEGIN TRANSACTION
+
+ALTER TABLE gj_tenant_details DROP COLUMN connectionObject;
+
+ALTER TABLE gj_tenant_details DROP COLUMN databaseName;
 
 COMMIT TRANSACTION;
 

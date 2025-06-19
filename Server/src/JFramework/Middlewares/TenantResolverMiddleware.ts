@@ -9,7 +9,6 @@ import { BUSINESS_DATABASE_INSTANCE_NAME } from "../Utils/const";
 import { MultiTenantConnectionManager } from "../External/DataBases/MultiTenantConnectionManager";
 import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
 import IInternalTenantService from "../API/Services/Interfaces/IInternalTenantService";
-import IsNullOrEmpty from '../Utils/utils';
 import { BadRequestException } from "../ErrorHandling/Exceptions";
 
 
@@ -30,6 +29,9 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 
 	/** Servicio interno para manejo de tenants */
 	private readonly _internalTenantService: IInternalTenantService;
+
+	/** Manejador de conección multiTenant */
+	private  _multiTenantManager?: MultiTenantConnectionManager;
 
 
 	constructor(deps: TenantResolverMiddlewareDependencies) {
@@ -59,7 +61,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 			 * puede ser desde el cliente mediante un header */
 			// const tenantKey = "0B7BB829-745E-4A16-9FEB-04C0A8AA61B1";
 
-			const tenantKey = req.get(this._applicationContext.settings.apiData.headers.tenantTokenHeader);
+			const tenantKey = req.get(this._applicationContext.settings.apiData.headers.tenantTokenHeader)?.trim();
 			if(!tenantKey){
 				throw new BadRequestException("Intercept", "no-tenant", this._applicationContext, __filename);
 			}
@@ -71,7 +73,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 			const details = await this._internalTenantService.GetTenantDetailsByTenantKey(tenantKey);
 
 			/** Inicializamos el manager */
-			const multiTenantManager = new MultiTenantConnectionManager({
+			this._multiTenantManager = new MultiTenantConnectionManager({
 				applicationContext: this._applicationContext,
 				scopedContainerManager: req.container,
 				options: {
@@ -85,13 +87,17 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 			});
 
 			/** Iniciamos la conexión con la base de datos */
-			await multiTenantManager.Connect();
+			await this._multiTenantManager.Connect();
 
 			/** Si todo va bien entonces seguimos adelante */
 			return next();
 		}
 		catch (err: any) {
 			this._logger.Error("ERROR", "Intercept", err);
+
+			/** Desconectamos el tenant */
+			await this._multiTenantManager?.Disconnect();
+
 			return next(err);
 		}
 	}

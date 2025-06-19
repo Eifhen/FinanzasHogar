@@ -10,7 +10,8 @@ import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
 import IDatabaseConnectionManager from "./Interfaces/IDatabaseConnectionManager";
 import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
-import SqlConnectionStrategy from "./Strategies/SqlConnectionStrategy";
+import MssqlConnectionStrategy from "./Strategies/MssqlConnectionStrategy";
+import PostgreSqlConnectionStrategy from "./Strategies/PostgreSqlConnectionStrategy";
 import { DatabaseConnectionManagerOptions, DatabaseType } from "./Types/DatabaseType";
 
 
@@ -57,7 +58,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 
 		this._containerManager = deps.containerManager;
 		this._configurationSettings = deps.configurationSettings;
-	
+
 		/** seteamos el ambiente de conexión */
 		this._connectionEnv = deps.options.connectionEnvironment ?? ConnectionEnvironment.internal;
 
@@ -80,16 +81,24 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 		 * especificado en la configuración */
 		switch (this._options.databaseType) {
 			case DatabaseType.ms_sql_database:
-
 				/** Resolvemos la estrategía */
-				this._strategy = new SqlConnectionStrategy<DataBaseEntity>({
+				this._strategy = new MssqlConnectionStrategy<DataBaseEntity>({
 					applicationContext,
 					connectionOptions: {
 						env: this._connectionEnv,
 						connectionData: this._configurationSettings.databaseConnectionData.connections[this._connectionEnv],
 					}
 				});
-
+				break;
+			case DatabaseType.postgre_sql_database:
+				/** Resolvemos la estrategia */
+				this._strategy = new PostgreSqlConnectionStrategy<DataBaseEntity>({
+					applicationContext,
+					connectionOptions: {
+						env: this._connectionEnv,
+						connectionData: this._configurationSettings.databaseConnectionData.connections[this._connectionEnv],
+					}
+				});				
 				break;
 			case DatabaseType.mongo_database:
 				throw new Error("Estrategía de conexión No implementada");

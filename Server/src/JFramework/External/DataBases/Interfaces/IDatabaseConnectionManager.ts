@@ -2,9 +2,6 @@ import { IConnectionService } from "../../../Configurations/Types/IConnectionSer
 
 
 
-
-
-
 export default interface IDatabaseConnectionManager extends IConnectionService {
 
 	/** Realiza la conección a la base de datos */

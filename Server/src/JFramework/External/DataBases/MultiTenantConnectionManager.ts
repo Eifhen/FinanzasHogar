@@ -7,7 +7,8 @@ import LoggerManager from "../../Managers/LoggerManager";
 import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
 import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
-import SqlConnectionStrategy from "./Strategies/SqlConnectionStrategy";
+import MssqlConnectionStrategy from "./Strategies/MssqlConnectionStrategy";
+import PostgreSqlConnectionStrategy from "./Strategies/PostgreSqlConnectionStrategy";
 import { DatabaseType, MultiTenantConnectionManagerOptions } from "./Types/DatabaseType";
 
 
@@ -67,21 +68,31 @@ export class MultiTenantConnectionManager implements IConnectionService {
 		/** Ejecutamos una estrategía de conección según el tipo de base de datos
 		 * especificado en la configuración */
 		switch (this._options.databaseType) {
-			case DatabaseType.ms_sql_database:
 
-				/** Resolvemos la estrategía */
-				this._strategy = new SqlConnectionStrategy({
+			/** Resolvemos la estrategía de MSSQL*/
+			case DatabaseType.ms_sql_database:
+				this._strategy = new MssqlConnectionStrategy({
 					applicationContext: this._applicationContext,
 					connectionOptions: this._options.strategyOptions
 				});
-
 				break;
+
+			/** Resolvemos la estrategia PostGreSQL*/
+			case DatabaseType.postgre_sql_database:
+				this._strategy = new PostgreSqlConnectionStrategy({
+					applicationContext: this._applicationContext,
+					connectionOptions: this._options.strategyOptions
+				});
+				break;
+			
+			/** Resolvemos la estrategia de MongoDB*/
 			case DatabaseType.mongo_database:
 				throw new Error("Estrategía de conexión No implementada");
+			
+			/** Throw en el caso de que no exista */
 			default:
 				throw new Error(`La estrategía ${this._options.databaseType as string} no está implementada`);
 		}
-
 	}
 
 	/** Realiza la conección a la base de datos */

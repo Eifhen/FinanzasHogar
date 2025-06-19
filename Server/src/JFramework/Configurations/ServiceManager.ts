@@ -14,7 +14,6 @@ import { Lifetime, LifetimeType } from "awilix";
 import IServiceManager from "./Interfaces/IServiceManager";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
 import ApplicationContext, { ApplicationContextDependencies } from "./ApplicationContext";
-import { ITranslationProvider } from "../Translations/Interfaces/ITranslatorProvider";
 
 
 export interface IServiceManagerDependencies {

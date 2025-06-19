@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { NextFunction, Response } from "express";
 import ApplicationException from "./ApplicationException";

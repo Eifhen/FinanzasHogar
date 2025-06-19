@@ -1,12 +1,9 @@
 import { loadControllers } from "awilix-express";
 import { Application } from "express";
-import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
-import { RedisClientType } from "redis";
 import DatabaseConnectionManager from "../External/DataBases/DatabaseConnectionManager";
 import SqlTransactionManager from "../External/DataBases/Generic/SqlTransactionManager";
 import IDatabaseConnectionManager from "../External/DataBases/Interfaces/IDatabaseConnectionManager";
 import ISqlTransactionManager from "../External/DataBases/Interfaces/ISqlTransactionManager";
-import ApplicationException from "../ErrorHandling/ApplicationException";
 import ErrorHandlerMiddleware from "../ErrorHandling/ErrorHandlerMiddleware";
 import CacheConnectionManager from "../Managers/CacheConnectionManager";
 import EmailManager from "../Managers/EmailManager";
@@ -20,15 +17,11 @@ import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
 import ITokenManager from "../Managers/Interfaces/ITokenManager";
 import LoggerManager from "../Managers/LoggerManager";
 import TokenManager from "../Managers/TokenManager";
-import { limiterConfig, Limiters } from "../Security/RateLimiter/Limiters";
-import RateLimiterManager from "../Security/RateLimiter/RateLimiterManager";
-import { BUSINESS_DATABASE_INSTANCE_NAME, INTERNAL_DATABASE_INSTANCE_NAME, NO_REQUEST_ID } from "../Utils/const";
-import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
+import { BUSINESS_DATABASE_INSTANCE_NAME, INTERNAL_DATABASE_INSTANCE_NAME } from "../Utils/const";
 import ConfigurationSettings from "./ConfigurationSettings";
 import IContainerManager from "./Interfaces/IContainerManager";
 import IInternalServiceManager from "./Interfaces/IInternalServiceManager";
 import IServiceManager from "./Interfaces/IServiceManager";
-import ApplicationContext from "./ApplicationContext";
 import CloudStorageManager from "../External/CloudStorage/CloudStorageManager";
 import IInternalSecurityService from "../API/Services/Interfaces/IInternalSecurityService";
 import InternalSecurityService from "../API/Services/InternalSecurityService";
@@ -41,6 +34,9 @@ import ITenantDetailsInternalRepository from "../API/DataAccess/Repositories/Int
 import TenantDetailsInternalRepository from "../API/DataAccess/Repositories/TenantDetailsInternalRepository";
 import IInternalTenantService from "../API/Services/Interfaces/IInternalTenantService";
 import InternalTenantService from "../API/Services/InternalTenantService";
+import IInternalSecurityManager from "./Interfaces/IInternalSecurityManager";
+import InternalSecurityManager from "./InternalSecurityManager";
+
 
 
 export interface InternalServiceManagerDependencies {
@@ -63,6 +59,9 @@ export class InternalServiceManager implements IInternalServiceManager {
 
 	/** contenedor de dependencias */
 	private readonly _containerManager: IContainerManager;
+
+	/** Manejador de seguridad interna */
+	private readonly _internalSecurityManager: IInternalSecurityManager;
 
 	/** Manejador de conexón a la base de datos de uso interno */
 	private readonly _internalDatabaseConnecctionManager: IDatabaseConnectionManager;
@@ -88,6 +87,11 @@ export class InternalServiceManager implements IInternalServiceManager {
 		this._configurationSettings = deps.configurationSettings;
 		this._containerManager = deps.containerManager;
 
+		/** Agregamos el manager de seguridad internal */
+		this._internalSecurityManager = new InternalSecurityManager({
+			containerManager: this._containerManager,
+			configurationSettings: this._configurationSettings,
+		});
 
 		/** Agregamos el manejador de conexión para la base de datos de uso interno */
 		this._internalDatabaseConnecctionManager = new DatabaseConnectionManager<any>({
@@ -149,6 +153,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 		}
 	}
 
+	/** Permite añadir los servicios internos del sistema */
 	public async AddInternalServices(): Promise<void> {
 		try {
 			this._logger.Activity("AddInternalServices");
@@ -209,42 +214,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 		}
 	}
 
-	/** Permite agregar una instancia del RateLimiter 
-	 * Middleware como singleton */
-	private AddRateLimiters(): void {
-		try {
-			this._logger.Activity("AddRateLimiters");
-			const cacheClient = this._containerManager.Resolve<RedisClientType<any, any, any>>("cacheClient");
-			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
-			const manager = new RateLimiterManager({ cacheClient, applicationContext });
-
-			/** Registramos los limiters según la configuración */
-			Object.entries(limiterConfig).forEach(([limiterName, options]) => {
-				manager.BuildStore(limiterName as Limiters, options);
-				this._containerManager.AddValue<RateLimitRequestHandler>(limiterName, rateLimit(options));
-			});
-		}
-		catch (err: any) {
-			this._logger.Error("FATAL", "AddRateLimiters", err);
-			throw new ApplicationException(
-				"AddRateLimiters",
-				HttpStatusName.InternalServerError,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
-				__filename,
-				err
-			);
-		}
-	}
-
 	/** Permite agregar la configuración de seguridad interna */
 	public async AddInternalSecurity(): Promise<void> {
 		try {
 			this._logger.Activity("AddInternalSecurity");
 
 			/** Agrega los RateLimiters */
-			this.AddRateLimiters();
+			this._internalSecurityManager.AddRateLimiters();
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalSecurity", err);
@@ -279,7 +255,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 			await this._internalDatabaseConnecctionManager.Connect();
 
 			/** Realizamos conexión a base de datos del negocio */
-			if(this._businessDatabaseConnectionManager){
+			if (this._businessDatabaseConnectionManager) {
 				await this._businessDatabaseConnectionManager.Connect();
 			}
 
@@ -301,7 +277,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 			await this._internalDatabaseConnecctionManager.Disconnect();
 
 			/** Cerramos la conexión a base de datos del negocio */
-			if(this._businessDatabaseConnectionManager){
+			if (this._businessDatabaseConnectionManager) {
 				await this._businessDatabaseConnectionManager.Disconnect();
 			}
 

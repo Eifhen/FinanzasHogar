@@ -111,7 +111,7 @@ export default class Startup implements IStartup {
 			this._serviceManager.AddMiddleware(ApiValidationMiddleware);
 
 			/** Middleware para resolver el Tenant de la request */
-			this._serviceManager.AddMiddleware(TenantResolverMiddleware);
+		  //	this._serviceManager.AddMiddleware(TenantResolverMiddleware);
 
 			/** Middleware para validación de token Csrf Este token debe ser aplicado por ruta */
 			// this._serviceManager.AddMiddleware(CsrfValidationMiddleware);

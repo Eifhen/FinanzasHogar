@@ -104,7 +104,6 @@ export default class ServerManager {
 	/** Este evento se ejecuta si algún error no fue manejado por la app */
 	private OnUncaughtException() {
 		process.on("uncaughtException", (err: Error) => {
-
 			this._logger.Error("FATAL", "OnUncaughtException", {
 				message: err.message,
 				stack: err.stack

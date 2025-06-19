@@ -1,8 +1,15 @@
-import { ConnectionEnvironment } from "../../../Configurations/Types/IConnectionService";
+import ApplicationContext from "../../../Configurations/ApplicationContext";
 import { ClassInstance } from "../../../Utils/Types/CommonTypes";
+import { ConnectionStrategyData } from "../Types/DatabaseType";
 
 
 
+
+/** Dependencias básicas de una estrategia de conección */
+export interface IDatabaseConnectionStrategyBaseDependencies {
+  applicationContext: ApplicationContext;
+  connectionOptions: ConnectionStrategyData;
+}
 
 export default interface IDatabaseConnectionStrategy<ConnectionType, InstanceType> {
 

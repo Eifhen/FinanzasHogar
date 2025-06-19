@@ -4,6 +4,7 @@ import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { BadRequestException, InternalServerException, NotFoundException } from "../../ErrorHandling/Exceptions";
 import ILoggerManager from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
+import { DEFAULT_CONNECTION_POOL_SIZE, DEFAULT_DATABASE_TIMEOUT } from "../../Utils/const";
 import IsNullOrEmpty from "../../Utils/utils";
 import { SelectTenants } from "../DataAccess/Models/Tenants";
 import { SelectTenantDetails } from "../DataAccess/Models/TenantsDetail";
@@ -252,44 +253,22 @@ export default class InternalTenantService implements IInternalTenantService {
 
 	/** Obtienes los datos de conexión según el tenant */
 	public GetTenantConnectionConfig(tenant: SelectTenants, details: SelectTenantDetails) : DatabaseConnectionData {
-		const data = JSON.parse(details.connectionObject as unknown as string);
 
 		return {
 			/** Tipo de base de datos */
 			type: tenant.database_type,
 
-			/** Nombre de usuario de la base de datos */
-			userName: data.userName,
-
-			/** Contraseña de usuario */
-			password: data.password,
-
-			/** Nombre del dominio de la base de datos */
-			domain: data.domain,
-
-			/** Nombre del servidor */
-			server: data.server,
-
-			/** Nombre de la base de datos */
-			databaseName: data.databaseName,
-
-			/** Puerto de la base de datos */
-			port: data.databasePort,
-
-			/** Nombre de la instancia */
-			instance: data.instanceName,
-
 			/** Cadena de conección */
-			connectionString: details.connectionString,
+			connectionString: details.connectionString ?? "",
 
 			/** Timeout de conección */
-			connectionTimeout: data.connectionTimeout,
+			connectionTimeout: details.connectionTimeout ?? DEFAULT_DATABASE_TIMEOUT,
 
 			/** Tamaño minimo del connection pool */
-			connectionPoolMinSize: data.connectionPoolMinSize,
+			connectionPoolMinSize: details.connectionPoolMinSize ?? DEFAULT_CONNECTION_POOL_SIZE,
 
 			/** Tamaño maximo del connection pool */
-			connectionPoolMaxSize: data.connectionPoolMaxSize,
+			connectionPoolMaxSize: details.connectionPoolMaxSize ?? DEFAULT_CONNECTION_POOL_SIZE,
 		}
 	}
 

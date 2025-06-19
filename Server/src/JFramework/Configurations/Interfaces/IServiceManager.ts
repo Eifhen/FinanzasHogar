@@ -1,7 +1,6 @@
 import { LifetimeType } from "awilix";
 import { ClassConstructor, ClassInstance } from '../../Utils/Types/CommonTypes';
 import { ApplicationMiddleware, ApplicationErrorMiddleware } from "../../Middlewares/Types/MiddlewareTypes";
-import { ITranslationProvider } from "../../Translations/Interfaces/ITranslatorProvider";
 import { ApplicationContextDependencies } from "../ApplicationContext";
 
 
