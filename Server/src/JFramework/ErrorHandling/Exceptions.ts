@@ -130,6 +130,27 @@ export class NullParameterException extends ApplicationException {
 	}
 }
 
+/** Cuando se envia un parámetro que es requerido de forma incorrecta*/
+export class InvalidParameterException extends ApplicationException {
+	constructor(
+		methodName: string,
+		parameterName: string,
+		applicationContext: ApplicationContext,
+		path?: string,
+		innerException?: Error
+	) {
+		super(
+			methodName,
+			HttpStatusName.InvalidParameterException,
+			applicationContext.translator.Translate("invalid-parameter-exception", [parameterName]),
+			HttpStatusCode.BadRequest,
+			applicationContext.requestData.requestId,
+			path,
+			innerException
+		);
+	}
+}
+
 /** Cuando la request tiene algún error */
 export class BadRequestException extends ApplicationException {
 	constructor(
@@ -153,6 +174,8 @@ export class BadRequestException extends ApplicationException {
 
 	}
 }
+
+
 
 
 
@@ -303,6 +326,25 @@ export class DatabaseException extends ApplicationException {
 	}
 }
 
+/** Error de compromiso, base de datos comprometida */
+export class DatabaseCommitmentException extends ApplicationException {
+	constructor(
+		methodName: string,
+		applicationContext: ApplicationContext,
+		path?: string,
+		innerException?: Error
+	) {
+		super(
+			methodName,
+			HttpStatusName.DatabaseCommitmentException,
+			applicationContext.translator.Translate("database-commitment-exception"),
+			HttpStatusCode.BadRequest,
+			applicationContext?.requestData.requestId,
+			path,
+			innerException
+		);
+	}
+}
 
 
 export class ValidationException extends ApplicationException {

@@ -53,7 +53,7 @@ export default class PostgreSqlConnectionStrategy<DataBaseEntity> implements IDa
 	}
 
 	/** Permite abrir una conección a la baes de datos */
-	public async Connect(): Promise<PostgresDialect> {
+	public async Connect() {
 		try {
 			this._loggerManager.Activity("Connect");
 
@@ -61,6 +61,12 @@ export default class PostgreSqlConnectionStrategy<DataBaseEntity> implements IDa
 				throw new NullParameterException("CreateConnection", "_strategyConnectionData", this._applicationContext, __filename);
 			}
 
+			if (this._instance) {
+				this._loggerManager.Message("INFO", "El intento de conexión fue pasado por alto ya que ya existe una instancia de esta conexión");
+				return this._instance;
+			}
+
+			/** Creamos el dialecto */
 			const dialect = new PostgresDialect({
 				pool: new Pool({
 					connectionString: this._connectionOptions.connectionData.connectionString ?? "",
@@ -70,8 +76,16 @@ export default class PostgreSqlConnectionStrategy<DataBaseEntity> implements IDa
 				})
 			});
 
+			/** Agregamos el dialecto */
 			this._dialect = dialect;
-			return dialect;
+
+			/** Creamos la instancia */
+			this._instance = new Kysely<DataBaseEntity>({
+				dialect: this._dialect
+			});
+
+			/** Devolvemos la instancia */
+			return this._instance;
 		}
 		catch (err: any) {
 			this._loggerManager.Error("FATAL", "Connect", err);
@@ -115,14 +129,11 @@ export default class PostgreSqlConnectionStrategy<DataBaseEntity> implements IDa
 	public GetInstance(): Kysely<DataBaseEntity> {
 		try {
 			this._loggerManager.Activity("GetInstance");
-			if (this._dialect === null) {
+			if (!this._dialect || !this._instance) {
 				throw new DatabaseNoDialectException("GetInstance", this._applicationContext, __filename);
 			}
 
-			this._instance = new Kysely<DataBaseEntity>({
-				dialect: this._dialect
-			});
-
+			/** Devolvemos la instancia */
 			return this._instance;
 		}
 		catch (err: any) {

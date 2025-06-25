@@ -35,10 +35,10 @@ CREATE TABLE gj_tenants (
 	tenant_code CHAR(20) UNIQUE NOT NULL, -- ej: PROJ-FH-000000000001
 	name CHAR(200) NOT NULL, -- nombre del cliente
 	description TEXT, -- descripcion del cliente
-	database_type TEXT NOT NULL, -- tipo de base de datos ( "ms_sql_database" | "postgres_sql_database" | "mongo_database")
 	status SMALLINT NOT NULL, -- active = 1, inactive = 0,
 	domain TEXT, -- nombre del dominio del tenant 
 	creation_date TIMESTAMP NOT NULL -- fecha de creación del cliente
+  	-- database_type TEXT NOT NULL, -- tipo de base de datos ( "ms_sql_database" | "postgres_sql_database" | "mongo_database")
 );
 
 /******************************************************* 
@@ -56,12 +56,56 @@ CREATE TABLE gj_tenant_details (
 
 );
 
-BEGIN TRANSACTION
+/******************************************************* 
+	Tabla de conexión de clientes, contiene información acerca  
+	de la configuración de conexión de los clientes registrados
+********************************************************/
+CREATE TABLE gj_tenant_connections (
+  id SERIAL PRIMARY KEY NOT NULL, 
+  tenant_key UUID UNIQUE NOT NULL, -- Key del gj_tenant
+  database_type TEXT NOT NULL, -- tipo de base de datos ( "ms_sql_database" | "postgres_sql_database" | "mongo_database")
+  connection TEXT, -- Cadena de conexión del tenant
+  timeout INT, -- connectionTimeout de la conexión a la base de datos
+  pool_min smallint, -- tamaño minimo del pool
+  pool_max smallint -- tamaño máximo del pool
+);
 
-ALTER TABLE gj_tenant_details DROP COLUMN connectionObject;
 
-ALTER TABLE gj_tenant_details DROP COLUMN databaseName;
+--------------------------------------- [ VISTAS ] ------------------------------------
 
-COMMIT TRANSACTION;
+/***********************************************
+  Vista que muestra la información del tenant y los 
+  datos de conexión del tenant
+************************************************/
+CREATE OR REPLACE VIEW gj_tenant_connection_view AS (
+  SELECT 
+    t.id AS tenant_id,
+    t.proyect_key AS proyect_key,
+    t.tenant_key AS tenant_key,
+    t.tenant_code AS tenant_code,
+    t.name AS name,
+    t.description AS descripcion,
+    t.status AS status,
+    t.domain AS domain,
+    t.creation_date AS creation_date,
+    tc.id AS tenant_connection_id,
+    tc.database_type AS database_type,
+    tc.connection AS connection,
+    tc.timeout AS timeout,
+    tc.pool_min AS pool_min,
+    tc.pool_max AS pool_max
+  FROM gj_tenants t
+  JOIN gj_tenant_connections tc ON t.tenant_key = tc.tenant_key
+);
 
--- ROLLBACK TRANSACTION;
+
+SELECT * FROM gj_tenant_connection_view;
+
+SELECT * FROM gj_tenant_connections tc;
+
+
+----------------------------------------------------------------
+SELECT * FROM gj_proyects;
+SELECT * FROM gj_tenants;
+SELECT * FROM gj_tenant_details;
+SELECT * FROM gj_tenant_connections;

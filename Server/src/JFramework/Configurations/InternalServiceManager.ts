@@ -17,7 +17,7 @@ import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
 import ITokenManager from "../Managers/Interfaces/ITokenManager";
 import LoggerManager from "../Managers/LoggerManager";
 import TokenManager from "../Managers/TokenManager";
-import { BUSINESS_DATABASE_INSTANCE_NAME, INTERNAL_DATABASE_INSTANCE_NAME } from "../Utils/const";
+import { BUSINESS_DATABASE_INSTANCE_NAME, BUSINESS_DATABASE_REGISTRY_NAME, INTERNAL_DATABASE_INSTANCE_NAME, INTERNAL_DATABASE_REGISTRY_NAME } from "../Utils/const";
 import ConfigurationSettings from "./ConfigurationSettings";
 import IContainerManager from "./Interfaces/IContainerManager";
 import IInternalServiceManager from "./Interfaces/IInternalServiceManager";
@@ -36,6 +36,9 @@ import IInternalTenantService from "../API/Services/Interfaces/IInternalTenantSe
 import InternalTenantService from "../API/Services/InternalTenantService";
 import IInternalSecurityManager from "./Interfaces/IInternalSecurityManager";
 import InternalSecurityManager from "./InternalSecurityManager";
+import TenantConnectionsInternalRepository from "../API/DataAccess/Repositories/TenantConnectionsInternalRepository";
+import ITenantConnectionsInternalRepository from "../API/DataAccess/Repositories/Interfaces/ITenantConnectionsInternalRepository";
+import DatabaseInstanceManager from "../External/DataBases/DatabaseInstanceManager";
 
 
 
@@ -70,6 +73,9 @@ export class InternalServiceManager implements IInternalServiceManager {
 	 * en el objeto de configuración es true, entonces este objeto será undefined*/
 	private readonly _businessDatabaseConnectionManager?: IDatabaseConnectionManager;
 
+	/** Manejador de instancias de base de datos */
+	private readonly _databaseInstanceManager: DatabaseInstanceManager;
+
 	/** Manejador de conección a servidor caché */
 	private readonly _cacheConnectionManager: ICacheConnectionManager;
 
@@ -93,13 +99,20 @@ export class InternalServiceManager implements IInternalServiceManager {
 			configurationSettings: this._configurationSettings,
 		});
 
+		/** Agregamos el manejador de instancias de base de datos */
+		this._databaseInstanceManager = new DatabaseInstanceManager({
+			configurationSettings: this._configurationSettings	
+		});
+
 		/** Agregamos el manejador de conexión para la base de datos de uso interno */
 		this._internalDatabaseConnecctionManager = new DatabaseConnectionManager<any>({
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings,
+			databaseInstanceManager: this._databaseInstanceManager,
 			options: {
-				connectionEnvironment: ConnectionEnvironment.internal,
+				connectionEnvironment: ConnectionEnvironment.INTERNAL,
 				databaseContainerInstanceName: INTERNAL_DATABASE_INSTANCE_NAME,
+				databaseRegistryName: INTERNAL_DATABASE_REGISTRY_NAME,
 			}
 		});
 
@@ -110,9 +123,11 @@ export class InternalServiceManager implements IInternalServiceManager {
 			this._businessDatabaseConnectionManager = new DatabaseConnectionManager<any>({
 				containerManager: this._containerManager,
 				configurationSettings: this._configurationSettings,
+				databaseInstanceManager: this._databaseInstanceManager,
 				options: {
-					connectionEnvironment: ConnectionEnvironment.business,
+					connectionEnvironment: ConnectionEnvironment.BUSINESS,
 					databaseContainerInstanceName: BUSINESS_DATABASE_INSTANCE_NAME,
+					databaseRegistryName: BUSINESS_DATABASE_REGISTRY_NAME
 				}
 			});
 		}
@@ -177,6 +192,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 			this._serviceManager.AddService<IProyectsInternalRepository, ProyectsInternalRepository>("proyectsInternalRepository", ProyectsInternalRepository);
 			this._serviceManager.AddService<ITenantsInternalRepository, TenantsInternalRepository>("tenantsInternalRepository", TenantsInternalRepository);
 			this._serviceManager.AddService<ITenantDetailsInternalRepository, TenantDetailsInternalRepository>("tenantDetailsInternalRepository", TenantDetailsInternalRepository);
+			this._serviceManager.AddService<ITenantConnectionsInternalRepository, TenantConnectionsInternalRepository>("tenantConnectionsInternalRepository", TenantConnectionsInternalRepository);
 
 		}
 		catch (err: any) {

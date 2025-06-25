@@ -15,7 +15,7 @@ export default interface IDatabaseConnectionStrategy<ConnectionType, InstanceTyp
 
 
   /** Método que ejecuta la connección con la base de datos */
-  Connect(): Promise<ConnectionType>;
+  Connect(): Promise<InstanceType>;
 
   /** Retorna una instancia de la base de datos */
   GetInstance(): ClassInstance<InstanceType>;

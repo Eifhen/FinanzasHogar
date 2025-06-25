@@ -16,49 +16,49 @@ const MONTH_INCREMENT = 1;
 export default class DateManager {
 
 	/** Método privado para formatear una fecha a 'YYYY-MM-DD' */
-	private static FormatToYYYYMMDD(date: Date): string {
+	private static FormatToYYYYMMDD(date: Date, divider:string = "-"): string {
 		const year = date.getFullYear();
 		const month = ('0' + (date.getMonth() + MONTH_INCREMENT)).slice(DATE_SLICE);
 		const day = ('0' + date.getDate()).slice(DATE_SLICE);
-		return `${year}-${month}-${day}`;
+		return `${year}${divider}${month}${divider}${day}`;
 	}
 
 	/** Método privado para formatear una fecha a 'DD/MM/YYYY' */
-	private static FormatToDDMMYYYY(date: Date): string {
+	private static FormatToDDMMYYYY(date: Date, divider:string = "-"): string {
 		const year = date.getFullYear();
 		const month = ('0' + (date.getMonth() + MONTH_INCREMENT)).slice(DATE_SLICE);
 		const day = ('0' + date.getDate()).slice(DATE_SLICE);
-		return `${day}/${month}/${year}`;
+		return `${day}${divider}${month}${divider}${year}`;
 	}
 
 	/** Método privado para formatear una fecha a 'MM-DD-YYYY' */
-	private static FormatToMMDDYYYY(date: Date): string {
+	private static FormatToMMDDYYYY(date: Date, divider:string = "-"): string {
 		const year = date.getFullYear();
 		const month = ('0' + (date.getMonth() + MONTH_INCREMENT)).slice(DATE_SLICE);
 		const day = ('0' + date.getDate()).slice(DATE_SLICE);
-		return `${month}-${day}-${year}`;
+		return `${month}${divider}${day}${divider}${year}`;
 	}
 
 	/** Método privado para formatear una fecha a 'DD MMM YYYY' */
-	private static FormatToDDMMMYYYY(date: Date): string {
+	private static FormatToDDMMMYYYY(date: Date, divider:string = "-"): string {
 		const year = date.getFullYear();
 		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 		const month = monthNames[date.getMonth()];
 		const day = ('0' + date.getDate()).slice(DATE_SLICE);
-		return `${day} ${month} ${year}`;
+		return `${day}${divider}${month}${divider}${year}`;
 	}
 
 	/** Método público para formatear una fecha según el formato especificado */
-	public static Format(date: Date, format: DateFormats): string {
+	public static Format(date: Date, format: DateFormats, divider:string = "-"): string {
 		switch (format) {
 			case DateFormat.YYYYMMDD:
-				return this.FormatToYYYYMMDD(date);
+				return this.FormatToYYYYMMDD(date, divider);
 			case DateFormat.DDMMYYYY:
-				return this.FormatToDDMMYYYY(date);
+				return this.FormatToDDMMYYYY(date, divider);
 			case DateFormat.MMDDYYYY:
-				return this.FormatToMMDDYYYY(date);
+				return this.FormatToMMDDYYYY(date, divider);
 			case DateFormat.DDMMMYYYY:
-				return this.FormatToDDMMMYYYY(date);
+				return this.FormatToDDMMMYYYY(date, divider);
 			default:
 				throw new Error('Formato de fecha no soportado');
 		}

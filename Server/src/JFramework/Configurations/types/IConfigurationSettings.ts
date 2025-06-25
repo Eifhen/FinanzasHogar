@@ -122,9 +122,11 @@ export type DatabaseEnvironmentConnectionData = {
 	 *  inicializará dos conecciones al iniciar, una conexión para la base de datos interna y una conexión
 	 *  para la base de datos del negocio. En el caso de que `isMultitenants` sea true, la app solo
 	 * inicializará una conexión hacia la base de datos interna. La conexión a la BD del cliente, se realizará
-	 * por medio del middleware encargado de manejar los multi-tenants
-	 */
+	 * por medio del middleware encargado de manejar los multi-tenants. */
 	isMultitenants: boolean;
+
+	/** Clave secreta para desencriptar la cadena de conección de los tenants  */
+	tenantConnectionSecret: string;
 
 	/** Datos de conección según el ambiente */
 	connections: Record<ConnectionEnvironment, DatabaseConnectionData>;

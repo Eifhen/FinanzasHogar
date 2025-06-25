@@ -1,8 +1,8 @@
-import ServerManager from "../JFramework/Configurations/ServerManager";
+import ServerInitializerManager from "../JFramework/Configurations/ServerInitializerManager";
 import Startup from "./Server/Startup";
 
 
 
 
 /** Inicializa el servidor */
-new ServerManager({ startup: Startup }).Start();
+new ServerInitializerManager({ startup: Startup }).Start();

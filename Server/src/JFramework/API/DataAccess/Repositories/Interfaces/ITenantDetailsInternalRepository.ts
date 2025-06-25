@@ -4,6 +4,7 @@ import { InternalDatabase } from "../../InternalDatabase";
 
 
 
-export default interface ITenantDetailsInternalRepository extends ISqlGenericRepository<InternalDatabase, "gj_tenant_details", "id"> {
+export default interface ITenantDetailsInternalRepository 
+extends ISqlGenericRepository<InternalDatabase, "gj_tenant_details", "id"> {
 
 }

@@ -12,8 +12,8 @@ export interface IConnectionService {
 
 /** Define el ambiente de conexión, si se trata de una conexión interna o de una conexión de negocio */
 export const ConnectionEnvironment = {
-	internal: "internal",
-	business: "business"
+	INTERNAL: "internal",
+	BUSINESS: "business"
 } as const;
 
-export type ConnectionEnvironment = keyof typeof ConnectionEnvironment;
+export type ConnectionEnvironment = (typeof ConnectionEnvironment)[keyof typeof ConnectionEnvironment];

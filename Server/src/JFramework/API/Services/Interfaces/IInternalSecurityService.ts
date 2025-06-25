@@ -7,4 +7,5 @@ export default interface IInternalSecurityService {
   /** Permite Crear una cookie y un token CSRF */
   CreateCsrfProtection() : Promise<CsrfData>;
 
+ 
 }

@@ -12,18 +12,18 @@ import ServerConfigurationManager, { IServerConfigurationDependencies } from "./
 import IInternalServiceManager from "./Interfaces/IInternalServiceManager";
 import { InternalServiceManager, InternalServiceManagerDependencies } from "./InternalServiceManager";
 import IServiceManager from "./Interfaces/IServiceManager";
-import ConfigurationSettings from "../Configurations/ConfigurationSettings";
+import ConfigurationSettings from "./ConfigurationSettings";
 import { ClassConstructor } from "../Utils/Types/CommonTypes";
 import IServerConfigurationManager from "./Interfaces/IServerConfigurationManager";
 
 
-interface ServerManagerDependencies {
+interface ServerInitializerManagerDependencies {
 
 	/** Recibe un constructor de la interfaz IStartup */
 	startup: ClassConstructor<IStartup>;
 }
 
-export default class ServerManager {
+export default class ServerInitializerManager {
 
 	/** Objeto server, este objeto nos sirve para manipular nuestro servidor*/
 	private _server?: Server;
@@ -53,7 +53,7 @@ export default class ServerManager {
 	private readonly _configurationSettings: ConfigurationSettings;
 
 
-	constructor(deps: ServerManagerDependencies) {
+	constructor(deps: ServerInitializerManagerDependencies) {
 
 		/** Instanciamos el logger */
 		this._logger = new LoggerManager({

@@ -1,6 +1,5 @@
 import { Generated, Insertable, Selectable, Updateable } from "kysely";
 import { EstadosTenant } from "../../../Utils/estados";
-import { DatabaseType } from "../../../External/DataBases/Types/DatabaseType";
 
 
 export interface TenantTable {
@@ -17,9 +16,6 @@ export interface TenantTable {
   /** Código único del tenant, este código se utiliza en el formulario de 
    * login para luego con él obtener el tenant_key */
   tenant_code: string;
-
-  /** Tipo de base de datos: sql o mongodb */
-  database_type: DatabaseType;
 
   /** Nombre del tenant */
   name: string;

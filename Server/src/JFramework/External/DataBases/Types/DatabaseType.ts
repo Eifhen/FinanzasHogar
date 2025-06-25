@@ -38,7 +38,7 @@ export type WithoutPrimaryKey<Table, PrimaryKey extends keyof Table> = Omit<Tabl
 /** Objeto de conexión para el SqlConnectionStrategy */
 export type ConnectionStrategyData = {
   /** Ambiente de conexión */
-  env: ConnectionEnvironment;
+  connectionEnvironment: ConnectionEnvironment;
 
   /** Datos de conexión */
   connectionData: DatabaseConnectionData,
@@ -54,6 +54,9 @@ export type DatabaseConnectionManagerOptions = {
 
   /** Define el nombre que tendrá la instancia de la base de datos dentro del contenedor de dependencias */
   databaseContainerInstanceName: string;
+
+  /** Nombre de la instancia de base de datos en el registro de instancias del databaseInstanceManager */
+  databaseRegistryName: string;
 }
 
 /** Objecto de opciones para manejadores de conexión de base de datos multi-tenant*/
@@ -68,3 +71,6 @@ export type MultiTenantConnectionManagerOptions = {
   /** Define el nombre que tendrá la instancia de la base de datos dentro del contenedor de dependencias */
   databaseContainerInstanceName: string;
 }
+
+
+

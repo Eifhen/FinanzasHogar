@@ -21,7 +21,7 @@ export default class ContainerManager implements IContainerManager {
 	private _logger: ILoggerManager;
 
 	/** Identificador */
-	public _identifier: string = "MAIN_CONTAINER";
+	public _identifier: string = "ROOT_CONTAINER";
 
 	constructor(container?: AwilixContainer, logger?: ILoggerManager) {
 		// Instanciamos el logger

@@ -116,7 +116,7 @@ export class MultiTenantConnectionManager implements IConnectionService {
 				this._scopedContainerManager.AddInstance(this._options.databaseContainerInstanceName, instance);
 
 				/** Notifcamos el environment al cual nos hemos conectado */
-				this._logger.Message("INFO", `El servidor está conectado a la base de datos [${this._options.strategyOptions.env.toUpperCase()}]`);
+				this._logger.Message("INFO", `El servidor está conectado a la base de datos [${this._options.strategyOptions.connectionEnvironment.toUpperCase()}]`);
 			}
 			else {
 				throw new ApplicationException(

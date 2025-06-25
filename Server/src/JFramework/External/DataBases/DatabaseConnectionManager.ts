@@ -8,6 +8,7 @@ import ILoggerManager, { LoggerTypes } from "../../Managers/Interfaces/ILoggerMa
 import LoggerManager from "../../Managers/LoggerManager";
 import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
+import DatabaseInstanceManager from "./DatabaseInstanceManager";
 import IDatabaseConnectionManager from "./Interfaces/IDatabaseConnectionManager";
 import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
 import MssqlConnectionStrategy from "./Strategies/MssqlConnectionStrategy";
@@ -25,8 +26,12 @@ interface DatabaseConnectionManagerDependencies {
 	/** Objeto de configuración del sistema */
 	configurationSettings: ConfigurationSettings;
 
+	/** Manejador de instancia de base de datos */
+	databaseInstanceManager: DatabaseInstanceManager;
+
 	/** Opciones de configuración para el Manager */
-	options: Partial<DatabaseConnectionManagerOptions>
+	options: Partial<DatabaseConnectionManagerOptions>;
+	
 }
 
 export default class DatabaseConnectionManager<DataBaseEntity> implements IDatabaseConnectionManager {
@@ -39,6 +44,9 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 
 	/** Objeto de configuraciones del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
+
+	/** Manejador de intancias de base de datos */
+	private readonly _databaseInstanceManager: DatabaseInstanceManager;
 
 	/** Estrategia de conneccion */
 	private _strategy?: IDatabaseConnectionStrategy<any, any>;
@@ -58,14 +66,19 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 
 		this._containerManager = deps.containerManager;
 		this._configurationSettings = deps.configurationSettings;
+		this._databaseInstanceManager = deps.databaseInstanceManager;
+
+		/** Seteamos el container manager del databaseInstanceManager */
+		this._databaseInstanceManager.RegisterInstanceManager(this._containerManager);
 
 		/** seteamos el ambiente de conexión */
-		this._connectionEnv = deps.options.connectionEnvironment ?? ConnectionEnvironment.internal;
+		this._connectionEnv = deps.options.connectionEnvironment ?? ConnectionEnvironment.INTERNAL;
 
 		this._options = {
 			connectionEnvironment: this._connectionEnv,
 			databaseType: deps.options.databaseType ?? this._configurationSettings.databaseConnectionData.connections[this._connectionEnv].type,
 			databaseContainerInstanceName: deps.options.databaseContainerInstanceName ?? "",
+			databaseRegistryName: deps.options.databaseRegistryName ?? ""
 		};
 
 	}
@@ -85,7 +98,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 				this._strategy = new MssqlConnectionStrategy<DataBaseEntity>({
 					applicationContext,
 					connectionOptions: {
-						env: this._connectionEnv,
+						connectionEnvironment: this._connectionEnv,
 						connectionData: this._configurationSettings.databaseConnectionData.connections[this._connectionEnv],
 					}
 				});
@@ -95,7 +108,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 				this._strategy = new PostgreSqlConnectionStrategy<DataBaseEntity>({
 					applicationContext,
 					connectionOptions: {
-						env: this._connectionEnv,
+						connectionEnvironment: this._connectionEnv,
 						connectionData: this._configurationSettings.databaseConnectionData.connections[this._connectionEnv],
 					}
 				});				
@@ -121,12 +134,13 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 
 				/** Realizamos la conección con la base de datos */
 				await this._strategy.Connect();
-
-				/** Obtenemos la instancia de la base de datos */
-				const instance = this._strategy.GetInstance();
-
+				
 				/** Agrega la instancia de la base de datos al contenedor de dependencias */
-				this._containerManager.AddInstance(this._options.databaseContainerInstanceName, instance);
+				this._databaseInstanceManager.SetDatabaseInstance(
+					this._options.databaseContainerInstanceName, 
+					this._options.databaseRegistryName,
+					this._strategy
+				)
 
 				/** Notifcamos el environment al cual nos hemos conectado */
 				this._logger.Message("INFO", `El servidor está conectado a la base de datos [${this._options.connectionEnvironment.toUpperCase()}]`);

@@ -6,7 +6,7 @@ import LoggerManager from "../Managers/LoggerManager";
 import { AutoBind } from "../Helpers/Decorators/AutoBind";
 import IContainerManager from "../Configurations/Interfaces/IContainerManager";
 import ApplicationContext from "../Configurations/ApplicationContext";
-
+import { v4 as uuidv4 } from 'uuid';
 
 interface AttachContainerMiddlewareDependencices {
 	containerManager: IContainerManager;
@@ -45,10 +45,9 @@ export default class AttachContainerMiddleware extends ApplicationMiddleware {
 
 			// console.log("Attatch Container =>", this._containerManager !== undefined);
 
-			const multiplier = 1000000;
-			const random = Math.floor(Math.random() * multiplier);
+			const container_id = uuidv4();
 			const scoped = this._containerManager.CreateScopedContainer();
-			scoped._identifier = `CONTAINER_#${random}`;
+			scoped._identifier = `CONTAINER_${container_id}`;
 
 			req.container = scoped;
 			next();

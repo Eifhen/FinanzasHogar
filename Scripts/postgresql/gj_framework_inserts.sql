@@ -77,3 +77,54 @@ DELETE FROM gj_tenant_details;
 
 SELECT * FROM gj_proyects;
 DELETE FROM gj_proyects;
+
+-------------------------------------------------------------
+
+
+BEGIN TRANSACTION
+
+DROP TABLE gj_tenant_connections;
+
+ALTER TABLE gj_tenant_details DROP COLUMN connectionObject;
+
+ALTER TABLE gj_tenant_details DROP COLUMN databaseName;
+
+ALTER TABLE gj_tenant_details DROP COLUMN connectionString;
+
+ALTER TABLE gj_tenants DROP COLUMN database_type
+
+ALTER TABLE gj_tenant_connections ADD COLUMN database_type TEXT;
+
+ALTER TABLE gj_tenant_connections ALTER COLUMN database_type SET NOT NULL;
+
+
+----------------------------------------------------------------
+-- PERSONAL = 0b7bb829-745e-4a16-9feb-04c0a8aa61b1;
+
+INSERT INTO gj_tenant_connections (
+  tenant_key,
+  database_type,
+  connection,
+  timeout,
+  pool_min,
+  pool_max
+)
+VALUES(
+  '0b7bb829-745e-4a16-9feb-04c0a8aa61b1',
+  'postgres_sql_database',
+  'eyJpdiI6Imcvak1ROGV5Q2tlRDhiUFpOcEE4SFE9PSIsInZhbHVlIjoiSzFpL3Z5cXdITEdpaDhZelI5ZU9reUlqN1ZRcnNwbzdsNDJhdUJHeUVmNmptU1IvVEgya2pjTFJrU1RrVFdmOEIzbmwvMVVEbWExMkQ2clhFaE52RTlYNXpIL056aTE5b0lsUjA4OXk1VkZwRURka1N1am82L0pnbVIveW5pM2tuSk9WZjlmTGM3NjVvdUVub3lBanpWQXZ4YUc4b3FGTGFOcms1YWcvQ0F3PSJ9',
+  5000, -- 5s
+  1,
+  10
+);
+
+
+----------------------------------------------------------------
+SELECT * FROM gj_proyects;
+SELECT * FROM gj_tenants;
+SELECT * FROM gj_tenant_details;
+SELECT * FROM gj_tenant_connections;
+
+COMMIT TRANSACTION;
+
+-- ROLLBACK TRANSACTION;

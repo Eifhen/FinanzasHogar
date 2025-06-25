@@ -102,7 +102,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			/** Token que identifica a la aplicación en la tabla de proyectos */
 			proyect_token: process.env.PROYECT_TOKEN ?? "",
 
-			/** Token de aplicación */
+			/** Secreto del token de autenticación JWT */
 			authTokenSecret: process.env.AUTH_TOKEN_SECRET ?? "",
 
 			/** Version de la aplicación */
@@ -291,6 +291,9 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 	private GetDatabaseConnectionDataByEnvironment(): DatabaseEnvironmentConnectionData {
 		const dbConfig = JSON.parse(process.env.DATABASE ?? "");
 
+		/** Clave secreta para desencriptar la cadena de conección de los tenants  */
+		const tenantConnectionSecret = dbConfig.TENANT_CONNECTION_SECRET;
+
 		/** Indica si la app es multi-tenants o no */
 		const isMultitenants = dbConfig.MULTI_TENANTS;
 
@@ -302,6 +305,7 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 
 		return {
 			isMultitenants,
+			tenantConnectionSecret,
 			connections: {
 				internal: this.GetDatabaseConnectionData(internal),
 				business: this.GetDatabaseConnectionData(business)

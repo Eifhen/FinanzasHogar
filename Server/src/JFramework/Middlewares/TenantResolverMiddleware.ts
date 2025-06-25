@@ -9,7 +9,8 @@ import { BUSINESS_DATABASE_INSTANCE_NAME } from "../Utils/const";
 import { MultiTenantConnectionManager } from "../External/DataBases/MultiTenantConnectionManager";
 import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
 import IInternalTenantService from "../API/Services/Interfaces/IInternalTenantService";
-import { BadRequestException } from "../ErrorHandling/Exceptions";
+import { BadRequestException, DatabaseCommitmentException } from "../ErrorHandling/Exceptions";
+import IsNullOrEmpty from "../Utils/utils";
 
 
 
@@ -46,9 +47,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 
 		/** Agregamos el context */
 		this._applicationContext = deps.applicationContext;
-
 		this._internalTenantService = deps.internalTenantService;
-
 	}
 	
 
@@ -57,31 +56,37 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 		try {
 			this._logger.Activity("Intercept");
 
-			/** OJO NECESITO RECIBIR EL TENANT_KEY de alguna forma, 
-			 * puede ser desde el cliente mediante un header */
-			// const tenantKey = "0B7BB829-745E-4A16-9FEB-04C0A8AA61B1";
-
 			const tenantKey = req.get(this._applicationContext.settings.apiData.headers.tenantTokenHeader)?.trim();
-			if(!tenantKey){
+			
+			/** Validamos que el tenantKey no esté vacío */
+			if(IsNullOrEmpty(tenantKey)){
 				throw new BadRequestException("Intercept", "no-tenant", this._applicationContext, __filename);
 			}
 
-			/** Tenant de la request en curso */
-			const tenant = await this._internalTenantService.GetTenantByKey(tenantKey);
+			/** Obtenemos los datos de conexión del tenant de la request en curso */
+			const tenantData = await this._internalTenantService.GetTenantConnectionViewByKey(tenantKey!);
+			
+			/** Validamos si el proyect_key del tenant ingresado NO es igual al proyect key de la API,
+			 * si este error ocurre podria significar que la base de datos ha sido comprometida */
+			if(tenantData.proyect_key !== this._applicationContext.settings.apiData.proyect_token){
 
-			/** Detalle del tenant de la request en curso */
-			const details = await this._internalTenantService.GetTenantDetailsByTenantKey(tenantKey);
+				// Aqui se podria implementar lógica para banear al usuario
+				throw new DatabaseCommitmentException("Intercept", this._applicationContext, __filename);
+			}
+
+			/** Mapeamos los Datos de conexión a un objeto que nuestro manager pueda leer*/
+			const connData = await this._internalTenantService.GetTenantConnectionConfig(tenantData)
 
 			/** Inicializamos el manager */
 			this._multiTenantManager = new MultiTenantConnectionManager({
 				applicationContext: this._applicationContext,
 				scopedContainerManager: req.container,
 				options: {
-					databaseType: tenant.database_type,
+					databaseType: tenantData.database_type,
 					databaseContainerInstanceName: BUSINESS_DATABASE_INSTANCE_NAME,
 					strategyOptions: {
-						env: ConnectionEnvironment.business,
-						connectionData: this._internalTenantService.GetTenantConnectionConfig(tenant, details),
+						connectionEnvironment: ConnectionEnvironment.BUSINESS,
+						connectionData: connData,
 					}
 				}
 			});

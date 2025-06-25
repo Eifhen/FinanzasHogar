@@ -123,4 +123,56 @@ export default class InternalTenantsController {
 		}
 	}
 
+	/** Endpoint que permite encryptar una cadena de conexión */
+	@route("/connection/encrypt/:connectionString")
+	@GET()
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
+	public async EncryptConnectionString(req: ApplicationRequest, res: Response, next: NextFunction) {
+		try {
+			this._logger.Activity("EncryptConnectionString");
+
+			const connectionString = req.params.connectionString;
+
+			const data = await this._internalTenantService.EncryptDecryptConnectionString(connectionString, false);
+
+			return res.status(HttpStatusCode.OK).send(
+				new ApplicationResponse(
+					this._applicationContext,
+					HttpStatusMessage.OK,
+					data
+				)
+			);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.ERROR, "EncryptConnectionString", err);
+			return next(err);
+		}
+	}
+
+	/** Endpoint que permite desencryptar una cadena de conexión */
+	@route("/connection/decrypt/:connectionString")
+	@GET()
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
+	public async DecryptConnectionString(req: ApplicationRequest, res: Response, next: NextFunction) {
+		try {
+			this._logger.Activity("DecryptConnectionString");
+
+			const connectionString = req.params.connectionString;
+
+			const data = await this._internalTenantService.EncryptDecryptConnectionString(connectionString, true);
+
+			return res.status(HttpStatusCode.OK).send(
+				new ApplicationResponse(
+					this._applicationContext,
+					HttpStatusMessage.OK,
+					data
+				)
+			);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.ERROR, "DecryptConnectionString", err);
+			return next(err);
+		}
+	}
+
 }

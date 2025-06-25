@@ -1,5 +1,5 @@
 
-import { Kysely, MssqlDialect} from "kysely";
+import { Kysely, MssqlDialect } from "kysely";
 import ILoggerManager, { LoggEntityCategorys } from "../../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../../Managers/LoggerManager";
 import * as tarn from 'tarn';
@@ -32,7 +32,7 @@ export default class MssqlConnectionStrategy<DataBaseEntity> implements IDatabas
 	private _dialect: MssqlDialect | null = null;
 
 	/** Instancia de sql */
-	private _instance: Kysely<any> | null = null;
+	private _instance: Kysely<DataBaseEntity> | null = null;
 
 	/** Contexto de applicación */
 	private _applicationContext: ApplicationContext;
@@ -65,17 +65,15 @@ export default class MssqlConnectionStrategy<DataBaseEntity> implements IDatabas
 
 
 	/** Método que permite obtener una instancia de la connección a SQL Server */
-	public GetInstance() {
+	public GetInstance(): Kysely<DataBaseEntity> {
 		try {
 			this._loggerManager.Activity("GetInstance");
-			if (this._dialect === null) {
+
+			if (!this._dialect || !this._instance) {
 				throw new DatabaseNoDialectException("GetInstance", this._applicationContext, __filename);
 			}
 
-			this._instance = new Kysely<DataBaseEntity>({
-				dialect: this._dialect
-			});
-
+			/** Devolvemos la instancia que tenemos */
 			return this._instance;
 		}
 		catch (err: any) {
@@ -137,6 +135,11 @@ export default class MssqlConnectionStrategy<DataBaseEntity> implements IDatabas
 				throw new NullParameterException("Connect", "_strategyConnectionData", this._applicationContext, __filename);
 			}
 
+			if (this._instance) {
+				this._loggerManager.Message("INFO", "El intento de conexión fue pasado por alto ya que ya existe una instancia de esta conexión");
+				return this._instance;
+			}
+
 			const dialect = new MssqlDialect({
 				tarn: {
 					...tarn,
@@ -152,10 +155,10 @@ export default class MssqlConnectionStrategy<DataBaseEntity> implements IDatabas
 						if (!this._connectionOptions) {
 							throw new NullParameterException("ConnectionFactory", "_connectionOptions", this._applicationContext, __filename);
 						}
-						
+
 						/** Obtenemos el objeto de conección */
 						const connectionData = this._connectionObject.GetMssqlConnectionObject();
-						
+
 						/** Establecemos la conección mediante Tedious */
 						const connection = new tedious.Connection(connectionData);
 
@@ -167,8 +170,15 @@ export default class MssqlConnectionStrategy<DataBaseEntity> implements IDatabas
 				},
 			});
 
+			/** Agregamos el dialecto */
 			this._dialect = dialect;
-			return dialect;
+
+			/** Agregamos la instancia */
+			this._instance = new Kysely<DataBaseEntity>({
+				dialect: this._dialect
+			});
+
+			return this._instance;
 		}
 		catch (err: any) {
 			this._loggerManager.Error("FATAL", "Connect", err);

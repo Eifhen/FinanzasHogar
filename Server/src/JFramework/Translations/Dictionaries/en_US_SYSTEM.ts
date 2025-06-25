@@ -43,12 +43,14 @@ export const EN_US_SYSTEM = {
 	"record-exists": "There is already a record with {0} equal to {1}.",
 	"record-not-found": "No record found with identifier {0}.",
 	"null-parameter-exception": "The parameter {0} can't be null.",
+	"invalid-parameter-exception": "The value entered for parameter {0} is invalid",
 	"database-desconnection-exception": "An error ocurred while desconnecting to the database",
 	"database-connection-exception": "An error occurred while connecting to the database.",
 	"database-no-instance-exception": "There is no database instance available at the moment.",
 	"database-no-dialect-exception": "There is no dialect available at the moment.",
 	"database-transaction-exception": "An error occurred while performing the transaction.",
 	"database-exception": "An error has occurred in the database.",
+	"database-commitment-exception": "Commitment error: A fatal error has occurred. The specified tenant does not have a valid project ID. It is possible that the database is compromised.",
 	"rate-limiter-invalid": "RateLimiter for {0} is not a function.",
 	"middleware-instance-type-exception": "The entered middleware must be an instance of ApplicationMiddleware.",
 	"image-size-exception": "The Image size cannot be larger than {0}.",
@@ -61,6 +63,7 @@ export const EN_US_SYSTEM = {
 	"connection-config-error": "An error ocurred while setting the connection configuration.",
 	"no-tenant": "Error, a valid tenant has not been sent",
 	"tenant-error": "An error occurred while searching for the indicated tenant.",
+	
 	/** END Errores Custom */
 
 	/** Zod Errors */

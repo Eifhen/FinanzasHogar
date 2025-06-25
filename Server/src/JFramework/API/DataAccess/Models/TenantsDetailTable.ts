@@ -8,21 +8,6 @@ export interface TenantDetailTable {
   /** Clave unica del tenant */
   tenant_key: string;
 
-  /** Nombre de la base de datos del tenant*/
-  databaseName: string;
-
-  /** Cadena de conexión del tenant */
-  connectionString: string;
-
-  /** Tiempo de conección */
-  connectionTimeout: number,
-
-  /** Tamaño minimo del connectionPool */
-  connectionPoolMinSize: number,
-
-  /** Tamaño máximo del connectionPool */
-  connectionPoolMaxSize: number
-
   /** almacena parámetros de estilo en formato JSON */
   style_parameters: JSONColumnType<any, string, string>;
 

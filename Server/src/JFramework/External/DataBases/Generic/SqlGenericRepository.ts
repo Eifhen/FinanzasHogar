@@ -41,10 +41,10 @@ export default class SqlGenericRepository<
 	private _transaction: Transaction<DataBaseEntity> | null = null;
 
 	/** Contexto de aplicación */
-	private readonly _applicationContext: ApplicationContext;
+	public readonly _applicationContext: ApplicationContext;
 
 	/** Manejador de promesas */
-	private readonly _applicationPromise: ApplicationPromise;
+	public readonly _applicationPromise: ApplicationPromise;
 
 
 	constructor(

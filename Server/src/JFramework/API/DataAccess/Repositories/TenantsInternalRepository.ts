@@ -21,7 +21,6 @@ export default class TenantsInternalRepository extends SqlGenericRepository<Inte
 	private _logger: ILoggerManager;
 
 	constructor(deps: ITenantsInternalRepositoryDependencies) {
-		console.log("DEPS =>", deps);
 		super(deps.internalDatabase, "gj_tenants", "id", deps.applicationContext);
 
 		// Instanciamos el logger

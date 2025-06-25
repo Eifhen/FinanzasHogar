@@ -76,6 +76,7 @@ export const HttpStatusName = {
 
 	// Custom Errors
 	NullParameterException:  "NullParameterException",
+	InvalidParameterException: "InvalidParameterException",
 	RecordAlreadyExists: "RecordAlreadyExists",
 	ValidationException: "ValidationException",
 
@@ -85,6 +86,7 @@ export const HttpStatusName = {
 	DatabaseNoInstanceException: "DatabaseNoInstanceException",
 	DatabaseNoDialectException: "DatabaseNoDialectException",
 	DatabaseTransactionException: "DatabaseTransactionException",
+	DatabaseCommitmentException: "DatabaseCommitmentException",
 	DatabaseException: "DatabaseException",
 
 	// Cloud Errors

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Devart (www.devart.com), SQL document design file -->
+<!-- Modifying this generated file will probably render it invalid -->
+<Document>
+  <Properties>
+    <Type>SQL Document Design</Type>
+    <DatabaseProvider>77a9b459-6f15-4675-8e18-cdd88f58e376</DatabaseProvider>
+    <ProviderVersion>3.2.126.0</ProviderVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </Properties>
+  <Connection>
+    <ConnectionModel>
+      <PropertyValue Name="Database">77a9b459-6f15-4675-8e18-cdd88f58e376</PropertyValue>
+      <PropertyValue Name="Id">a60dfa63-ea2d-4f86-98a3-86eb7856427d</PropertyValue>
+      <PropertyValue Name="ConnectionString" xml:space="preserve">User Id=postgres;Host=localhost;Port=5432;Database=gj_framework;Unicode=True;Connection Timeout=15;Integrated Security=False</PropertyValue>
+    </ConnectionModel>
+    <Database>gj_framework</Database>
+  </Connection>
+  <Views ShowAdditionalViews="False" IsLayoutActiveAttribute="True" MainViewAttribute="Code" MainViewScale="61">
+    <View Name="Code" Active="True" Visible="True">
+      <Data />
+    </View>
+    <View Name="Data" Visible="True" />
+  </Views>
+</Document>
