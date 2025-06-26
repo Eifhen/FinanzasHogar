@@ -10,10 +10,8 @@ import { NO_REQUEST_ID } from "../../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../../Utils/HttpCodes";
 import DatabaseInstanceManager from "./DatabaseInstanceManager";
 import IDatabaseConnectionManager from "./Interfaces/IDatabaseConnectionManager";
-import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
-import MssqlConnectionStrategy from "./Strategies/MssqlConnectionStrategy";
-import PostgreSqlConnectionStrategy from "./Strategies/PostgreSqlConnectionStrategy";
-import { DatabaseConnectionManagerOptions, DatabaseType } from "./Types/DatabaseType";
+import DatabaseStrategyDirector from "./Strategies/DatabaseStrategyDirector";
+import { ConnectionEntity, DatabaseConnectionManagerOptions } from "./Types/DatabaseType";
 
 
 
@@ -31,7 +29,6 @@ interface DatabaseConnectionManagerDependencies {
 
 	/** Opciones de configuración para el Manager */
 	options: Partial<DatabaseConnectionManagerOptions>;
-	
 }
 
 export default class DatabaseConnectionManager<DataBaseEntity> implements IDatabaseConnectionManager {
@@ -48,8 +45,9 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 	/** Manejador de intancias de base de datos */
 	private readonly _databaseInstanceManager: DatabaseInstanceManager;
 
-	/** Estrategia de conneccion */
-	private _strategy?: IDatabaseConnectionStrategy<any, any>;
+	/** Entidad de conexión la cual almacena las opciones de conexión 
+	 * y la estrategía de conexión */
+	private _connectionEntity?: ConnectionEntity;
 
 	/** Opciones de configuración */
 	private _options: DatabaseConnectionManagerOptions;
@@ -68,9 +66,6 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 		this._configurationSettings = deps.configurationSettings;
 		this._databaseInstanceManager = deps.databaseInstanceManager;
 
-		/** Seteamos el container manager del databaseInstanceManager */
-		this._databaseInstanceManager.RegisterInstanceManager(this._containerManager);
-
 		/** seteamos el ambiente de conexión */
 		this._connectionEnv = deps.options.connectionEnvironment ?? ConnectionEnvironment.INTERNAL;
 
@@ -88,36 +83,17 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 	private SetConnectionStrategy(): void {
 		this._logger.Activity("SetConnectionStrategy");
 
+		/** Obtenemos el applicationContext */
 		const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
 
-		/** Ejecutamos una estrategía de conección según el tipo de base de datos
-		 * especificado en la configuración */
-		switch (this._options.databaseType) {
-			case DatabaseType.ms_sql_database:
-				/** Resolvemos la estrategía */
-				this._strategy = new MssqlConnectionStrategy<DataBaseEntity>({
-					applicationContext,
-					connectionOptions: {
-						connectionEnvironment: this._connectionEnv,
-						connectionData: this._configurationSettings.databaseConnectionData.connections[this._connectionEnv],
-					}
-				});
-				break;
-			case DatabaseType.postgre_sql_database:
-				/** Resolvemos la estrategia */
-				this._strategy = new PostgreSqlConnectionStrategy<DataBaseEntity>({
-					applicationContext,
-					connectionOptions: {
-						connectionEnvironment: this._connectionEnv,
-						connectionData: this._configurationSettings.databaseConnectionData.connections[this._connectionEnv],
-					}
-				});				
-				break;
-			case DatabaseType.mongo_database:
-				throw new Error("Estrategía de conexión No implementada");
-			default:
-				throw new Error(`La estrategía ${this._options.databaseType as string} no está implementada`);
-		}
+
+		/** Obtenemos el strategyDirector */
+		const databaseStrategyDirector = new DatabaseStrategyDirector({
+			applicationContext
+		});
+
+		/** Agregamos la entidad de conexión */
+		this._connectionEntity = databaseStrategyDirector.GetConnectionStrategy<DataBaseEntity>(this._options);
 
 	}
 
@@ -130,22 +106,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 			this.SetConnectionStrategy();
 
 			/** Verificamos si la estraegia se insertó correctamente */
-			if (this._strategy) {
-
-				/** Realizamos la conección con la base de datos */
-				await this._strategy.Connect();
-				
-				/** Agrega la instancia de la base de datos al contenedor de dependencias */
-				this._databaseInstanceManager.SetDatabaseInstance(
-					this._options.databaseContainerInstanceName, 
-					this._options.databaseRegistryName,
-					this._strategy
-				)
-
-				/** Notifcamos el environment al cual nos hemos conectado */
-				this._logger.Message("INFO", `El servidor está conectado a la base de datos [${this._options.connectionEnvironment.toUpperCase()}]`);
-			}
-			else {
+			if (!this._connectionEntity || !this._connectionEntity.strategy) {
 				throw new ApplicationException(
 					"Connect",
 					HttpStatusName.DatabaseConnectionException,
@@ -155,18 +116,39 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 					__filename,
 				);
 			}
+
+			/** Realizamos la conección con la base de datos */
+			await this._connectionEntity.strategy.Connect();
+
+			/** Agrega la instancia de la base de datos al contenedor de dependencias */
+			this._databaseInstanceManager.SetDatabaseInstance(
+				this._containerManager,
+				this._options.databaseContainerInstanceName,
+				this._options.databaseRegistryName,
+				this._connectionEntity.strategy
+			)
+
+			/** Notifcamos el environment al cual nos hemos conectado */
+			this._logger.Message("INFO", `
+				El servidor está conectado a la base de datos 
+				[${this._options.connectionEnvironment.toUpperCase()}]
+			`);
+
 		}
 		catch (err: any) {
 			this._logger.Error(LoggerTypes.FATAL, "Connect", err);
 
 			// Si ya se creó parcialmente una instancia, intenta cerrarla para liberar recursos
-			if (this._strategy && this._strategy.GetInstance()) {
-				try {
-					this._logger.Message("WARN", "Se ha detectado una instancia de la base de datos abierta, el sistema procedera a cerrarla");
-					await this._strategy.CloseConnection();
-				} catch (closeErr) {
+			if (this._connectionEntity?.strategy) {
+				this._logger.Message("WARN", `
+					Se ha detectado una instancia de la base de datos abierta, 
+					el sistema procedera a cerrarla
+				`);
+
+				/** Desconectamos */
+				await this.Disconnect().catch((closeErr) => {
 					this._logger.Error("FATAL", "Error cerrando la instancia", closeErr);
-				}
+				});
 			}
 
 			if (err instanceof ApplicationException) {
@@ -191,12 +173,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 			this._logger.Activity("Disconnect");
 
 			/** Verificamos si la estraegia se insertó correctamente */
-			if (this._strategy) {
-
-				/** Cerramos la conección con la base de datos */
-				await this._strategy.CloseConnection();
-			}
-			else {
+			if (!this._connectionEntity || !this._connectionEntity.strategy) {
 				throw new ApplicationException(
 					"Disconnect",
 					HttpStatusName.DatabaseConnectionException,
@@ -206,6 +183,10 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 					__filename,
 				);
 			}
+
+			/** Cerramos la conección con la base de datos */
+			await this._connectionEntity.strategy.CloseConnection();
+
 		}
 		catch (err: any) {
 			this._logger.Error(LoggerTypes.FATAL, "Desconnect", err);

@@ -51,3 +51,6 @@ export const BUSINESS_DATABASE_REGISTRY_NAME = "business_no_tenant_db";
 
 /** Texto a desplegar cuando queremos mandar algo en lugar de un request ID */
 export const NO_REQUEST_ID: string = "NO_REQUEST_ID";
+
+/** Identificador del contenedor de dependencias root */
+export const ROOT_CONTAINER_KEY = "ROOT_CONTAINER";

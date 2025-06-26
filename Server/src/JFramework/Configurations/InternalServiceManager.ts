@@ -39,6 +39,7 @@ import InternalSecurityManager from "./InternalSecurityManager";
 import TenantConnectionsInternalRepository from "../API/DataAccess/Repositories/TenantConnectionsInternalRepository";
 import ITenantConnectionsInternalRepository from "../API/DataAccess/Repositories/Interfaces/ITenantConnectionsInternalRepository";
 import DatabaseInstanceManager from "../External/DataBases/DatabaseInstanceManager";
+import MultidatabaseConnectionManager from '../External/DataBases/MultidatabaseConnectionManager';
 
 
 
@@ -66,12 +67,10 @@ export class InternalServiceManager implements IInternalServiceManager {
 	/** Manejador de seguridad interna */
 	private readonly _internalSecurityManager: IInternalSecurityManager;
 
-	/** Manejador de conexón a la base de datos de uso interno */
-	private readonly _internalDatabaseConnecctionManager: IDatabaseConnectionManager;
-
-	/** Manejador de conexión de base de datos para el negocio si la variable isMultitenant 
-	 * en el objeto de configuración es true, entonces este objeto será undefined*/
-	private readonly _businessDatabaseConnectionManager?: IDatabaseConnectionManager;
+	/** Manejador de conexiones multiples, nos permite manejar la conexión a la base de datos interna
+	 * y la conexión al a base de datos del negocio. La conexión a la base de datos del negocio
+	 * solo se realiza si la app es multitenant */
+	private readonly _multiDatabaseConnectionManager: IDatabaseConnectionManager;
 
 	/** Manejador de instancias de base de datos */
 	private readonly _databaseInstanceManager: DatabaseInstanceManager;
@@ -101,36 +100,40 @@ export class InternalServiceManager implements IInternalServiceManager {
 
 		/** Agregamos el manejador de instancias de base de datos */
 		this._databaseInstanceManager = new DatabaseInstanceManager({
-			configurationSettings: this._configurationSettings	
+			configurationSettings: this._configurationSettings,
+			containerManager: this._containerManager
 		});
 
-		/** Agregamos el manejador de conexión para la base de datos de uso interno */
-		this._internalDatabaseConnecctionManager = new DatabaseConnectionManager<any>({
+		/** Agregamos el manejador de conexiones multiples, se realiza una conexión 
+		 * por cada item agregado al connectionOptions, cada item en connectionOptions
+		 * contiene los datos de conexión necesarios para esa conexión */
+		this._multiDatabaseConnectionManager = new MultidatabaseConnectionManager({
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings,
 			databaseInstanceManager: this._databaseInstanceManager,
-			options: {
-				connectionEnvironment: ConnectionEnvironment.INTERNAL,
-				databaseContainerInstanceName: INTERNAL_DATABASE_INSTANCE_NAME,
-				databaseRegistryName: INTERNAL_DATABASE_REGISTRY_NAME,
-			}
-		});
-
-		/** Si la aplicación NO implementa multi-tenants, agregamos 
-		 * manejador de conexión para la base de datos del negocio */
-		if (!this._configurationSettings.databaseConnectionData.isMultitenants) {
-			/** Agregamos el manejador de conexión */
-			this._businessDatabaseConnectionManager = new DatabaseConnectionManager<any>({
-				containerManager: this._containerManager,
-				configurationSettings: this._configurationSettings,
-				databaseInstanceManager: this._databaseInstanceManager,
-				options: {
+			connectionOptions: [
+				{
+					/** Agregamos las opciones de la base de datos de uso interno */
+					connectionEnvironment: ConnectionEnvironment.INTERNAL,
+					databaseType: this._configurationSettings.databaseConnectionData.connections[ConnectionEnvironment.INTERNAL].type,
+					databaseContainerInstanceName: INTERNAL_DATABASE_INSTANCE_NAME,
+					databaseRegistryName: INTERNAL_DATABASE_REGISTRY_NAME,
+				},
+				{
+					// Agregamos las opciones de la base de datos del negocio
 					connectionEnvironment: ConnectionEnvironment.BUSINESS,
+					databaseType: this._configurationSettings.databaseConnectionData.connections[ConnectionEnvironment.BUSINESS].type,
 					databaseContainerInstanceName: BUSINESS_DATABASE_INSTANCE_NAME,
-					databaseRegistryName: BUSINESS_DATABASE_REGISTRY_NAME
+					databaseRegistryName: BUSINESS_DATABASE_REGISTRY_NAME,
+
+					/** Si la aplicación NO implementa multi-tenants, agregamos 
+	 					* manejador de conexión para la base de datos del negocio.
+						* El connectionCondition nos ayuda a realizar la conexión solo 
+						* si la condición se cumple. */
+					connectionCondition: this._configurationSettings.databaseConnectionData.isMultitenants
 				}
-			});
-		}
+			]
+		})
 
 		/** Agregamos el manejador de conección caché */
 		this._cacheConnectionManager = new CacheConnectionManager({
@@ -267,13 +270,8 @@ export class InternalServiceManager implements IInternalServiceManager {
 			/** Realiza conección con el cliente de caché (Redis) */
 			await this._cacheConnectionManager.Connect();
 
-			/** Realizamos la conexión a la base de datos de uso interno*/
-			await this._internalDatabaseConnecctionManager.Connect();
-
-			/** Realizamos conexión a base de datos del negocio */
-			if (this._businessDatabaseConnectionManager) {
-				await this._businessDatabaseConnectionManager.Connect();
-			}
+			/** Realizamos la conexión a la base de datos*/
+			await this._multiDatabaseConnectionManager.Connect();
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "RunConnectionServices", err);
@@ -289,13 +287,8 @@ export class InternalServiceManager implements IInternalServiceManager {
 			/** Cerramos la conexión con el servidor caché */
 			await this._cacheConnectionManager.Disconnect();
 
-			/** Cerramos la conexión con la base de datos */
-			await this._internalDatabaseConnecctionManager.Disconnect();
-
-			/** Cerramos la conexión a base de datos del negocio */
-			if (this._businessDatabaseConnectionManager) {
-				await this._businessDatabaseConnectionManager.Disconnect();
-			}
+			/** Desconecta TODAS las instancias registradas */
+			await this._databaseInstanceManager.DisconnectAllInstances();
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "DisconnectConnectionServices", err);

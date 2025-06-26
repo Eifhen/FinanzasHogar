@@ -1,6 +1,7 @@
 import { Generated } from "kysely";
 import { DatabaseConnectionData } from "../../../Configurations/Types/IConfigurationSettings";
 import { ConnectionEnvironment } from "../../../Configurations/Types/IConnectionService";
+import IDatabaseConnectionStrategy from "../Interfaces/IDatabaseConnectionStrategy";
 
 /** Tipos de bases de datos contemplados por el sistema */
 export const DatabaseType = {
@@ -57,6 +58,12 @@ export type DatabaseConnectionManagerOptions = {
 
   /** Nombre de la instancia de base de datos en el registro de instancias del databaseInstanceManager */
   databaseRegistryName: string;
+
+  /** Indica alguna condición que se deba cumplir para poder realizar la condición */
+  connectionCondition?: boolean | (() => boolean);
+
+  /** Datos de conexión */
+  connectionData?: DatabaseConnectionData,
 }
 
 /** Objecto de opciones para manejadores de conexión de base de datos multi-tenant*/
@@ -68,9 +75,18 @@ export type MultiTenantConnectionManagerOptions = {
   /** Tipo de base de datos */
   databaseType: DatabaseType;
 
-  /** Define el nombre que tendrá la instancia de la base de datos dentro del contenedor de dependencias */
+  /** Define el nombre que tendrá la instancia de la base de datos 
+   * ddentro del contenedor de dependencias */
   databaseContainerInstanceName: string;
+
+  /** Nombre que tendra la instancia de la base de datos en el registro 
+   * de instancias del databaseInstanceManager */
+  databaseRegistryName: string;
 }
 
 
 
+export type ConnectionEntity = {
+  strategy: IDatabaseConnectionStrategy<any, any>|null;
+  options: DatabaseConnectionManagerOptions;
+}

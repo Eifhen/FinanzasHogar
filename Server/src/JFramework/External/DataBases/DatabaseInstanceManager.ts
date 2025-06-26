@@ -6,13 +6,14 @@ import ILoggerManager from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
-import { NO_REQUEST_ID } from "../../Utils/const";
+import { NO_REQUEST_ID, ROOT_CONTAINER_KEY } from "../../Utils/const";
 import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
 
 
 
 interface DatabaseInstanceManagerDependencies {
 	configurationSettings: ConfigurationSettings;
+	containerManager: IContainerManager;
 }
 
 
@@ -27,11 +28,6 @@ export default class DatabaseInstanceManager {
 	/** Instancia del logger */
 	private readonly _logger: ILoggerManager;
 
-	/** Container scoped de la request en curso, 
-	 * también puede referirse al container root, 
-	 * dependiendo de donde esta clase es llamada*/
-	private _container?: IContainerManager;
-
 	/** Ajuste de configuración */
 	private readonly _configurationSettings: ConfigurationSettings;
 
@@ -41,7 +37,11 @@ export default class DatabaseInstanceManager {
 	 * Este registro almacena un listado de las estrategias de conección utilizadas,
 	 * la estrategia de conexión utilizada tiene acceso a la instancia de la base de datos
 	 * y mediante la estrategia utilizada podemos cerrar u abrir conexiones */
-	private instanceRegistry = new Map<string, IDatabaseConnectionStrategy<any, any>>();
+	private _instanceRegistry = new Map<string, IDatabaseConnectionStrategy<any, any>>();
+
+	/** Contiene el dato de la identidad del container que 
+	 * se recibió cuando se creó la instancia */
+	public containerIdentity:string = "";
 
 	constructor(deps: DatabaseInstanceManagerDependencies) {
 		/** Instanciamos el logger */
@@ -51,55 +51,39 @@ export default class DatabaseInstanceManager {
 		});
 
 		this._configurationSettings = deps.configurationSettings;
+
+		this.containerIdentity = deps.containerManager._identifier;
+		
+		/** Registramos la instancia */
+		this.RegisterInstanceManager(deps.containerManager);
 	}
 
-	/** Setea el contenedor que se va a utilizar */
-	public SetContainer(container: IContainerManager) {
-		try {
-			this._logger.Activity("SetScopedContainer");
-
-			/** Seteamos el contenedor scoped */
-			this._container = container;
-
-			/** Logueamos la operación */
-			this._logger.Message("INFO", `El contenedor ${container._identifier} Ha sido insertado`);
-		}
-		catch (err: any) {
-			this._logger.Error("ERROR", "SetScopedContainer", err);
-
-			if (err instanceof ApplicationException) {
-				throw err;
-			}
-
-			throw new ApplicationException(
-				"SetScopedContainer",
-				HttpStatusName.InternalServerError,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
-				__filename,
-				err
-			);
-		}
-	}
 
 	/** Registramos el DatabaseInstanceManager en el contenedor de dependencias y lo seteamos */
-	public RegisterInstanceManager(container: IContainerManager){
+	public RegisterInstanceManager(rootContainer: IContainerManager) {
 		try {
 			this._logger.Activity("RegisterManager");
 
-			/** Seteamos el contenedor scoped */
-			this._container = container;
-			
+			/** Si el contenedor actual es root, entonces retornamos */
+			if (rootContainer._identifier !== ROOT_CONTAINER_KEY) {
+				this._logger.Message("ERROR", `
+					Error: El contenedor ingresado no es el root ${rootContainer._identifier}, 
+					la instancia no será registrada.
+				`);
+
+				return;
+			}
+
+			/** Obtenemos la instancia actual de la clase */
 			const instance = this;
 
-			/** registramos el manejador de instancias en el contenedor de dependencias */
-			this._container.AddInstance<DatabaseInstanceManager>("databaseInstanceManager", instance);
+			/** registramos la instancia en el contenedor de dependencias */
+			rootContainer.AddInstance<DatabaseInstanceManager>("databaseInstanceManager", instance);
 
 			/** Logueamos la operación */
 			this._logger.Message("INFO", `
 				La instancia de DatabaseInstanceManager ha sido registrada 
-				en el contenedor ${container._identifier}
+				en el contenedor ${rootContainer._identifier}
 			`);
 		}
 		catch (err: any) {
@@ -123,6 +107,8 @@ export default class DatabaseInstanceManager {
 
 	/** Setea la instancia de la base de datos al registro de instancias
 	 * 
+	 * @param {IContainerManager} container - Contenedor de dependencias en el cual se insertará la instancia
+	 
 	 * @param {string} containerInstanceName - Indica el nombre de la instancia de la 
 	 * base de datos en el contenedor de dependencias
 	 * 
@@ -133,6 +119,7 @@ export default class DatabaseInstanceManager {
 	 * @param {IDatabaseConnectionStrategy<any, any>} strategyInstance - Instancia de la estrategia 
 	 * utilizada que se va a almacenar en el registro de instancias */
 	public SetDatabaseInstance(
+		container: IContainerManager,
 		containerInstanceName: string,
 		strategyRegistryName: string,
 		strategyInstance: IDatabaseConnectionStrategy<any, any>
@@ -141,34 +128,22 @@ export default class DatabaseInstanceManager {
 			this._logger.Activity("SetDatabaseInstance");
 
 			/** Validar que la instancia que se intenta agregar no esté ya registrada */
-			if (this.instanceRegistry.has(strategyRegistryName)) {
+			if (this._instanceRegistry.has(strategyRegistryName)) {
 				this._logger.Message("WARN", `
 					La instancia con la clave ${strategyRegistryName} ya está registrada en el registro de instancias | 
-					El container actual es ${this._container?._identifier}
+					El container actual es ${container._identifier}
 				`);
 				return;
 			}
 
-			/** Validamos el container */
-			if(!this._container){
-				throw new ApplicationException(
-					"SetDatabaseInstance",
-					HttpStatusName.InternalServerError,
-					"Error, por el momento no hay un contenedor inicializado",
-					HttpStatusCode.InternalServerError,
-					NO_REQUEST_ID,
-					__filename,
-				);
-			}
-
 			/** Agregamos la instancia al registro */
-			this.instanceRegistry.set(strategyRegistryName, strategyInstance);
+			this._instanceRegistry.set(strategyRegistryName, strategyInstance);
 
 			/** Obtenemos la instancia de la base de datos y la inyectamos en el contenedor de dependencias */
 			const databaseInstance = strategyInstance.GetInstance();
 
 			/** Agregamos la instancia al container */
-			this._container?.AddInstance(containerInstanceName, databaseInstance);
+			container.AddInstance(containerInstanceName, databaseInstance);
 
 			/** Logueamos  */
 			this._logger.Message("INFO", `La instancia ${strategyRegistryName} fue registrada exitosamente`);
@@ -198,7 +173,7 @@ export default class DatabaseInstanceManager {
 		try {
 			this._logger.Activity("GetDatabaseInstance");
 
-			const strategyInstance = this.instanceRegistry.get(key);
+			const strategyInstance = this._instanceRegistry.get(key);
 
 			/** Validar que la instancia que se intenta buscar esté ya registrada */
 			if (!strategyInstance) {
@@ -238,12 +213,38 @@ export default class DatabaseInstanceManager {
 		}
 	}
 
+	/** Valida si un key se encuentra registrado */
+	public CheckInstance(key: string): boolean {
+		try {
+			this._logger.Activity("CheckInstance");
+
+			return this._instanceRegistry.has(key);
+		}
+		catch (err: any) {
+			this._logger.Error("ERROR", "CheckInstance", err);
+
+			if (err instanceof ApplicationException) {
+				throw err;
+			}
+
+			throw new ApplicationException(
+				"CheckInstance",
+				HttpStatusName.InternalServerError,
+				err.message,
+				HttpStatusCode.InternalServerError,
+				NO_REQUEST_ID,
+				__filename,
+				err
+			);
+		}
+	}
+
 	/** Permite desconectar una instancia de la estrategia de base de datos según su key */
 	public async DisconnectInstance(key: string): Promise<void> {
 		try {
 			this._logger.Activity("DisconnectInstance");
 
-			const instance = this.instanceRegistry.get(key);
+			const instance = this._instanceRegistry.get(key);
 
 			/** Validar que la instancia que se intenta buscar esté ya registrada */
 			if (!instance) {
@@ -259,6 +260,9 @@ export default class DatabaseInstanceManager {
 
 			/** Nos desconectamos */
 			await instance.CloseConnection();
+
+			/** Removemos el key del registro de instancias */
+			this._instanceRegistry.delete(key);
 
 			this._logger.Message("INFO", `Te has desconectado de la instancia ${key} exitosamente`);
 
@@ -282,21 +286,28 @@ export default class DatabaseInstanceManager {
 		}
 	}
 
-	/** Permite desconectar todas las instancias de la base de datos según el key de la estrategía */
+	/** Permite desconectar todas las instancias de la base de datos 
+	 * y limpia el registro de instancias */
 	public async DisconnectAllInstances(): Promise<void> {
 		try {
 			this._logger.Activity("DisconnectAllInstances");
 
+			this._logger.Message("INFO", `Instancias actualmente registradas`, ...this._instanceRegistry.keys());
+
 			/** Nos desconectamos de todas las instancias registradas una por una */
-			this.instanceRegistry.forEach((instance, key) => {
-				instance.CloseConnection()
-				.then(() => {
-					this._logger.Message("INFO", `Te has desconectado de la instancia ${key} exitosamente`);
-				})
-				.catch(err => {
-					this._logger.Message("ERROR", `Ha ocurrido un error al desconectar la instancia ${key}`, err);
-				});
-			});
+			const promises = Array.from(this._instanceRegistry.entries()).map(
+				async ([key, strat]) => {
+					try {
+						await strat.CloseConnection();
+						this._logger.Message("INFO", `Te has desconectado de la instancia ${key} exitosamente`);
+					} catch (err) {
+						this._logger.Message("ERROR", `Ha ocurrido un error al desconectar la instancia ${key}`, err);
+					}
+				}
+			);
+
+			await Promise.all(promises);
+			this._instanceRegistry.clear();
 
 		}
 		catch (err: any) {
@@ -308,35 +319,6 @@ export default class DatabaseInstanceManager {
 
 			throw new ApplicationException(
 				"DisconnectAllInstances",
-				HttpStatusName.InternalServerError,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
-				__filename,
-				err
-			);
-		}
-	}
-
-	/** Permite limpiar el registro de estrategias de conexión */
-	public async ClearRegistry(): Promise<void> {
-		try {
-			this._logger.Activity("ClearRegistry");
-
-			/** Limpiamos el registro de instancias */
-			this.instanceRegistry.clear();
-
-			this._logger.Message("INFO", "El registro de instancias ha sido limpiado");
-		}
-		catch (err: any) {
-			this._logger.Error("ERROR", "ClearRegistry", err);
-
-			if (err instanceof ApplicationException) {
-				throw err;
-			}
-
-			throw new ApplicationException(
-				"ClearRegistry",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,

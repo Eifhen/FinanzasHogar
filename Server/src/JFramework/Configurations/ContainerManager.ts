@@ -4,7 +4,7 @@ import IContainerManager from "./Interfaces/IContainerManager";
 import ILoggerManager, { LoggerTypes } from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import ApplicationException from "../ErrorHandling/ApplicationException";
-import { NO_REQUEST_ID } from "../Utils/const";
+import { NO_REQUEST_ID, ROOT_CONTAINER_KEY } from "../Utils/const";
 import { HttpStatusName, HttpStatusCode } from "../Utils/HttpCodes";
 import { ClassInstance, ClassConstructor, FactoryFunction } from "../Utils/Types/CommonTypes";
 import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
@@ -21,7 +21,7 @@ export default class ContainerManager implements IContainerManager {
 	private _logger: ILoggerManager;
 
 	/** Identificador */
-	public _identifier: string = "ROOT_CONTAINER";
+	public _identifier: string = ROOT_CONTAINER_KEY;
 
 	constructor(container?: AwilixContainer, logger?: ILoggerManager) {
 		// Instanciamos el logger

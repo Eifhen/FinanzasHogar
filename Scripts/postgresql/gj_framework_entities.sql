@@ -63,7 +63,7 @@ CREATE TABLE gj_tenant_details (
 CREATE TABLE gj_tenant_connections (
   id SERIAL PRIMARY KEY NOT NULL, 
   tenant_key UUID UNIQUE NOT NULL, -- Key del gj_tenant
-  database_type TEXT NOT NULL, -- tipo de base de datos ( "ms_sql_database" | "postgres_sql_database" | "mongo_database")
+  database_type TEXT NOT NULL, -- tipo de base de datos ("ms_sql_database" | "postgres_sql_database" | "mongo_database")
   connection TEXT, -- Cadena de conexión del tenant
   timeout INT, -- connectionTimeout de la conexión a la base de datos
   pool_min smallint, -- tamaño minimo del pool
