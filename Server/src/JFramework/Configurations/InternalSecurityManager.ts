@@ -19,6 +19,7 @@ import ConfigurationSettings from "./ConfigurationSettings";
 interface InternalSecurityManagerDependencies {
 	containerManager: IContainerManager;
 	configurationSettings: ConfigurationSettings;
+	applicationContext: ApplicationContext;
 }
 
 export default class InternalSecurityManager implements IInternalSecurityManager {
@@ -32,6 +33,10 @@ export default class InternalSecurityManager implements IInternalSecurityManager
 	/** Ajustes de configuración */
 	private readonly _configurationSettings: ConfigurationSettings;
 
+	/** Contexto de aplicación */
+	private readonly _applicationContext: ApplicationContext;
+
+
 	constructor(deps: InternalSecurityManagerDependencies) {
 		/** Instancia logger */
 		this._logger = new LoggerManager({
@@ -41,6 +46,7 @@ export default class InternalSecurityManager implements IInternalSecurityManager
 
 		this._configurationSettings = deps.configurationSettings;
 		this._containerManager = deps.containerManager;
+		this._applicationContext = deps.applicationContext;
 	}
 
 	/** Permite agregar una instancia del RateLimiter 
@@ -49,8 +55,11 @@ export default class InternalSecurityManager implements IInternalSecurityManager
 		try {
 			this._logger.Activity("AddRateLimiters");
 			const cacheClient = this._containerManager.Resolve<RedisClientType<any, any, any>>("cacheClient");
-			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
-			const manager = new RateLimiterManager({ cacheClient, applicationContext });
+		
+			const manager = new RateLimiterManager({ 
+				cacheClient, 
+				applicationContext: this._applicationContext 
+			});
 
 			/** Registramos los limiters según la configuración */
 			Object.entries(limiterConfig).forEach(([limiterName, options]) => {

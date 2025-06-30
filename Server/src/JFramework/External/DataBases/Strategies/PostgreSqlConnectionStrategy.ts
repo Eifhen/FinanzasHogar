@@ -8,8 +8,8 @@ import { ConnectionStrategyData } from "../Types/DatabaseType";
 import LoggerManager from "../../../Managers/LoggerManager";
 import { DatabaseConnectionException, DatabaseDesconnectionException, DatabaseNoDialectException, DatabaseNoInstanceException, NullParameterException } from "../../../ErrorHandling/Exceptions";
 import ApplicationException from "../../../ErrorHandling/ApplicationException";
-import { DEFAULT_CONNECTION_POOL_SIZE } from "../../../Utils/const";
 import { HttpStatusCode, HttpStatusName } from "../../../Utils/HttpCodes";
+import DatabaseConnectionObject from "../Utils/DatabaseConnectionObject";
 
 
 /**  Si la connección no funciona revisar las 
@@ -34,9 +34,12 @@ export default class PostgreSqlConnectionStrategy<DataBaseEntity> implements IDa
 	/** Contexto de applicación */
 	private _applicationContext: ApplicationContext;
 
-	/** Objeto de conexión de para el PostgreSqlConnectionStrategy 
+	/** Objeto de conexión para el PostgreSqlConnectionStrategy 
  *  -connectionData = Datos de conexión a la DB */
 	private _connectionOptions?: ConnectionStrategyData;
+
+	/** Objecto de conexión */
+	private _connectionObject: DatabaseConnectionObject;
 
 	constructor(deps: IPostgreSqlConnectionStrategyDependencies) {
 		this._loggerManager = new LoggerManager({
@@ -50,6 +53,11 @@ export default class PostgreSqlConnectionStrategy<DataBaseEntity> implements IDa
 
 		/** Seteamos las opciones de conexión */
 		this._connectionOptions = deps.connectionOptions;
+
+		/** Seteamos el objecto de conexión */
+		this._connectionObject = new DatabaseConnectionObject({
+			connectionOptions: this._connectionOptions
+		});
 	}
 
 	/** Permite abrir una conección a la baes de datos */
@@ -66,14 +74,12 @@ export default class PostgreSqlConnectionStrategy<DataBaseEntity> implements IDa
 				return this._instance;
 			}
 
+			/** Obtenemos el objeto de conexión */
+			const connectionConfig = this._connectionObject.GetPostGresConnectionObject();
+
 			/** Creamos el dialecto */
 			const dialect = new PostgresDialect({
-				pool: new Pool({
-					connectionString: this._connectionOptions.connectionData.connectionString ?? "",
-					connectionTimeoutMillis: this._connectionOptions.connectionData.connectionTimeout,
-					min: this._connectionOptions.connectionData.connectionPoolMinSize ?? DEFAULT_CONNECTION_POOL_SIZE,
-					max: this._connectionOptions.connectionData.connectionPoolMaxSize ?? DEFAULT_CONNECTION_POOL_SIZE,
-				})
+				pool: new Pool(connectionConfig)
 			});
 
 			/** Agregamos el dialecto */
@@ -148,7 +154,7 @@ export default class PostgreSqlConnectionStrategy<DataBaseEntity> implements IDa
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);

@@ -3,7 +3,7 @@ import { Generated, Selectable, Insertable, Updateable, JSONColumnType } from "k
 export interface TenantDetailTable {
   
   /** Id secuencial del tenant */
-  id: Generated<number>;
+  id: Generated<bigint>;
 
   /** Clave unica del tenant */
   tenant_key: string;
@@ -20,7 +20,7 @@ export interface TenantDetailTable {
 export type SelectTenantDetails = Selectable<TenantDetailTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateTenantDetails = Insertable<Omit<TenantDetailTable, "id">>;
+export type CreateTenantDetails = Insertable<TenantDetailTable>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateTenantDetails = Updateable<Omit<TenantDetailTable, "id">>;
+export type UpdateTenantDetails = Updateable<TenantDetailTable>;

@@ -1,15 +1,17 @@
-import { GET, route } from "awilix-express";
+import { DELETE, GET, POST, PUT, route } from "awilix-express";
 import ApplicationContext from "../../Configurations/ApplicationContext";
 import ILoggerManager, { LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
 import IInternalTenantService from "../Services/Interfaces/IInternalTenantService";
 import ApplicationRequest from "../../Helpers/ApplicationRequest";
 import { NextFunction, Response } from "express";
-import { ApplicationResponse } from "../../Helpers/ApplicationResponse";
-import { HttpStatusCode, HttpStatusMessage } from "../../Utils/HttpCodes";
+import { HttpStatusCode } from "../../Utils/HttpCodes";
 import Middlewares from "../../Helpers/Decorators/Middlewares";
 import RateLimiterMiddleware from "../../Security/RateLimiter/RateLimiterMiddleware";
-import CsrfValidationMiddleware from "../../Security/CSRF/CsrfValidationMiddleware";
+import CsrfValidationMiddleware from "../../Middlewares/CsrfValidationMiddleware";
+import EncryptDTO from "../DataAccess/DTOs/EncryptDTO";
+import { ValidationException } from "../../ErrorHandling/Exceptions";
+import TenantDTO from "../DataAccess/DTOs/TenantDTO";
 
 
 interface InternalTenantsControllerDependencies {
@@ -45,6 +47,23 @@ export default class InternalTenantsController {
 		this._internalTenantService = deps.internalTenantService;
 	}
 
+	@route("/all")
+	@GET()
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
+	public async GetAllTenants(req: ApplicationRequest, res: Response, next: NextFunction) {
+		try {
+			this._logger.Activity("GetAllTenants");
+
+			const data = await this._internalTenantService.GetAllTenants();
+
+			return res.status(HttpStatusCode.OK).send(data);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.ERROR, "GetAllTenants", err);
+			return next(err);
+		}
+	}
+
 	/** Obtiene un tenant según su proyectKey y su tenantKey */
 	@route("/:tenant_key")
 	@GET()
@@ -57,13 +76,7 @@ export default class InternalTenantsController {
 
 			const data = await this._internalTenantService.GetTenantByKey(tenantKey);
 
-			return res.status(HttpStatusCode.OK).send(
-				new ApplicationResponse(
-					this._applicationContext,
-					HttpStatusMessage.OK,
-					data
-				)
-			);
+			return res.status(HttpStatusCode.OK).send(data);
 		}
 		catch (err: any) {
 			this._logger.Error(LoggerTypes.ERROR, "GetTenantByKey", err);
@@ -83,13 +96,7 @@ export default class InternalTenantsController {
 
 			const data = await this._internalTenantService.GetTenantByCode(tenantCode);
 
-			return res.status(HttpStatusCode.OK).send(
-				new ApplicationResponse(
-					this._applicationContext,
-					HttpStatusMessage.OK,
-					data
-				)
-			);
+			return res.status(HttpStatusCode.OK).send(data);
 		}
 		catch (err: any) {
 			this._logger.Error(LoggerTypes.ERROR, "GetTenantByCode", err);
@@ -109,13 +116,7 @@ export default class InternalTenantsController {
 
 			const data = await this._internalTenantService.GetTenantByDomainName(domainName);
 
-			return res.status(HttpStatusCode.OK).send(
-				new ApplicationResponse(
-					this._applicationContext,
-					HttpStatusMessage.OK,
-					data
-				)
-			);
+			return res.status(HttpStatusCode.OK).send(data);
 		}
 		catch (err: any) {
 			this._logger.Error(LoggerTypes.ERROR, "GetTenantByDomain", err);
@@ -123,25 +124,84 @@ export default class InternalTenantsController {
 		}
 	}
 
+	@route("/")
+	@POST()
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
+	public async AddTenant(req: ApplicationRequest<TenantDTO>, res: Response, next: NextFunction){
+		try {
+			this._logger.Activity("AddTenant");
+
+			const tenant = req.body;
+			const data = await this._internalTenantService.AddTenant(tenant);
+
+			return res.status(HttpStatusCode.OK).send(data);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.ERROR, "AddTenant", err);
+			return next(err);
+		}
+	}
+
+	@route("/")
+	@PUT()
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
+	public async UpdateTenant(req: ApplicationRequest<TenantDTO>, res: Response, next: NextFunction){
+		try {
+			this._logger.Activity("UpdateTenant");
+
+			const tenant = req.body;
+			const data = await this._internalTenantService.UpdateTenant(tenant);
+
+			return res.status(HttpStatusCode.OK).send(data);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.ERROR, "UpdateTenant", err);
+			return next(err);
+		}
+	}
+
+	@route("/:tenantKey")
+	@DELETE()
+	@Middlewares([RateLimiterMiddleware("generalLimiter")])
+	public async DeleteTenant(req: ApplicationRequest<string>, res: Response, next: NextFunction){
+		try {
+			this._logger.Activity("UpdateTenant");
+
+			const tenantKey = req.params.tenantKey;
+			const data = await this._internalTenantService.DeleteTenantByKey(tenantKey);
+
+			return res.status(HttpStatusCode.OK).send(data);
+		}
+		catch (err: any) {
+			this._logger.Error(LoggerTypes.ERROR, "UpdateTenant", err);
+			return next(err);
+		}
+	}
+
 	/** Endpoint que permite encryptar una cadena de conexión */
-	@route("/connection/encrypt/:connectionString")
+	@route("/connection/encrypt")
 	@GET()
 	@Middlewares([RateLimiterMiddleware("generalLimiter")])
-	public async EncryptConnectionString(req: ApplicationRequest, res: Response, next: NextFunction) {
+	public async EncryptConnectionString(req: ApplicationRequest<EncryptDTO>, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("EncryptConnectionString");
 
-			const connectionString = req.params.connectionString;
+			const data = req.body;
 
-			const data = await this._internalTenantService.EncryptDecryptConnectionString(connectionString, false);
-
-			return res.status(HttpStatusCode.OK).send(
-				new ApplicationResponse(
+			const validate = EncryptDTO.Validate(data);
+			if (!validate.isValid) {
+				throw new ValidationException(
+					"EncryptConnectionString",
+					validate.errorData,
 					this._applicationContext,
-					HttpStatusMessage.OK,
-					data
-				)
-			);
+					__filename,
+					validate.innerError
+				);
+			}
+
+			const result = await this._internalTenantService.EncryptDecryptConnectionString(data.connectionString, false);
+
+			return res.status(HttpStatusCode.OK).send(result);
 		}
 		catch (err: any) {
 			this._logger.Error(LoggerTypes.ERROR, "EncryptConnectionString", err);
@@ -150,24 +210,29 @@ export default class InternalTenantsController {
 	}
 
 	/** Endpoint que permite desencryptar una cadena de conexión */
-	@route("/connection/decrypt/:connectionString")
+	@route("/connection/decrypt")
 	@GET()
 	@Middlewares([RateLimiterMiddleware("generalLimiter")])
-	public async DecryptConnectionString(req: ApplicationRequest, res: Response, next: NextFunction) {
+	public async DecryptConnectionString(req: ApplicationRequest<EncryptDTO>, res: Response, next: NextFunction) {
 		try {
 			this._logger.Activity("DecryptConnectionString");
 
-			const connectionString = req.params.connectionString;
+			const data = req.body;
 
-			const data = await this._internalTenantService.EncryptDecryptConnectionString(connectionString, true);
-
-			return res.status(HttpStatusCode.OK).send(
-				new ApplicationResponse(
+			const validate = EncryptDTO.Validate(data);
+			if (!validate.isValid) {
+				throw new ValidationException(
+					"EncryptConnectionString",
+					validate.errorData,
 					this._applicationContext,
-					HttpStatusMessage.OK,
-					data
-				)
-			);
+					__filename,
+					validate.innerError
+				);
+			}
+
+			const result = await this._internalTenantService.EncryptDecryptConnectionString(data.connectionString, true);
+
+			return res.status(HttpStatusCode.OK).send(result);
 		}
 		catch (err: any) {
 			this._logger.Error(LoggerTypes.ERROR, "DecryptConnectionString", err);

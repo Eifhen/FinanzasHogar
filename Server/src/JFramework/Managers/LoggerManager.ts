@@ -113,8 +113,8 @@ export default class LoggerManager implements ILoggerManager {
 				`El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]` :
 				`El ${this._entityCategory} [${this._entityName}] se ha ejecutado`;
 
-			if (this._applicationContext && this._applicationContext.requestData.requestId !== "") {
-				msg = `RequestId: ${this._applicationContext.requestData.requestId} | ${msg}`;
+			if (this._applicationContext && this._applicationContext.requestContext.requestId !== "") {
+				msg = `RequestId: ${this._applicationContext.requestContext.requestId} | ${msg}`;
 			} else if (!IsNullOrEmpty(this._requestId)) {
 				msg = `RequestId: ${this._requestId} | ${msg}`;
 			}
@@ -145,8 +145,8 @@ export default class LoggerManager implements ILoggerManager {
 		try {
 			let msg = `El ${this._entityCategory} [${this._entityName}] ha ejecutado el método [${method}]`;
 
-			if (this._applicationContext && this._applicationContext.requestData.requestId !== "") {
-				msg = `RequestId: ${this._applicationContext.requestData.requestId} | ${msg}`;
+			if (this._applicationContext && this._applicationContext.requestContext.requestId !== "") {
+				msg = `RequestId: ${this._applicationContext.requestContext.requestId} | ${msg}`;
 			} else if (!IsNullOrEmpty(this._requestId)){
 				msg = `RequestId: ${this._requestId} | ${msg}`;
 			}
@@ -179,8 +179,8 @@ export default class LoggerManager implements ILoggerManager {
 				`Ha ocurrido un error en el ${this._entityCategory} [${this._entityName}]`;
 
 			// Agregar request id desde el context si lo hay
-			if (this._applicationContext && this._applicationContext.requestData.requestId !== "") {
-				msg = `RequestId: ${this._applicationContext.requestData.requestId} | ${msg}`;
+			if (this._applicationContext && this._applicationContext.requestContext.requestId !== "") {
+				msg = `RequestId: ${this._applicationContext.requestContext.requestId} | ${msg}`;
 			} else if (!IsNullOrEmpty(this._requestId)){
 				msg = `RequestId: ${this._requestId} | ${msg}`;
 			}

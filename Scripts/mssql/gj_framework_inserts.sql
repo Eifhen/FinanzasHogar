@@ -73,3 +73,63 @@ delete from gj_tenant_details;
 
 select * from gj_proyects;
 delete from gj_proyects;
+
+--------------------------------------------------------
+
+DROP TABLE gj_tenant_connections;
+
+use gj_framework;
+
+BEGIN TRANSACTION 
+
+ALTER TABLE gj_tenant_details DROP COLUMN databaseName;
+
+ALTER TABLE gj_tenant_details DROP COLUMN connectionObject;
+
+ALTER TABLE gj_tenant_details DROP COLUMN connectionString;
+
+ALTER TABLE gj_tenants DROP COLUMN database_type;
+
+ALTER TABLE gj_tenant_connections ADD COLUMN database_type TEXT;
+
+ALTER TABLE gj_tenant_connections ALTER COLUMN database_type SET NOT NULL;
+
+---------------------------------------------------------
+-- PERSONAL = 0B7BB829-745E-4A16-9FEB-04C0A8AA61B1;
+
+INSERT INTO gj_tenant_connections (
+  tenant_key,
+  database_type,
+  connection,
+  timeout,
+  pool_min,
+  pool_max
+)
+VALUES(
+  '0B7BB829-745E-4A16-9FEB-04C0A8AA61B1',
+  'ms_sql_database',
+  'eyJpdiI6ImNJZzR6VFhjTnJQV3F6N01yeUtNdkE9PSIsInZhbHVlIjoibG5TZU5xeWtQejJ1K1pGREpJSzlsVHNhdGwzZG5JY0U1djcxUU1ZZ3NZcnlwd3ZZSlpCT29UT0Zza2xkM0dmNlhJNVQvOGpHekJ0WWN3c0s5Z3hEMnNhM05aVFlYckxjUmx3Z2ZlcS8zOEIxR3c0ektvNHRqUzY1ZktSQk8xVXBLMU0wUVVIZ1BLTkNFakl6cDNRKzZQMzhqeWc1WVNTKzliZEtzMmhXakFRPSJ9eyJpdiI6ImNJZzR6VFhjTnJQV3F6N01yeUtNdkE9PSIsInZhbHVlIjoibG5TZU5xeWtQejJ1K1pGREpJSzlsVHNhdGwzZG5JY0U1djcxUU1ZZ3NZcnlwd3ZZSlpCT29UT0Zza2xkM0dmNlhJNVQvOGpHekJ0WWN3c0s5Z3hEMnNhM05aVFlYckxjUmx3Z2ZlcS8zOEIxR3c0ektvNHRqUzY1ZktSQk8xVXBLMU0wUVVIZ1BLTkNFakl6cDNRKzZQMzhqeWc1WVNTKzliZEtzMmhXakFRPSJ9',
+  5000, -- 5s
+  1,
+  10
+)
+
+---------------------------------------------------------
+use gj_framework;
+
+SELECT * FROM gj_proyects;
+SELECT * FROM gj_tenants;
+SELECT * FROM gj_tenant_details;
+SELECT * FROM gj_tenant_connections;
+
+
+
+select * from gj_tenant_connection_view;
+
+COMMIT TRANSACTION
+-- ROLLBACK TRANSACTION
+
+
+UPDATE gj_tenant_connections 
+SET connection = 'eyJpdiI6Ikg3NnlLSUc3R0pLa1g5SE9ZSy9IdHc9PSIsInZhbHVlIjoiUS9wZVhMOHArMkd6NGU2cHpCM2VmZUhBK1F5VXFlQ1BnRkNLUTZSTVFuV0VBZ1Y1dGUxNWl5aDJGM0EwbnhZUENNSzdyWUpSN1JuQWh3clppY0k0Vm1SVlBtVjFSQlV5TE9OUmMwQkJ5aURRN1hvU0pIcTZ3NWJFUUpoVHp2bFdTenRFVUE1RnUvUmc2ZjlWUVo0OW84M3FvRU1NU0xPZStnaU1tdW5iZlNNPSJ9'
+WHERE id = 2;

@@ -35,7 +35,6 @@ import SolicitudHogarSqlRepository from "../../Infraestructure/DataBase/Reposito
 import TransaccionesSqlRepository from "../../Infraestructure/DataBase/Repositories/TransaccionesSqlRepository";
 import UsuarioHogarSqlRepository from "../../Infraestructure/DataBase/Repositories/UsuarioHogarSqlRepository";
 import UsuariosSqlRepository from "../../Infraestructure/DataBase/Repositories/UsuariosSqlRepository";
-import BusinessTranslatorProvider from "../../Infraestructure/Translations/BusinessTranslatorProvider";
 import ConfigurationSettings from "../../JFramework/Configurations/ConfigurationSettings";
 import IServerConfigurationManager from "../../JFramework/Configurations/Interfaces/IServerConfigurationManager";
 import IServiceManager from "../../JFramework/Configurations/Interfaces/IServiceManager";
@@ -43,8 +42,6 @@ import IStartup, { IStartupDependencies } from "../../JFramework/Configurations/
 import { IEmailTemplateManager } from "../../JFramework/Managers/Interfaces/IEmailTemplateManager";
 import ILoggerManager from "../../JFramework/Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../JFramework/Managers/LoggerManager";
-import ApiValidationMiddleware from "../../JFramework/Middlewares/ApiValidationMiddleware";
-import TenantResolverMiddleware from "../../JFramework/Middlewares/TenantResolverMiddleware";
 
 
 export default class Startup implements IStartup {
@@ -54,9 +51,6 @@ export default class Startup implements IStartup {
 
 	/** Manejador de servicios */
 	private readonly _serviceManager: IServiceManager;
-
-	/** Configuracion del servidor */
-	private readonly _serverConfigurationManager: IServerConfigurationManager;
 
 	/** Configuraciones del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
@@ -69,57 +63,7 @@ export default class Startup implements IStartup {
 		});
 
 		this._serviceManager = deps.serviceManager;
-		this._serverConfigurationManager = deps.serverConfigurationManager;
 		this._configurationSettings = deps.configurationSettings;
-	}
-
-	/** Administramos la configuración inicial del servidor */
-	public async AddConfiguration(): Promise<void> {
-		try {
-			this._logger.Activity("AddConfiguration");
-
-			/** Agregamos el contexto de aplicación */
-			this._serviceManager.AddAplicationContext({
-				settings: this._configurationSettings,
-				businessTranslatorProvider: BusinessTranslatorProvider
-			});
-
-			/** Agregamos el contenedor de dependencias */
-			this._serverConfigurationManager.AddContainer();
-
-			/** Agregamos la configuración de cors */
-			this._serverConfigurationManager.AddCorsConfiguration();
-
-			/** Parsea la respuesta a json */
-			this._serverConfigurationManager.AddJsonResponseConfiguration();
-
-			/** Agrega el cookie-parser como middleware y establece la firma de las cookies */
-			await this._serverConfigurationManager.AddCookieConfiguration();
-		}
-		catch (err: any) {
-			this._logger.Error("FATAL", "AddConfiguration", err);
-			throw err;
-		}
-	}
-
-	/** Implementa los servicios de configuración de seguridad */
-	public async AddSecurityConfiguration(): Promise<void> {
-		try {
-			this._logger.Activity("AddSecurityConfiguration");
-			
-			/** Middleware para validación del apiKey */
-			this._serviceManager.AddMiddleware(ApiValidationMiddleware);
-
-			/** Middleware para resolver el Tenant de la request */
-		  this._serviceManager.AddMiddleware(TenantResolverMiddleware);
-
-			/** Middleware para validación de token Csrf. Este middleware debe ser aplicado por ruta */
-			// this._serviceManager.AddMiddleware(CsrfValidationMiddleware);
-
-		} catch (err: any) {
-			this._logger.Error("FATAL", "AddSecurityConfiguration", err);
-			throw err;
-		}
 	}
 
 	/** Implementa los middlewares globales de la aplicación */

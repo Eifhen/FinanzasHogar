@@ -128,12 +128,12 @@ export type DatabaseEnvironmentConnectionData = {
 	/** Clave secreta para desencriptar la cadena de conección de los tenants  */
 	tenantConnectionSecret: string;
 
+	/** Routas que quedan excluidas del middleware de manejo de tenants @Link {TenantResolverMiddleware} */
+	tenantExcludedRoutes: string[];
+
 	/** Datos de conección según el ambiente */
 	connections: Record<ConnectionEnvironment, DatabaseConnectionData>;
 };
-
-
-
 
 
 /** Imagenes por defecto de la aplicación */
@@ -200,6 +200,16 @@ export type ApplicationStyleConfig = {
 	primaryColor: string;
 }
 
+/** Path para los controladores */
+export type ControllersPath = {
+
+	/** Path para los controladores internos */
+	internalControllersPath: string;
+
+	/** Path para los controladores del negocio */
+	businessControllersPath: string;
+}
+
 /** Datos de API */
 export type ApiData = {
 	
@@ -219,13 +229,13 @@ export type ApiData = {
 	cookieData: ApplicationCookies;
 
 	/** Version de la aplicación */
-	version: number
+	apiVersion: string
 
 	/** Ruta base de la aplicación */
 	baseRoute:string;
 
 	/** Path a la carpeta de controllers */
-	controllersPath: string;
+	controllersPath: ControllersPath;
 
 	/** Nivel de log */
 	logLevel: number;

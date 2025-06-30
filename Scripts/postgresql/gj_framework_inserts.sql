@@ -128,3 +128,10 @@ SELECT * FROM gj_tenant_connections;
 COMMIT TRANSACTION;
 
 -- ROLLBACK TRANSACTION;
+
+UPDATE gj_tenant_connections
+SET 
+  connection = 'eyJpdiI6Ikg3NnlLSUc3R0pLa1g5SE9ZSy9IdHc9PSIsInZhbHVlIjoiUS9wZVhMOHArMkd6NGU2cHpCM2VmZUhBK1F5VXFlQ1BnRkNLUTZSTVFuV0VBZ1Y1dGUxNWl5aDJGM0EwbnhZUENNSzdyWUpSN1JuQWh3clppY0k0Vm1SVlBtVjFSQlV5TE9OUmMwQkJ5aURRN1hvU0pIcTZ3NWJFUUpoVHp2bFdTenRFVUE1RnUvUmc2ZjlWUVo0OW84M3FvRU1NU0xPZStnaU1tdW5iZlNNPSJ9',
+  database_type = 'ms_sql_database' -- "ms_sql_database" | "postgres_sql_database" | "mongo_database"
+WHERE id = 1;
+

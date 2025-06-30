@@ -25,6 +25,7 @@ export const LoggEntityCategorys = {
 	STRATEGY: "STRATEGY",
 	DIRECTOR: "STRATEGY DIRECTOR",
 	PROVIDER: "PROVIDER",
+	CONTEXT: "CONTEXT"
 } as const;
 
 export type LoggEntityCategory = (typeof LoggEntityCategorys)[keyof typeof LoggEntityCategorys];

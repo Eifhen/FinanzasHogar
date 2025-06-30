@@ -13,7 +13,7 @@ import IContainerManager from "./Interfaces/IContainerManager";
 import { Lifetime, LifetimeType } from "awilix";
 import IServiceManager from "./Interfaces/IServiceManager";
 import ConfigurationSettings from "../Configurations/ConfigurationSettings";
-import ApplicationContext, { ApplicationContextDependencies } from "./ApplicationContext";
+import ApplicationContext  from "./ApplicationContext";
 
 
 export interface IServiceManagerDependencies {
@@ -38,13 +38,6 @@ export default class ServiceManager implements IServiceManager {
 	/** Objeto de configuración del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
 
-	/** Ruta base de la aplicación */
-	private readonly _api_route: string;
-
-	/** Ruta de los controladores */
-	private readonly _controllers_route: string;
-
-
 	constructor(deps: IServiceManagerDependencies) {
 		/** Instanciamos el logger */
 		this._logger = new LoggerManager({
@@ -60,21 +53,23 @@ export default class ServiceManager implements IServiceManager {
 
 		/** Agregamos el objeto de configuración del sistema */
 		this._configurationSettings = deps.configurationSettings;
-
-		/** Agregamos la ruta de los controladores */
-		this._controllers_route = this._configurationSettings.apiData.controllersPath;
-
-		/** Agregamos la ruta base de la app */
-		this._api_route = this._configurationSettings.apiData.baseRoute
 	}
 
 	/** Agrega los controladores a la aplicación de express */
 	public AddControllers(): void {
 		try {
 			this._logger.Activity("AddControllers");
+			
+			/** Obtenemos el path para los controladores del negocio */
+			const path = this._configurationSettings.apiData.controllersPath.businessControllersPath;
+
+			/** Obtenemos la ruta base de la app */
+			const apiRoute = this._configurationSettings.apiData.baseRoute;
+
+			/** Agregamos los controllers a la cadena de middlewares */
 			this._app.use(
-				this._api_route,
-				loadControllers(this._controllers_route, { cwd: __dirname })
+				apiRoute,
+				loadControllers(path, { cwd: __dirname })
 			);
 		}
 		catch (err: any) {
@@ -122,28 +117,6 @@ export default class ServiceManager implements IServiceManager {
 			this._logger.Error(LoggerTypes.FATAL, "AddMiddlewareInstance", err);
 			throw new ApplicationException(
 				"AddMiddlewareInstance",
-				HttpStatusName.InternalServerError,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
-				__filename,
-				err
-			);
-		}
-	}
-
-	/** Permite configurar el contexto de la aplicación */
-	public AddAplicationContext(deps: ApplicationContextDependencies): void {
-		try {
-			this._logger.Activity(`AddAplicationContext`);
-
-			const context = new ApplicationContext(deps);
-			this._containerManager.AddInstance<ApplicationContext>("applicationContext", context);
-
-		} catch (err: any) {
-			this._logger.Error(LoggerTypes.FATAL, "AddAplicationContext", err);
-			throw new ApplicationException(
-				"AddAplicationContext",
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,

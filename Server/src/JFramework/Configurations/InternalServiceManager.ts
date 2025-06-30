@@ -1,15 +1,13 @@
 import { loadControllers } from "awilix-express";
 import { Application } from "express";
-import DatabaseConnectionManager from "../External/DataBases/DatabaseConnectionManager";
 import SqlTransactionManager from "../External/DataBases/Generic/SqlTransactionManager";
 import IDatabaseConnectionManager from "../External/DataBases/Interfaces/IDatabaseConnectionManager";
 import ISqlTransactionManager from "../External/DataBases/Interfaces/ISqlTransactionManager";
 import ErrorHandlerMiddleware from "../ErrorHandling/ErrorHandlerMiddleware";
-import CacheConnectionManager from "../Managers/CacheConnectionManager";
+import CacheConnectionManager from "../External/Cache/CacheConnectionManager";
 import EmailManager from "../Managers/EmailManager";
 import EncrypterManager from "../Managers/EncrypterManager";
 import { FileManager } from "../Managers/FileManager";
-import ICacheConnectionManager from "../Managers/Interfaces/ICacheConnectionManager";
 import IEmailManager from "../Managers/Interfaces/IEmailManager";
 import IEncrypterManager from "../Managers/Interfaces/IEncrypterManager";
 import IFileManager from "../Managers/Interfaces/IFileManager";
@@ -40,6 +38,15 @@ import TenantConnectionsInternalRepository from "../API/DataAccess/Repositories/
 import ITenantConnectionsInternalRepository from "../API/DataAccess/Repositories/Interfaces/ITenantConnectionsInternalRepository";
 import DatabaseInstanceManager from "../External/DataBases/DatabaseInstanceManager";
 import MultidatabaseConnectionManager from '../External/DataBases/MultidatabaseConnectionManager';
+import ApplicationContext from "./ApplicationContext";
+import { InternalServerException } from "../ErrorHandling/Exceptions";
+import ApiValidationMiddleware from "../Middlewares/ApiValidationMiddleware";
+import TenantResolverMiddleware from "../Middlewares/TenantResolverMiddleware";
+import CsrfValidationMiddleware from "../Middlewares/CsrfValidationMiddleware";
+import IServerConfigurationManager from "./Interfaces/IServerConfigurationManager";
+import ServerConfigurationManager from "./ServerConfigurationManager";
+import ApplicationException from "../ErrorHandling/ApplicationException";
+import ICacheConnectionManager from "../External/Cache/Types/ICacheConnectionManager";
 
 
 
@@ -47,6 +54,7 @@ export interface InternalServiceManagerDependencies {
 	configurationSettings: ConfigurationSettings;
 	serviceManager: IServiceManager,
 	containerManager: IContainerManager;
+	applicationContext: ApplicationContext;
 	app: Application;
 }
 
@@ -78,6 +86,12 @@ export class InternalServiceManager implements IInternalServiceManager {
 	/** Manejador de conección a servidor caché */
 	private readonly _cacheConnectionManager: ICacheConnectionManager;
 
+	/** Contexto de aplicación */
+	private readonly _applicationContext: ApplicationContext;
+
+	/** Manager de configuración del servidor */
+	private readonly _serverConfigurationManager: IServerConfigurationManager;
+
 	/** Instancia de express */
 	private readonly _app: Application;
 
@@ -88,14 +102,28 @@ export class InternalServiceManager implements IInternalServiceManager {
 			entityName: "InternalServiceManager"
 		});
 
+		/** Agregamos la instancia de express */
+		this._app = deps.app;
+
 		this._serviceManager = deps.serviceManager;
 		this._configurationSettings = deps.configurationSettings;
 		this._containerManager = deps.containerManager;
+		this._applicationContext = deps.applicationContext;
+
+		/** Instanciamos la configuración del server */
+		this._serverConfigurationManager = new ServerConfigurationManager({
+			app: this._app,
+			serviceManager: this._serviceManager,
+			containerManager: this._containerManager,
+			configurationSettings: this._configurationSettings,
+			applicationContext: this._applicationContext
+		});
 
 		/** Agregamos el manager de seguridad internal */
 		this._internalSecurityManager = new InternalSecurityManager({
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings,
+			applicationContext: this._applicationContext
 		});
 
 		/** Agregamos el manejador de instancias de base de datos */
@@ -111,6 +139,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings,
 			databaseInstanceManager: this._databaseInstanceManager,
+			applicationContext: this._applicationContext,
 			connectionOptions: [
 				{
 					/** Agregamos las opciones de la base de datos de uso interno */
@@ -127,10 +156,10 @@ export class InternalServiceManager implements IInternalServiceManager {
 					databaseRegistryName: BUSINESS_DATABASE_REGISTRY_NAME,
 
 					/** Si la aplicación NO implementa multi-tenants, agregamos 
-	 					* manejador de conexión para la base de datos del negocio.
+							* manejador de conexión para la base de datos del negocio.
 						* El connectionCondition nos ayuda a realizar la conexión solo 
 						* si la condición se cumple. */
-					connectionCondition: this._configurationSettings.databaseConnectionData.isMultitenants
+					connectionCondition: !this._configurationSettings.databaseConnectionData.isMultitenants
 				}
 			]
 		})
@@ -140,10 +169,9 @@ export class InternalServiceManager implements IInternalServiceManager {
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings
 		});
-
-		/** Agregamos la instancia de express */
-		this._app = deps.app;
 	}
+
+	
 
 	/** Permite añadir endpoints de uso interno */
 	public async AddInternalEndpoints(): Promise<void> {
@@ -156,7 +184,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 			// Definimos la ruta del directorio donde se encuentran los controladores internos.
 			// Por ejemplo, suponiendo que están en src/InternalControllers:
 			//  ../../API/Controllers/*.ts
-			const internalControllersDir = '../API/Controllers/*.ts';
+			const internalControllersDir = this._configurationSettings.apiData.controllersPath.internalControllersPath;
 
 			// Cargamos los controladores internos usando awilix-express
 			this._app.use(
@@ -167,7 +195,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalEndpoints", err);
-			throw err;
+			throw new InternalServerException(
+				"AddInternalEndpoints",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 
@@ -183,7 +217,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalServices", err);
-			throw err;
+			throw new InternalServerException(
+				"AddInternalServices",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 
@@ -200,7 +240,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalRepositories", err);
-			throw err;
+			throw new InternalServerException(
+				"AddInternalRepositories",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 
@@ -212,7 +258,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalStrategies", err);
-			throw err;
+			throw new InternalServerException(
+				"AddInternalStrategies",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 
@@ -229,7 +281,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalManagers", err);
-			throw err;
+			throw new InternalServerException(
+				"AddInternalManagers",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 
@@ -238,27 +296,34 @@ export class InternalServiceManager implements IInternalServiceManager {
 		try {
 			this._logger.Activity("AddInternalSecurity");
 
+			/** Agregamos el middleware de validación de API */
+			this._serviceManager.AddMiddleware(ApiValidationMiddleware);
+
+			/** Agregamos el middleware del contenedor de dependencias para crear 
+			 * uno nuevo en cada request, esto se hace después de validar el apiKey*/
+			this._serverConfigurationManager.AddContainerMiddleware();
+
 			/** Agrega los RateLimiters */
 			this._internalSecurityManager.AddRateLimiters();
 
+			/** Agregamos la protección CSRF | Este middleware debe agregarse a nivel del controller */
+			// this._serviceManager.AddMiddleware(CsrfValidationMiddleware);
+
+			/** Middleware para resolver el Tenant de la request 
+			 * solo se agrega si la API es multitenant*/
+			if (this._configurationSettings.databaseConnectionData.isMultitenants) {
+				this._serviceManager.AddMiddleware(TenantResolverMiddleware);
+			}
+
 		} catch (err: any) {
 			this._logger.Error("FATAL", "AddInternalSecurity", err);
-			throw err;
-		}
-	}
-
-	/** Se agregan los manejadores de excepciones */
-	public async AddExceptionManager(): Promise<void> {
-		try {
-			this._logger.Activity("AddExceptionManager");
-
-			/** Agregamos el middleware para manejo de errores 
-			* Debe ser el último de la lista siempre*/
-			this._serviceManager.AddMiddleware(ErrorHandlerMiddleware);
-
-		} catch (err: any) {
-			this._logger.Error("FATAL", "AddExceptionManager", err);
-			throw err;
+			throw new InternalServerException(
+				"AddInternalSecurity",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 
@@ -275,7 +340,13 @@ export class InternalServiceManager implements IInternalServiceManager {
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "RunConnectionServices", err);
-			throw err;
+			throw new InternalServerException(
+				"RunConnectionServices",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 
@@ -292,8 +363,70 @@ export class InternalServiceManager implements IInternalServiceManager {
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "DisconnectConnectionServices", err);
-			throw err;
+			throw new InternalServerException(
+				"DisconnectConnectionServices",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 
+	/** Administramos la configuración inicial del servidor */
+	public async AddInternalConfiguration(): Promise<void> {
+		try {
+			this._logger.Activity("AddInternalConfiguration");
+
+			/** Agregamos la configuración de cors */
+			this._serverConfigurationManager.AddCorsConfiguration();
+
+			/** Parsea la respuesta a json */
+			this._serverConfigurationManager.AddJsonResponseConfiguration();
+
+			/** Agrega el cookie-parser como middleware y establece la firma de las cookies */
+			await this._serverConfigurationManager.AddCookieConfiguration();
+		}
+		catch (err: any) {
+			this._logger.Error("FATAL", "AddInternalConfiguration", err);
+
+			if(err instanceof ApplicationException){
+				throw err;
+			}
+
+			throw new InternalServerException(
+				"AddInternalConfiguration",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
+		}
+	}
+
+	/** Se agregan los manejadores de excepciones */
+	public async AddExceptionManager(): Promise<void> {
+		try {
+			this._logger.Activity("AddExceptionManager");
+
+			/** Agregamos el middleware para manejo de errores 
+			* Debe ser el último de la lista siempre*/
+			this._serviceManager.AddMiddleware(ErrorHandlerMiddleware);
+
+		} catch (err: any) {
+			this._logger.Error("FATAL", "AddExceptionManager", err);
+			
+			if(err instanceof ApplicationException){
+				throw err;
+			}
+
+			throw new InternalServerException(
+				"AddExceptionManager",
+				"internal-error",
+				this._applicationContext,
+				__filename,
+				err
+			);
+		}
+	}
 }

@@ -1,14 +1,15 @@
 import { Response, NextFunction } from "express";
-import ApplicationRequest from "../../Helpers/ApplicationRequest";
-import { ApplicationMiddleware } from "../../Middlewares/Types/MiddlewareTypes";
-import ILoggerManager, { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../../Managers/LoggerManager";
-import { HttpAllowedMethods, HttpAllowedReadMethods, HttpAllowedWriteMethods } from "../../Utils/HttpCodes";
-import { BadRequestException, InternalServerException } from "../../ErrorHandling/Exceptions";
-import IsNullOrEmpty from "../../Utils/utils";
-import { AutoClassBinder } from "../../Helpers/Decorators/AutoBind";
-import ApplicationException from "../../ErrorHandling/ApplicationException";
-import ApplicationContext from "../../Configurations/ApplicationContext";
+import ApplicationRequest from "../Helpers/ApplicationRequest";
+import { ApplicationMiddleware } from "./Types/MiddlewareTypes";
+import ILoggerManager, { LoggEntityCategorys } from "../Managers/Interfaces/ILoggerManager";
+import LoggerManager from "../Managers/LoggerManager";
+import { HttpAllowedMethods, HttpAllowedReadMethods, HttpAllowedWriteMethods } from "../Utils/HttpCodes";
+import { BadRequestException, InternalServerException } from "../ErrorHandling/Exceptions";
+import IsNullOrEmpty from "../Utils/utils";
+import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
+import ApplicationException from "../ErrorHandling/ApplicationException";
+import ApplicationContext from "../Configurations/ApplicationContext";
+import CsrfToken from "../Helpers/DTOs/CsrfToken";
 
 
 interface ICsrfValidationMiddlewareDependencies {
@@ -76,7 +77,7 @@ export default class CsrfValidationMiddleware extends ApplicationMiddleware {
 				const tokenFromHeader = req.get(csrfTokenHeaderName) 
 				
 				/** Verifica que el token exista tanto en la cookie como en el header */
-				if(IsNullOrEmpty(tokenFromCookie) || IsNullOrEmpty(tokenFromHeader)){
+				if(IsNullOrEmpty(tokenFromCookie) || !CsrfToken.Validate(tokenFromHeader)){
 					throw new BadRequestException("Intercept", "csrf-token-doesnt-exists", this._applicationContext, __filename);
 				}
 
@@ -90,7 +91,7 @@ export default class CsrfValidationMiddleware extends ApplicationMiddleware {
 				return next();
 			}
 
-			/** Lanza error si por alguna razón las demás condiciones son las demas condiciones no se cumplen */
+			/** Lanza error si por alguna razón las demas condiciones no se cumplen */
 			throw new InternalServerException("Intercept", "out-of-range", this._applicationContext, __filename);
 		}
 		catch (err: any) {

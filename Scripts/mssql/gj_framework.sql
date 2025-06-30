@@ -65,50 +65,30 @@ CREATE TABLE gj_tenant_connections (
   pool_max smallint -- tamaño máximo del pool
 )
 
-DROP TABLE gj_tenant_connections;
+--------------------------------------- [ VISTAS ] ------------------------------------
 
-use gj_framework;
+/***********************************************
+  Vista que muestra la información del tenant y los 
+  datos de conexión del tenant
+************************************************/
+CREATE VIEW gj_tenant_connection_view AS (
+  SELECT 
+    t.id AS tenant_id,
+    t.proyect_key AS proyect_key,
+    t.tenant_key AS tenant_key,
+    t.tenant_code AS tenant_code,
+    t.name AS name,
+    t.description AS descripcion,
+    t.status AS status,
+    t.domain AS domain,
+    t.creation_date AS creation_date,
+    tc.id AS tenant_connection_id,
+    tc.database_type AS database_type,
+    tc.connection AS connection,
+    tc.timeout AS timeout,
+    tc.pool_min AS pool_min,
+    tc.pool_max AS pool_max
+  FROM gj_tenants t
+  JOIN gj_tenant_connections tc ON t.tenant_key = tc.tenant_key
+);
 
-BEGIN TRANSACTION 
-
-ALTER TABLE gj_tenant_details DROP COLUMN databaseName;
-
-ALTER TABLE gj_tenant_details DROP COLUMN connectionObject;
-
-ALTER TABLE gj_tenant_details DROP COLUMN connectionString;
-
-ALTER TABLE gj_tenants DROP COLUMN database_type;
-
-ALTER TABLE gj_tenant_connections ADD COLUMN database_type TEXT;
-
-ALTER TABLE gj_tenant_connections ALTER COLUMN database_type SET NOT NULL;
-
----------------------------------------------------------
--- PERSONAL = 0B7BB829-745E-4A16-9FEB-04C0A8AA61B1;
-
-INSERT INTO gj_tenant_connections (
-  tenant_key,
-  database_type,
-  connection,
-  timeout,
-  pool_min,
-  pool_max
-)
-VALUES(
-  '0B7BB829-745E-4A16-9FEB-04C0A8AA61B1',
-  'ms_sql_database',
-  'eyJpdiI6InRNbUZ1Qnhobm5ZYzlPK0d1U0JNM2c9PSIsInZhbHVlIjoiTGFJdU9LT21OVEt1Yi8wSFhqWWlwNWdHTERQWVpWbU4zTzF4anhDZTVicUEvQlQ4OXR6Rzc2MTBhTExZVGtEdzdCbXhyeVpCWmxLQzErWHVHekFkcmZxdlpIMnBPUlVRTExzVFJxVlpoK0NNVlhBNlZ0UkdTZFRocytFeHB4OGY3KzZmKzREeklrdUJxb0Flb3lVVkVFQTg3S3lUSTI3TjBQdVVLNTFYVHhZPSJ9',
-  5000, -- 5s
-  1,
-  10
-)
-
----------------------------------------------------------
-SELECT * FROM gj_proyects;
-SELECT * FROM gj_tenants;
-SELECT * FROM gj_tenant_details;
-SELECT * FROM gj_tenant_connections;
-
-
-COMMIT TRANSACTION
--- ROLLBACK TRANSACTION

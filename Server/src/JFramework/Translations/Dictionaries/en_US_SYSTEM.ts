@@ -49,6 +49,8 @@ export const EN_US_SYSTEM = {
 	"database-no-instance-exception": "There is no database instance available at the moment.",
 	"database-no-dialect-exception": "There is no dialect available at the moment.",
 	"database-transaction-exception": "An error occurred while performing the transaction.",
+	"database-strategy-exception": "An error occurred while loading the database strategy.",
+	"database-undefined-connections": "An error occurred while trying to load the database connections",
 	"database-exception": "An error has occurred in the database.",
 	"database-commitment-exception": "Commitment error: A fatal error has occurred. The specified tenant does not have a valid project ID. It is possible that the database is compromised.",
 	"rate-limiter-invalid": "RateLimiter for {0} is not a function.",
@@ -63,6 +65,7 @@ export const EN_US_SYSTEM = {
 	"connection-config-error": "An error ocurred while setting the connection configuration.",
 	"no-tenant": "Error, a valid tenant has not been sent",
 	"tenant-error": "An error occurred while searching for the indicated tenant.",
+	"server-critical-exception": "A critical exception has occurred in the system. Please contact your administrator.",
 	
 	/** END Errores Custom */
 
@@ -83,6 +86,7 @@ export const EN_US_SYSTEM = {
 
 	"invalid_date": `The date entered in field "{0}" is invalid.`,
 	"invalid_string": `The string entered in field "{0}" is invalid.`,
+	"invalid_url": `The url entered in field "{0} is invalid`,
 	"invalid_literal": `The value entered for field "{0}" is invalid. The value {1} was expected, but the value {2} was received.`,
 	"invalid_type": `The data type entered in field "{0}" is invalid. Type {1} was expected but type {2} was received.`,
 	"invalid_union": `An error occurred in field "{0}".`,

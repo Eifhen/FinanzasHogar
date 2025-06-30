@@ -11,7 +11,7 @@ export const ARRAY_INDEX_NEGATIVE = -1;
 export const DEFAULT_PORT: number = 5000;
 
 /** Versión del api por default */
-export const DEFAULT_API_VERSION:number = 1;
+export const DEFAULT_API_VERSION:string = "v1";
 
 /** Tiempo default de espera de la database  */
 export const DEFAULT_DATABASE_TIMEOUT:number = 3000;
@@ -50,7 +50,7 @@ export const BUSINESS_DATABASE_INSTANCE_NAME = "database";
 export const BUSINESS_DATABASE_REGISTRY_NAME = "business_no_tenant_db";
 
 /** Texto a desplegar cuando queremos mandar algo en lugar de un request ID */
-export const NO_REQUEST_ID: string = "NO_REQUEST_ID";
+export const NO_REQUEST_ID = "NO_REQUEST_ID";
 
 /** Identificador del contenedor de dependencias root */
 export const ROOT_CONTAINER_KEY = "ROOT_CONTAINER";

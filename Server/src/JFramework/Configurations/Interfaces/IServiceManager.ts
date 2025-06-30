@@ -1,7 +1,6 @@
 import { LifetimeType } from "awilix";
 import { ClassConstructor, ClassInstance } from '../../Utils/Types/CommonTypes';
 import { ApplicationMiddleware, ApplicationErrorMiddleware } from "../../Middlewares/Types/MiddlewareTypes";
-import { ApplicationContextDependencies } from "../ApplicationContext";
 
 
 
@@ -27,8 +26,5 @@ export default interface IServiceManager {
 
   /** Agrega la instancia de un middleware directamente  */
   AddMiddlewareInstance(instance: ClassInstance<ApplicationMiddleware | ApplicationErrorMiddleware>): void;
-
-  /** Permite configurar el contexto de la aplicación */
-	AddAplicationContext(deps: ApplicationContextDependencies) : void;
 
 }

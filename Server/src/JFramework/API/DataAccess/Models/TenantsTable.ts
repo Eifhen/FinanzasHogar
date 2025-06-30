@@ -5,7 +5,7 @@ import { EstadosTenant } from "../../../Utils/estados";
 export interface TenantTable {
   
   /** Id secuencial del tenant */
-  id: Generated<number>;
+  id: Generated<bigint>;
 
   /** Clave del proyecto al que pertenece este tenant */
   proyect_key: string;
@@ -38,7 +38,7 @@ export interface TenantTable {
 export type SelectTenants = Selectable<TenantTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateTenants = Insertable<Omit<TenantTable, "id">>;
+export type CreateTenants = Insertable<TenantTable>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateTenants = Updateable<Omit<TenantTable, "id">>;
+export type UpdateTenants = Updateable<TenantTable>;

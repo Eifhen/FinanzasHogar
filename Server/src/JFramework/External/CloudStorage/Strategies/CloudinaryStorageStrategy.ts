@@ -52,7 +52,7 @@ export class CloudinaryStorageStrategy implements ICloudStoreStrategy {
 				HttpStatusName.CloudStorageConnectionException,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -72,7 +72,7 @@ export class CloudinaryStorageStrategy implements ICloudStoreStrategy {
 				HttpStatusName.CloudStorageDisconnectException,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -92,7 +92,7 @@ export class CloudinaryStorageStrategy implements ICloudStoreStrategy {
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -135,7 +135,7 @@ export class CloudinaryStorageStrategy implements ICloudStoreStrategy {
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -176,7 +176,7 @@ export class CloudinaryStorageStrategy implements ICloudStoreStrategy {
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -215,7 +215,7 @@ export class CloudinaryStorageStrategy implements ICloudStoreStrategy {
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);

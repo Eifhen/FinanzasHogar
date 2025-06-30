@@ -1,5 +1,5 @@
 import { RedisClientType } from "redis";
-import { Options } from "express-rate-limit";
+import { Options as RateLimiterOptions } from "express-rate-limit";
 import LoggerManager from "../../Managers/LoggerManager";
 import { LoggEntityCategorys } from "../../Managers/Interfaces/ILoggerManager";
 import RedisStore from "rate-limit-redis";
@@ -42,7 +42,7 @@ export default class RateLimiterManager {
 
 	/** Agrega el RedisStore al objeto options del RateLimiter */
 	@AutoBind
-	public BuildStore (limiterName: Limiters, rateLimiterConfigOptions: Partial<Options>): Partial<Options> {
+	public BuildStore (limiterName: Limiters, rateLimiterConfigOptions: Partial<RateLimiterOptions>): Partial<RateLimiterOptions> {
 		try {
 			this._logger.Activity(`BuildStore | ${limiterName}`);
 
@@ -76,7 +76,10 @@ export default class RateLimiterManager {
 	 * @param {number} requestCooldownInMs Tiempo que debe transcurrir antes de  permitir 
 	 * solicitudes nuevamente esto se expresa en milisegundos
 	 * @description  Retorna el Middleware que será usado por el rateLimiter cuando 
-	 * se llegue al limite de peticiones */
+	 * se llegue al limite de peticiones. 
+	 * 
+	 * Este middleware es activado por el rateLimiter cuando se 
+	 * llega al limite de peticiones */
 	@AutoBind
 	private RequestLimiterHandler (limiterName: Limiters, requestCooldownInMs: number = 0) {
 		return (req: Request, res: Response, next: NextFunction) => {

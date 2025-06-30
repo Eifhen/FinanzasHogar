@@ -107,16 +107,16 @@ export default class ApplicationException extends Error {
 			if (messageData && !IsNullOrEmpty(messageData)) {
 				if (typeof messageData === "string") {
 					if (messageData in EN_US_SYSTEM){
-						return applicationContext.translator.Translate(messageData as keyof typeof EN_US_SYSTEM);
+						return applicationContext.language.Translate(messageData as keyof typeof EN_US_SYSTEM);
 					}
 					else {
 						return messageData;
 					}
 				} else {
-					return applicationContext.translator.Translate(messageData.message, messageData.args);
+					return applicationContext.language.Translate(messageData.message, messageData.args);
 				}
 			} else {
-				return applicationContext.translator.Translate(defaultEntry);
+				return applicationContext.language.Translate(defaultEntry);
 			}
 		} else {
 			return messageData && typeof messageData === "string" ? messageData : "";
@@ -135,13 +135,13 @@ export default class ApplicationException extends Error {
 				/** Hacemos loop sobre cada item recibido */
 				const result = messageData.map((item)=> {
 					/** Ingresamos al array el mensaje traducido de cada error */
-					return applicationContext.translator.Translate(item.message, item.args);
+					return applicationContext.language.Translate(item.message, item.args);
 				});
 
 				return result.join(" ");
 			}
 
-			return applicationContext.translator.Translate(defaultEntry);
+			return applicationContext.language.Translate(defaultEntry);
 		}
 
 		return defaultEntry;

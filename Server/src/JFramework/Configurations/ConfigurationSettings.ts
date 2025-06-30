@@ -17,6 +17,7 @@ import IConfigurationSettings, {
 	SecurityConfig,
 	ApplicationCookies,
 	DatabaseEnvironmentConnectionData,
+	ControllersPath,
 } from "./Types/IConfigurationSettings";
 
 
@@ -105,14 +106,14 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			/** Secreto del token de autenticación JWT */
 			authTokenSecret: process.env.AUTH_TOKEN_SECRET ?? "",
 
-			/** Version de la aplicación */
-			version: Number(process.env.API_VERSION ?? DEFAULT_API_VERSION),
+			/** Version de la aplicación (API VERSION) */
+			apiVersion: String(process.env.API_VERSION ?? DEFAULT_API_VERSION),
 
 			/** Ruta base de la aplicación */
 			baseRoute: process.env.API_BASE_ROUTE ?? "",
 
 			/** Path a la carpeta de controllers */
-			controllersPath: process.env.CONTROLLERS ?? "",
+			controllersPath: this.GetControllersPath(),
 
 			/** Headers que se utilizan en la app */
 			headers: this.GetHeaders(),
@@ -133,6 +134,16 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 			appLinks: this.GetApplicationLinks(),
 
 		} as ApiData;
+	}
+
+	/** Obtiene los distintos paths para los controladores */
+	private GetControllersPath(): ControllersPath {
+		const data = JSON.parse(process.env.CONTROLLERS ?? "");
+
+		return {
+			internalControllersPath: data.INTERNAL_CONTROLLERS_PATH,
+			businessControllersPath: data.BUSINESS_CONTROLLERS_PATH
+		}
 	}
 
 	/** Obtiene los enlaces relevantes de la aplicación */
@@ -302,10 +313,14 @@ export default class ConfigurationSettings implements IConfigurationSettings {
 
 		/** Representa los datos de conección para la base de datos del negocio */
 		const business = dbConfig.CONNECTIONS.BUSINESS_CONNECTION;
+		
+		/** Indica las rutas que son excluidas por el middleware de manejo de tenants */
+		const tenantExcludedRoutes = dbConfig.TENANT_EXCLUDED_ROUTES ?? [];
 
 		return {
 			isMultitenants,
 			tenantConnectionSecret,
+			tenantExcludedRoutes,
 			connections: {
 				internal: this.GetDatabaseConnectionData(internal),
 				business: this.GetDatabaseConnectionData(business)

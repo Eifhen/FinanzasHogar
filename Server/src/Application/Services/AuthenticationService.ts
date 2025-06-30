@@ -24,6 +24,8 @@ import IEmailManager from "../../JFramework/Managers/Interfaces/IEmailManager";
 import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
 import CloudStorageManager from "../../JFramework/External/CloudStorage/CloudStorageManager";
 import { DataBase } from "../../Infraestructure/DataBase/DataBase";
+import SqlTransactionManager from "../../JFramework/External/DataBases/Generic/SqlTransactionManager";
+import { Kysely } from "kysely";
 
 interface IAuthenticationServiceDependencies {
 	usuariosRepository: IUsuariosSqlRepository;
@@ -33,7 +35,7 @@ interface IAuthenticationServiceDependencies {
 	cloudStorageManager: CloudStorageManager;
 	emailManager: IEmailManager;
 	emailDataManager: IEmailDataManager;
-	sqlTransactionManager: ISqlTransactionManager<DataBase>;
+	database: Kysely<any>;
 }
 
 /** Servicio de Authenticación de usuario */
@@ -80,7 +82,11 @@ export default class AuthenticationService implements IAuthenticationService {
 		this._cloudStorageManager = deps.cloudStorageManager;
 		this._emailManager = deps.emailManager;
 		this._emailDataManager = deps.emailDataManager;
-		this._transaction = deps.sqlTransactionManager;
+
+		this._transaction = new SqlTransactionManager({
+			applicationContext:  this._applicationContext,
+			database: deps.database
+		});
 	}
 
 	/** Método que permite el registro del usuario */

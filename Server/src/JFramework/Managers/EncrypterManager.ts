@@ -134,6 +134,7 @@ export default class EncrypterManager implements IEncrypterManager {
 
 			// Decodificamos el contenido
 			const decoded = Buffer.from(value, 'base64').toString('utf8');
+
 			const parsed: EncryptionData = JSON.parse(decoded);
 
 			const iv = Buffer.from(parsed.iv, "base64");

@@ -7,7 +7,7 @@ import { DatabaseType } from "../../../External/DataBases/Types/DatabaseType";
 export interface TenantConnectionsTable {
 
   /** Clave primaria */
-  id: Generated<number>;
+  id: Generated<bigint>;
 
   /** Clave UUID del tenant */
   tenant_key: string;
@@ -32,7 +32,7 @@ export interface TenantConnectionsTable {
 export type SelectTenantConnection = Selectable<TenantConnectionsTable>;
 
 /** Tipo para realizar consultas de inserción */
-export type CreateTenantConnection = Insertable<Omit<TenantConnectionsTable, "id">>;
+export type CreateTenantConnection = Insertable<TenantConnectionsTable>;
 
 /** Tipo para realizar consultas de actualización */
-export type UpdateTenantConnection = Updateable<Omit<TenantConnectionsTable, "id">>;
+export type UpdateTenantConnection = Updateable<TenantConnectionsTable>;

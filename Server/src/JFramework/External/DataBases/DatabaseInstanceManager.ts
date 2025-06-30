@@ -8,6 +8,8 @@ import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
 import { NO_REQUEST_ID, ROOT_CONTAINER_KEY } from "../../Utils/const";
 import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
+import { Environment } from "../../Utils/Environment";
+import { DatabaseType } from "./Types/DatabaseType";
 
 
 
@@ -41,7 +43,7 @@ export default class DatabaseInstanceManager {
 
 	/** Contiene el dato de la identidad del container que 
 	 * se recibió cuando se creó la instancia */
-	public containerIdentity:string = "";
+	public containerIdentity: string = "";
 
 	constructor(deps: DatabaseInstanceManagerDependencies) {
 		/** Instanciamos el logger */
@@ -53,7 +55,7 @@ export default class DatabaseInstanceManager {
 		this._configurationSettings = deps.configurationSettings;
 
 		this.containerIdentity = deps.containerManager._identifier;
-		
+
 		/** Registramos la instancia */
 		this.RegisterInstanceManager(deps.containerManager);
 	}
@@ -109,7 +111,7 @@ export default class DatabaseInstanceManager {
 	 * 
 	 * @param {IContainerManager} container - Contenedor de dependencias en el cual se insertará la instancia
 	 
-	 * @param {string} containerInstanceName - Indica el nombre de la instancia de la 
+	 * @param {string} databaseInstanceName - Indica el nombre de la instancia de la 
 	 * base de datos en el contenedor de dependencias
 	 * 
 	 * @param {string} strategyRegistryName - Indica el nombre de la instancia de la estrategia de 
@@ -117,12 +119,19 @@ export default class DatabaseInstanceManager {
 	 * o algún otro identificador en caso de que la aplicación no esté usando tenants
 	 * 
 	 * @param {IDatabaseConnectionStrategy<any, any>} strategyInstance - Instancia de la estrategia 
-	 * utilizada que se va a almacenar en el registro de instancias */
+	 * utilizada que se va a almacenar en el registro de instancias 
+	 * 
+	 * @param {any} databaseInstance - Instancia de la base de datos ej: instancia de mongodb o kysely
+	 * 
+	 * @param {DatabaseType} - tipo de base de datos ej: ms_sql_database" | "postgre_sql_database" | "mongo_database 
+	 * */
 	public SetDatabaseInstance(
 		container: IContainerManager,
-		containerInstanceName: string,
+		databaseInstanceName: string,
 		strategyRegistryName: string,
-		strategyInstance: IDatabaseConnectionStrategy<any, any>
+		strategyInstance: IDatabaseConnectionStrategy<any, any>,
+		databaseInstance?: any,
+		dbType?: DatabaseType
 	) {
 		try {
 			this._logger.Activity("SetDatabaseInstance");
@@ -130,8 +139,9 @@ export default class DatabaseInstanceManager {
 			/** Validar que la instancia que se intenta agregar no esté ya registrada */
 			if (this._instanceRegistry.has(strategyRegistryName)) {
 				this._logger.Message("WARN", `
-					La instancia con la clave ${strategyRegistryName} ya está registrada en el registro de instancias | 
-					El container actual es ${container._identifier}
+					La instancia de la estrategia de conexión con la clave ${strategyRegistryName} ya 
+					está registrada en el registro de instancias | El container actual es ${container._identifier} |
+					Tipo de base de datos: ${dbType}
 				`);
 				return;
 			}
@@ -139,14 +149,21 @@ export default class DatabaseInstanceManager {
 			/** Agregamos la instancia al registro */
 			this._instanceRegistry.set(strategyRegistryName, strategyInstance);
 
-			/** Obtenemos la instancia de la base de datos y la inyectamos en el contenedor de dependencias */
-			const databaseInstance = strategyInstance.GetInstance();
+			/** Obtenemos la instancia de la base de datos y 
+			 * la inyectamos en el contenedor de dependencias */
+			const dbInstance = databaseInstance ?? strategyInstance.GetInstance();
 
 			/** Agregamos la instancia al container */
-			container.AddInstance(containerInstanceName, databaseInstance);
+			container.AddInstance(databaseInstanceName, dbInstance);
 
 			/** Logueamos  */
-			this._logger.Message("INFO", `La instancia ${strategyRegistryName} fue registrada exitosamente`);
+			this._logger.Message("INFO", `
+				La instancia de la estrategia de conexión ${strategyRegistryName} fue registrada exitosamente en 
+				contenedor de instancias
+				- STRATEGY INSTANCE CONTAINER NAME = ${strategyRegistryName}
+				- DATABASE INSTANCE DEPENDENCY CONTAINER NAME = ${databaseInstanceName}
+				- DATABASE TYPE = ${dbType}
+			`);
 
 		}
 		catch (err: any) {
@@ -218,6 +235,18 @@ export default class DatabaseInstanceManager {
 		try {
 			this._logger.Activity("CheckInstance");
 
+			/** Obtenemos el numero de las instancias registradas */
+			const instanceNumber = this._instanceRegistry.size;
+
+			/** En development mostramos los nombres de las instancias registradas */
+			if (this._configurationSettings.environment === Environment.DEVELOPMENT) {
+				const registeredInstances = [...this._instanceRegistry.keys()].join(", ");
+				this._logger.Message("INFO", `Instancias actualmente registradas: [${instanceNumber}] =>`, registeredInstances);
+			}
+			else {
+				this._logger.Message("INFO", `Instancias actualmente registradas: ${instanceNumber}`);
+			}
+
 			return this._instanceRegistry.has(key);
 		}
 		catch (err: any) {
@@ -251,7 +280,7 @@ export default class DatabaseInstanceManager {
 				throw new ApplicationException(
 					"DisconnectInstance",
 					HttpStatusName.InternalServerError,
-					`La instancia con el key ${key} no está registrada`,
+					`La instancia de la estrategia de conexión con el key ${key} no está registrada`,
 					HttpStatusCode.InternalServerError,
 					NO_REQUEST_ID,
 					__filename,

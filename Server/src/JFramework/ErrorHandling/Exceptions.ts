@@ -1,10 +1,14 @@
 import { HttpStatusCode, HttpStatusName } from "../Utils/HttpCodes";
 import ApplicationException from "./ApplicationException";
-import { EN_US_SYSTEM } from '../Translations/Dictionaries/en_US_SYSTEM';
 import ApplicationContext from "../Configurations/ApplicationContext";
 
 export type ErrorMessageData = {
-	message: keyof typeof EN_US_SYSTEM;
+
+	/** Este atributo debe ser un key de un diccionario 
+	 * EN_US_SYSTEM, ES_DO_SYSTEM, etc*/
+	message: string;
+
+	/** argumentos del mensaje */
 	args?: (string | number)[]
 }
 
@@ -32,7 +36,7 @@ export class BaseException extends ApplicationException {
 			errorName,
 			"",
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			error
 		);
@@ -56,7 +60,7 @@ export class InternalServerException extends ApplicationException {
 			HttpStatusName.InternalServerError,
 			"",
 			HttpStatusCode.InternalServerError,
-			applicationContext?.requestData.requestId,
+			applicationContext?.requestContext.requestId,
 			path,
 			innerException
 		);
@@ -79,9 +83,9 @@ export class TooManyRequestsException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.TooManyRequests,
-			applicationContext.translator.Translate(messageData.message, messageData.args),
+			applicationContext.language.Translate(messageData.message, messageData.args),
 			HttpStatusCode.TooManyRequests,
-			applicationContext?.requestData.requestId,
+			applicationContext?.requestContext.requestId,
 			path,
 			innerException
 		)
@@ -100,9 +104,9 @@ export class NotFoundException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.NotFound,
-			applicationContext.translator.Translate("record-not-found", value),
+			applicationContext.language.Translate("record-not-found", value),
 			HttpStatusCode.NotFound,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		);
@@ -121,9 +125,9 @@ export class NullParameterException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.NullParameterException,
-			applicationContext.translator.Translate("null-parameter-exception", [parameterName]),
+			applicationContext.language.Translate("null-parameter-exception", [parameterName]),
 			HttpStatusCode.BadRequest,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		);
@@ -142,9 +146,9 @@ export class InvalidParameterException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.InvalidParameterException,
-			applicationContext.translator.Translate("invalid-parameter-exception", [parameterName]),
+			applicationContext.language.Translate("invalid-parameter-exception", [parameterName]),
 			HttpStatusCode.BadRequest,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		);
@@ -165,7 +169,7 @@ export class BadRequestException extends ApplicationException {
 			HttpStatusName.BadRequest,
 			"",
 			HttpStatusCode.BadRequest,
-			applicationContext?.requestData.requestId,
+			applicationContext?.requestContext.requestId,
 			path,
 			innerException
 		);
@@ -174,9 +178,6 @@ export class BadRequestException extends ApplicationException {
 
 	}
 }
-
-
-
 
 
 /** Cuando un registro ya existe 
@@ -197,9 +198,9 @@ export class RecordAlreadyExistsException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.RecordAlreadyExists,
-			applicationContext.translator.Translate("record-exists", message),
+			applicationContext.language.Translate("record-exists", message),
 			HttpStatusCode.BadRequest,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		);
@@ -217,9 +218,9 @@ export class DatabaseConnectionException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.DatabaseConnectionException,
-			applicationContext.translator.Translate("database-connection-exception"),
+			applicationContext.language.Translate("database-connection-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		)
@@ -237,9 +238,9 @@ export class DatabaseDesconnectionException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.DatabaseDisconnectException,
-			applicationContext.translator.Translate("database-desconnection-exception"),
+			applicationContext.language.Translate("database-desconnection-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		)
@@ -257,9 +258,9 @@ export class DatabaseNoInstanceException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.DatabaseNoInstanceException,
-			applicationContext.translator.Translate("database-no-instance-exception"),
+			applicationContext.language.Translate("database-no-instance-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		)
@@ -277,9 +278,9 @@ export class DatabaseNoDialectException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.DatabaseNoDialectException,
-			applicationContext.translator.Translate("database-no-dialect-exception"),
+			applicationContext.language.Translate("database-no-dialect-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		)
@@ -297,9 +298,49 @@ export class DatabaseTransactionException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.DatabaseTransactionException,
-			applicationContext.translator.Translate("database-transaction-exception"),
+			applicationContext.language.Translate("database-transaction-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
+			path,
+			innerException
+		)
+	}
+}
+
+/** Error al cargar estrategia de conexión */
+export class DatabaseStrategyException extends ApplicationException {
+	constructor(
+		methodName: string,
+		applicationContext: ApplicationContext,
+		path?: string,
+		innerException?: Error
+	) {
+		super(
+			methodName,
+			HttpStatusName.DatabaseStrategyException,
+			applicationContext.language.Translate("database-strategy-exception"),
+			HttpStatusCode.InternalServerError,
+			applicationContext.requestContext.requestId,
+			path,
+			innerException
+		)
+	}
+}
+
+/** Error al buscar conexiones */
+export class DatabaseUndefinedConnectionException extends ApplicationException {
+	constructor(
+		methodName: string,
+		applicationContext: ApplicationContext,
+		path?: string,
+		innerException?: Error
+	) {
+		super(
+			methodName,
+			HttpStatusName.DatabaseStrategyException,
+			applicationContext.language.Translate("database-undefined-connections"),
+			HttpStatusCode.InternalServerError,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		)
@@ -317,9 +358,9 @@ export class DatabaseException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.DatabaseException,
-			applicationContext.translator.Translate("database-exception"),
+			applicationContext.language.Translate("database-exception"),
 			HttpStatusCode.InternalServerError,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		)
@@ -337,9 +378,9 @@ export class DatabaseCommitmentException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.DatabaseCommitmentException,
-			applicationContext.translator.Translate("database-commitment-exception"),
+			applicationContext.language.Translate("database-commitment-exception"),
 			HttpStatusCode.BadRequest,
-			applicationContext?.requestData.requestId,
+			applicationContext?.requestContext.requestId,
 			path,
 			innerException
 		);
@@ -359,9 +400,9 @@ export class ValidationException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.ValidationException,
-			applicationContext.translator.Translate("database-exception"),
+			applicationContext.language.Translate("database-exception"),
 			HttpStatusCode.BadRequest,
-			applicationContext.requestData.requestId,
+			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		)

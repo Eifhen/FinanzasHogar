@@ -2,6 +2,7 @@ import ApplicationContext from "../../Configurations/ApplicationContext";
 import ConfigurationSettings from "../../Configurations/ConfigurationSettings";
 import IContainerManager from "../../Configurations/Interfaces/IContainerManager";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
+import { DatabaseConnectionException, DatabaseDesconnectionException, DatabaseStrategyException, DatabaseUndefinedConnectionException } from "../../ErrorHandling/Exceptions";
 import ILoggerManager, { LoggerTypes } from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
 import { DEFAULT_NUMBER, NO_REQUEST_ID } from "../../Utils/const";
@@ -25,6 +26,9 @@ interface MultidatabaseConnectionManagerDependencies {
 
 	/** Opciones de configuración para el Manager */
 	connectionOptions: DatabaseConnectionManagerOptions[];
+
+	/** Contexto de aplicación */
+	applicationContext: ApplicationContext;
 }
 
 /** Clase que permite controlar la conexión de multiples bases de datos a la vez */
@@ -40,6 +44,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 
 	/** Manejador de intancias de base de datos */
 	private readonly _databaseInstanceManager: DatabaseInstanceManager;
+
+	/** Contexto de aplicación */
+	private readonly _applicationContext: ApplicationContext;
 
 	/** Estrategias de conneccion */
 	private _connectionEntities?: ConnectionEntity[];
@@ -66,6 +73,7 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 		this._containerManager = deps.containerManager;
 		this._configurationSettings = deps.configurationSettings;
 		this._databaseInstanceManager = deps.databaseInstanceManager;
+		this._applicationContext = deps.applicationContext;
 
 
 		/** Inicializamos las entidades de conexión */
@@ -78,12 +86,10 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 	private InitializeDatabaseConnectionEntities(options: DatabaseConnectionManagerOptions[]) {
 		try {
 			this._logger.Activity("InitializeDatabaseConnectionEntities");
-			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
 
 			/** Instanciamos el director de estrategias */
 			const databaseStrategyDirector = new DatabaseStrategyDirector({
-				configurationSettings: this._configurationSettings,
-				applicationContext
+				applicationContext: this._applicationContext
 			})
 
 			/** Seteamos las entidades de conexión */
@@ -97,12 +103,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 				throw err;
 			}
 
-			throw new ApplicationException(
+			throw new DatabaseStrategyException(
 				"InitializeDatabaseConnectionEntities",
-				HttpStatusName.InternalServerError,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
+				this._applicationContext,
 				__filename,
 				err
 			);
@@ -117,12 +120,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 
 			/** Validamos que existan entidades de conexión */
 			if (!this._connectionEntities) {
-				throw new ApplicationException(
+				throw new DatabaseUndefinedConnectionException(
 					"Connect",
-					HttpStatusName.InternalServerError,
-					"Por el momento no hay entidades de conexión definidas",
-					HttpStatusCode.InternalServerError,
-					NO_REQUEST_ID,
+					this._applicationContext,
 					__filename,
 				)
 			}
@@ -132,12 +132,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 				try {
 					/** Validamos que exista una estrategia de conexión definida */
 					if (!entity.strategy) {
-						throw new ApplicationException(
+						throw new DatabaseStrategyException(
 							"Connect",
-							HttpStatusName.DatabaseConnectionException,
-							"La estrategía de conección no está definida",
-							HttpStatusCode.InternalServerError,
-							NO_REQUEST_ID,
+							this._applicationContext,
 							__filename,
 						);
 					}
@@ -151,26 +148,31 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 						}
 					}
 
-					await entity.strategy.Connect();
+					/** Obtenemos la instancia de la base de datos */
+					const dbInstance = await entity.strategy.Connect();
 
 					/** Agrega la instancia de la base de datos al contenedor de dependencias */
 					this._databaseInstanceManager.SetDatabaseInstance(
 						this._containerManager,
 						entity.options.databaseContainerInstanceName,
 						entity.options.databaseRegistryName,
-						entity.strategy
+						entity.strategy,
+						dbInstance,
+						entity.options.databaseType
 					)
 
 					/** Notifcamos el environment al cual nos hemos conectado */
-					this._logger.Message("INFO", `
-						El servidor está conectado a la base de datos 
-						[${entity.options.connectionEnvironment.toUpperCase()}] | 
-						[${entity.options.databaseRegistryName}]
-					`);
+					this._logger.Message("INFO", `El servidor está conectado a la base de datos [${entity.options.connectionEnvironment.toUpperCase()}] | [${entity.options.databaseRegistryName}]`);
 
 				}
 				catch (err: any) {
 					this._logger.Error(LoggerTypes.FATAL, "Connect", err);
+					throw new DatabaseConnectionException(
+						"Connect",
+						this._applicationContext,
+						__filename,
+						err
+					);
 				}
 			});
 
@@ -185,12 +187,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 				throw err;
 			}
 
-			throw new ApplicationException(
+			throw new DatabaseConnectionException(
 				"Connect",
-				HttpStatusName.DatabaseConnectionException,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
+				this._applicationContext,
 				__filename,
 				err
 			);
@@ -204,12 +203,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 
 			/** Validamos que existan entidades de conexión */
 			if (!this._connectionEntities) {
-				throw new ApplicationException(
+				throw new DatabaseUndefinedConnectionException(
 					"Disconnect",
-					HttpStatusName.InternalServerError,
-					"Por el momento no hay entidades de conexión definidas",
-					HttpStatusCode.InternalServerError,
-					NO_REQUEST_ID,
+					this._applicationContext,
 					__filename,
 				)
 			}
@@ -218,12 +214,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 				try {
 					/** Validamos que exista una estrategia de conexión definida */
 					if (!entity.strategy) {
-						throw new ApplicationException(
+						throw new DatabaseStrategyException(
 							"Disconnect",
-							HttpStatusName.DatabaseConnectionException,
-							"La estrategía de conección no está definida",
-							HttpStatusCode.InternalServerError,
-							NO_REQUEST_ID,
+							this._applicationContext,
 							__filename,
 						);
 					}
@@ -232,6 +225,7 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 				}
 				catch (err: any) {
 					this._logger.Error(LoggerTypes.FATAL, "Disconnect", err);
+					throw err;
 				}
 			});
 
@@ -245,12 +239,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 				throw err;
 			}
 
-			throw new ApplicationException(
-				"Desconnect",
-				HttpStatusName.DatabaseDisconnectException,
-				err.message,
-				HttpStatusCode.InternalServerError,
-				NO_REQUEST_ID,
+			throw new DatabaseDesconnectionException(
+				"Disconnect",
+				this._applicationContext,
 				__filename,
 				err
 			);

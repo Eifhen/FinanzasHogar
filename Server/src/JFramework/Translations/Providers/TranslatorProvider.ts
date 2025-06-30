@@ -1,14 +1,14 @@
-import { RequestData } from '../../Configurations/ApplicationContext';
+import { RequestContext } from '../../Configurations/Types/ContextTypes';
 import { AutoClassBinder } from '../../Helpers/Decorators/AutoBind';
 import ILoggerManager from '../../Managers/Interfaces/ILoggerManager';
 import LoggerManager from '../../Managers/LoggerManager';
 import { ClassConstructor } from '../../Utils/Types/CommonTypes';
-import { ITranslationProvider } from '../Interfaces/ITranslatorProvider';
+import { ITranslationProvider, ITranslatorProviderStrategyDependencies } from '../Interfaces/ITranslatorProvider';
 
 interface TranslatorProviderDependencies {
-	requestData: RequestData;
-	systemTranslatorProvider: ClassConstructor<ITranslationProvider>;
-	businessTranslatorProvider?: ClassConstructor<ITranslationProvider>;
+	requestContext: RequestContext;
+	systemTranslatorProvider: ClassConstructor<ITranslationProvider, ITranslatorProviderStrategyDependencies>;
+	businessTranslatorProvider?: ClassConstructor<ITranslationProvider, ITranslatorProviderStrategyDependencies>;
 }
 
 @AutoClassBinder
@@ -18,7 +18,7 @@ export default class TranslatorProvider implements ITranslationProvider {
 	private readonly _logger: ILoggerManager;
 
 	/** Contiene información acerca de la request en curso */
-	public readonly requestData: RequestData;
+	public readonly requestContext: RequestContext;
 
 	/** Implementa las traducciones del sistema */
 	private readonly _systemTranslatorProvider: ITranslationProvider;
@@ -28,21 +28,21 @@ export default class TranslatorProvider implements ITranslationProvider {
 
 	constructor(deps: TranslatorProviderDependencies) {
 		
-		this.requestData = deps.requestData;
-
 		this._logger = new LoggerManager({
 			entityName: "TranslatorProvider",
 			entityCategory: "PROVIDER",
-			requestId: deps.requestData.requestId
+			requestId: deps.requestContext.requestId
 		});
 
+		this.requestContext = deps.requestContext;
+
 		this._systemTranslatorProvider = new deps.systemTranslatorProvider({ 
-			requestData: deps.requestData
+			requestContext: deps.requestContext
 		});
 
 		if(deps.businessTranslatorProvider){
 			this._businessTranslatorProvider = new deps.businessTranslatorProvider({ 
-				requestData: deps.requestData
+				requestContext: deps.requestContext
 			});
 		}
 

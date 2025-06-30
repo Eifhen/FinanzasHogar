@@ -118,14 +118,16 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 			}
 
 			/** Realizamos la conección con la base de datos */
-			await this._connectionEntity.strategy.Connect();
+			const dbInstance = await this._connectionEntity.strategy.Connect();
 
 			/** Agrega la instancia de la base de datos al contenedor de dependencias */
 			this._databaseInstanceManager.SetDatabaseInstance(
 				this._containerManager,
 				this._options.databaseContainerInstanceName,
 				this._options.databaseRegistryName,
-				this._connectionEntity.strategy
+				this._connectionEntity.strategy,
+				dbInstance,
+				this._options.databaseType	
 			)
 
 			/** Notifcamos el environment al cual nos hemos conectado */

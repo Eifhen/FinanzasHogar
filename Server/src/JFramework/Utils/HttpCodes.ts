@@ -86,6 +86,8 @@ export const HttpStatusName = {
 	DatabaseNoInstanceException: "DatabaseNoInstanceException",
 	DatabaseNoDialectException: "DatabaseNoDialectException",
 	DatabaseTransactionException: "DatabaseTransactionException",
+	DatabaseStrategyException: "DatabaseStrategyException",
+	DatabaseUndefinedConnectionException: "DatabaseUndefinedConnectionException",
 	DatabaseCommitmentException: "DatabaseCommitmentException",
 	DatabaseException: "DatabaseException",
 

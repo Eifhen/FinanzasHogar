@@ -1,18 +1,18 @@
 import ILoggerManager from "../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../Managers/LoggerManager";
-import { ITranslationProvider } from "../Interfaces/ITranslatorProvider";
+import { ITranslationProvider, ITranslatorProviderStrategyDependencies } from "../Interfaces/ITranslatorProvider";
 import { EN_US_SYSTEM } from "../Dictionaries/en_US_SYSTEM";
 import { ES_DO_SYSTEM } from "../Dictionaries/es_DO_SYSTEM";
 import { ApplicationLenguages } from "../Types/ApplicationLenguages";
 import { AutoClassBinder } from "../../Helpers/Decorators/AutoBind";
-import { RequestData } from "../../Configurations/ApplicationContext";
+import { RequestContext } from "../../Configurations/Types/ContextTypes";
 
 
-
-interface SystemTranslatorProviderDependencies {
-	requestData: RequestData;
+export interface SystemTranslatorProviderDependencies extends ITranslatorProviderStrategyDependencies {
+	
 }
 
+/** Estrategia de traducción para mensajes del sistema */
 @AutoClassBinder
 export default class SystemTranslatorProvider implements ITranslationProvider {
 
@@ -20,16 +20,16 @@ export default class SystemTranslatorProvider implements ITranslationProvider {
 	private readonly _logger: ILoggerManager;
 
 	/** Id de la request en curso */
-	public readonly requestData: RequestData;
+	public readonly requestContext: RequestContext;
 
 	constructor(deps: SystemTranslatorProviderDependencies) {
 
-		this.requestData = deps.requestData
-
+		this.requestContext = deps.requestContext
+		
 		this._logger = new LoggerManager({
 			entityName: "SystemTranslatorProvider",
 			entityCategory: "PROVIDER",
-			requestId: deps.requestData.requestId
+			requestId: deps.requestContext.requestId
 		});
 	}
 
@@ -38,9 +38,9 @@ export default class SystemTranslatorProvider implements ITranslationProvider {
 	public getTranslation(key: string): string | undefined {
 		this._logger.Activity("getTranslation");
 
-		if (this.requestData.lang === ApplicationLenguages.en) {
+		if (this.requestContext.lang === ApplicationLenguages.en) {
 			return EN_US_SYSTEM[key as keyof typeof EN_US_SYSTEM];
-		} else if (this.requestData.lang === ApplicationLenguages.es) {
+		} else if (this.requestContext.lang === ApplicationLenguages.es) {
 			return ES_DO_SYSTEM[key as keyof typeof ES_DO_SYSTEM];
 		}
 		return undefined;

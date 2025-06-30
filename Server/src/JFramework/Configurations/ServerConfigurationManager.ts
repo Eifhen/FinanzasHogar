@@ -20,6 +20,7 @@ export interface IServerConfigurationDependencies {
 	containerManager: IContainerManager;
 	configurationSettings: ConfigurationSettings;
 	serviceManager: IServiceManager;
+	applicationContext: ApplicationContext
 }
 
 @AutoClassBinder
@@ -43,6 +44,8 @@ export default class ServerConfigurationManager implements IServerConfigurationM
 	/** Manejador de servicios */
 	private readonly _serviceManager: IServiceManager;
 
+	/** Contexto de aplicación */
+	private readonly _applicationContext: ApplicationContext;
 
 	constructor(deps: IServerConfigurationDependencies) {
 
@@ -51,17 +54,18 @@ export default class ServerConfigurationManager implements IServerConfigurationM
 		this._containerManager = deps.containerManager;
 		this._configurationSettings = deps.configurationSettings;
 		this._serviceManager = deps.serviceManager;
+		this._applicationContext = deps.applicationContext;
 	}
 
 	/** Agrega el contenedor de dependencias */
-	public AddContainer(): void {
+	public AddContainerMiddleware(): void {
 		try {
 			// this._app.use(scopePerRequest(this._containerManager.GetContainer()));
 			this._logger.Activity("AddContainer");
-			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
+		
 			const attachContainer = new AttachContainerMiddleware({
 				containerManager: this._containerManager,
-				applicationContext
+				applicationContext: this._applicationContext
 			});
 
 			this._serviceManager.AddMiddlewareInstance(attachContainer);
@@ -134,11 +138,8 @@ export default class ServerConfigurationManager implements IServerConfigurationM
 		try {
 			this._logger.Activity("AddCookieConfiguration");
 
-			/** LLamamos al applicationContext del contenedor de dependencias */
-			const applicationContext = this._containerManager.Resolve<ApplicationContext>("applicationContext");
-			
 			/** Creamos una instancia de tokenManager para generar tokens */
-			const tokenManager = new TokenManager({ applicationContext });
+			const tokenManager = new TokenManager({ applicationContext: this._applicationContext });
 
 			/** Generamos un token que nos va a servir como clave secreta. 
 			 * Al generar la clave de forma dinámica, se generará un nuevo token cada 

@@ -8,7 +8,7 @@ import { ConnectionEnvironment } from "../Configurations/Types/IConnectionServic
 import { BUSINESS_DATABASE_INSTANCE_NAME } from "../Utils/const";
 import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
 import IInternalTenantService from "../API/Services/Interfaces/IInternalTenantService";
-import { BadRequestException, DatabaseCommitmentException, DatabaseNoInstanceException } from "../ErrorHandling/Exceptions";
+import { BadRequestException, DatabaseCommitmentException, DatabaseNoInstanceException, NotFoundException } from "../ErrorHandling/Exceptions";
 import IsNullOrEmpty from "../Utils/utils";
 import DatabaseInstanceManager from "../External/DataBases/DatabaseInstanceManager";
 import DatabaseStrategyDirector from "../External/DataBases/Strategies/DatabaseStrategyDirector";
@@ -36,7 +36,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 	private _databaseInstanceManager: DatabaseInstanceManager | null = null;
 
 	/** Tenant en curso */
-	private _tenantKey?:string;
+	private _tenantKey?: string;
 
 	constructor(deps: TenantResolverMiddlewareDependencies) {
 		super();
@@ -59,6 +59,26 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 		try {
 			this._logger.Activity("Intercept");
 
+			/** URL objetivo de la request en curso */
+			const currentUrl = req.originalUrl.toLowerCase();
+
+			/** Versión del API */
+			const apiVersion = this._applicationContext.settings.apiData.apiVersion;
+
+			/** Listado de rutas omitidas para este middleware */
+			const excludedRoutes = this._applicationContext.settings.databaseConnectionData.tenantExcludedRoutes;
+ 
+			/** Validamos si la request en curso se dirige al api interno */
+			if(excludedRoutes.some((route)=> currentUrl.startsWith(`/api/${apiVersion}/${route}`))){
+				this._logger.Message("INFO", "La request se encuentra en el listado de rutas omitidas, el [Middleware] [TenantResolverMiddleware] será omitido.")
+				/** Si la request se dirige al API interno no necesitamos validar el 
+				 * tenant ya que mediante el MultidatabaseConnectionManager ya tenemos una 
+				 * conexión establecida hacia la base de datos de uso interno al 
+				 * iniciar el servidor */
+				return next(); // omitir middleware
+			}
+
+
 			this._tenantKey = req.get(this._applicationContext.settings.apiData.headers.tenantTokenHeader)?.trim();
 			const scopedContainer = req.container;
 
@@ -66,12 +86,9 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 			if (!this._tenantKey || IsNullOrEmpty(this._tenantKey)) {
 				throw new BadRequestException("Intercept", "no-tenant", this._applicationContext, __filename);
 			}
-			
+
 			/** Obtenemos el instance manager */
 			this._databaseInstanceManager = scopedContainer.Resolve<DatabaseInstanceManager>("databaseInstanceManager");
-			
-			console.log("Contenedor en curso =>", scopedContainer._identifier);
-			console.log("DatabaseInstanceManager container =>", this._databaseInstanceManager.containerIdentity);
 
 			/** Validamos si la instancia ya se encuentra en el registro de instancias */
 			const isInRegistry = this._databaseInstanceManager.CheckInstance(this._tenantKey);
@@ -98,10 +115,21 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 				/** Obtenemos los datos de conexión del tenant de la request en curso */
 				const tenant = await this._internalTenantService.GetTenantConnectionViewByKey(this._tenantKey);
 
+				/** Validamos si se encontró el tenant */
+				if (!tenant.data) {
+					throw new NotFoundException("Intercept", [this._tenantKey], this._applicationContext, __filename);
+				}
+
+				/** ProyectKey del tenant encontrado */
+				const incomingProyectKey = tenant.data?.proyect_key.toLowerCase();
+
+				/** ProyectKey definido en el proyecto */
+				const currentProyectKey = this._applicationContext.settings.apiData.proyect_token.toLowerCase();
+
 				/** Validamos si el proyect_key del tenant ingresado NO es igual al proyect key de la API,
-				 * si este error ocurre podria significar que la base de datos ha sido comprometida. 
-				 * Aqui se podria implementar lógica para banear al usuario si fuese necesario. */
-				if (tenant.proyect_key !== this._applicationContext.settings.apiData.proyect_token) {
+					* si este error ocurre podria significar que la base de datos ha sido comprometida. 
+					* Aqui se podria implementar lógica para banear al usuario si fuese necesario. */
+				if (incomingProyectKey !== currentProyectKey) {
 					throw new DatabaseCommitmentException("Intercept", this._applicationContext, __filename);
 				}
 
@@ -109,15 +137,15 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 				const applicationContext = scopedContainer.Resolve<ApplicationContext>("applicationContext");
 
 				/** Mapeamos los Datos de conexión a un objeto que nuestro manager pueda leer*/
-				const connectionData = await this._internalTenantService.GetTenantConnectionConfig(tenant);
+				const connectionData = await this._internalTenantService.GetTenantConnectionConfig(tenant.data);
 
 				/** Obtenemos el director de estrategias */
-				const databaseStrategyDirector = new DatabaseStrategyDirector({ applicationContext });
+				const director = new DatabaseStrategyDirector({ applicationContext });
 
 				/** Obtenemos la entidad de conexión que contiene el connection strategy */
-				const entity = databaseStrategyDirector.GetConnectionStrategy({
+				const entity = director.GetConnectionStrategy({
 					connectionEnvironment: ConnectionEnvironment.BUSINESS,
-					databaseType: tenant.database_type,
+					databaseType: tenant.data.database_type,
 					databaseRegistryName: this._tenantKey, // identificador en el map de conexiones
 					databaseContainerInstanceName: BUSINESS_DATABASE_INSTANCE_NAME, // identificador en el container
 					connectionData
@@ -132,13 +160,21 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 				const dbInstance = await entity.strategy.Connect();
 
 				/** Validamos la instancia de conexión: kysely, mongoclient etc */
-				if(!dbInstance){
+				if (!dbInstance) {
 					throw new DatabaseNoInstanceException("Intercept", applicationContext, __filename);
 				}
 
-				/** Agregamos la instancia de kysely o mongoclient al scopedContainer
-				 * para que nuestros repositorios, servicios y controllers la puedan utilizar */
-				scopedContainer.AddInstance(entity.options.databaseContainerInstanceName, dbInstance);
+				/** Agregamos la instancia de kysely o mongoclient al contenedor de instancias, 
+					* el cual se encargará de agregar la instancia al  scopedContainer
+					* para que nuestros repositorios, servicios y controllers la puedan utilizar */
+				this._databaseInstanceManager.SetDatabaseInstance(
+					scopedContainer,
+					entity.options.databaseContainerInstanceName,
+					this._tenantKey,
+					entity.strategy,
+					dbInstance,
+					entity.options.databaseType
+				);
 			}
 
 			/** Si todo va bien entonces seguimos adelante */
@@ -148,7 +184,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 			this._logger.Error("FATAL", "Intercept", err);
 
 			/** Desconectamos el tenant */
-			if(this._tenantKey && !IsNullOrEmpty(this._tenantKey) && this._databaseInstanceManager){
+			if (this._tenantKey && !IsNullOrEmpty(this._tenantKey) && this._databaseInstanceManager) {
 				this._logger.Message("FATAL", `Ha ocurrido un error al intentar conectarse al tenant ${this._tenantKey}`);
 
 				await this._databaseInstanceManager.DisconnectInstance(this._tenantKey).catch(err => {

@@ -51,6 +51,8 @@ export const ES_DO_SYSTEM: Record<LenguageKeys, string> = {
 	"database-no-instance-exception": "Por el momento no hay una instancia de la base de datos disponible.",
 	"database-no-dialect-exception": "Por el momento no hay un dialecto disponible.",
 	"database-transaction-exception": "Ha ocurrido un error al realizar la transacción.",
+	"database-strategy-exception": "Ha ocurrido un error al cargar la estrategia de conexión",
+	"database-undefined-connections": "Ha ocurrido un error al intentar cargar las conexiones a la base de datos.",
 	"database-commitment-exception": "Error de compromiso: ha ocurrido un error fatal, el tenant indicado no posee un proyect id valido, es posible que la base de datos esté comprometida.",
 	"database-exception": "Ha ocurrido un error en la base de datos.",
 	"rate-limiter-invalid": "El RateLimiter {0} no es una función.",
@@ -65,6 +67,7 @@ export const ES_DO_SYSTEM: Record<LenguageKeys, string> = {
 	"connection-config-error": "Ha ocurrido un error al definir la configuración de conexión",
 	"no-tenant": "Error, no se ha enviado un tenant válido",
 	"tenant-error": "Ha ocurrido un error al buscar el tenant indicado",
+	"server-critical-exception": "A ocurrido un error crítico en el sistema. Por favor contacte al administrador.",
 	/** END Errores Custom */
 
 	/** Zod errors */
@@ -84,6 +87,7 @@ export const ES_DO_SYSTEM: Record<LenguageKeys, string> = {
 
 	"invalid_date": `La fecha ingresada en el campo "{0}" es inválida.`,
 	"invalid_string": `La cadena ingresada en el campo "{0}" es inválida.`,
+	"invalid_url": `La url ingresada en el campo {0} es inválida.`,
 	"invalid_literal": `El valor ingresado para el campo "{0}" es inválido. Se esperaba el valor {1}, pero se recibió el valor {2}.`,
 	"invalid_type": `El tipo de dato ingresado en el campo "{0}" es inválido. Se esperaba el tipo {1} pero se recibió el tipo {2}.`,
 	"invalid_union": `Ha ocurrido un error en el campo "{0}".`,

@@ -33,7 +33,7 @@ export default class AttachContainerMiddleware extends ApplicationMiddleware {
 		this._logger = new LoggerManager({
 			entityCategory: "MIDDLEWARE",
 			entityName: "AttachContainerMiddleware",
-			applicationContext: deps.applicationContext
+			applicationContext: this._applicationContext
 		});
 	}
 

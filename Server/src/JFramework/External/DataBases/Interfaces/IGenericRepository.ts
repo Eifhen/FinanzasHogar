@@ -36,13 +36,22 @@ export default interface IGenericRepository<
   Where(expresion: QueryExpression<DataBaseEntity, TableName>[] | QueryExpression<DataBaseEntity, TableName>) : IApplicationPromise<OutputEntity[] | null>;
 
   /** Permite crear un registro */
-  Create(record: InsertType): IApplicationPromise<InsertOutput>;
+  Create(record: InsertType): IApplicationPromise<OutputEntity>;
 
   /** Permite actualizar un registro */
   Update(id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>, record: UpdateType): IApplicationPromise<UpdateOutput>;
 
+  /** Permite actualizar un registro segun una condicion */
+  UpdateBy(
+    expresion: QueryExpression<DataBaseEntity, TableName>[] | QueryExpression<DataBaseEntity, TableName>, 
+    record: UpdateType
+  ): IApplicationPromise<OutputEntity>;
+
   /** Permite eliminar un registro */
   Delete(id: UnwrapGenerated<DataBaseEntity[TableName][PrimaryKey]>): IApplicationPromise<DeleteOutput>;
+
+  /** Permite eliminar un registro por un campo */
+  DeleteBy(expresion: QueryExpression<DataBaseEntity, TableName>[] | QueryExpression<DataBaseEntity, TableName>): IApplicationPromise<DeleteOutput>;
 
   /** Permite paginar la data buscada en base a los argumentos de paginación */
   Paginate(params: IPaginationArgs, filter?: Partial<OutputEntity>): IApplicationPromise<IPaginationResult<OutputEntity>>;

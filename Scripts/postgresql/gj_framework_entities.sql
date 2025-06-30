@@ -33,7 +33,7 @@ CREATE TABLE gj_tenants (
 	proyect_key UUID NOT NULL, -- UUID key de gj_proyects
 	tenant_key UUID DEFAULT uuid_generate_v4() NOT NULL,
 	tenant_code CHAR(20) UNIQUE NOT NULL, -- ej: PROJ-FH-000000000001
-	name CHAR(200) NOT NULL, -- nombre del cliente
+	name TEXT NOT NULL, -- nombre del cliente
 	description TEXT, -- descripcion del cliente
 	status SMALLINT NOT NULL, -- active = 1, inactive = 0,
 	domain TEXT, -- nombre del dominio del tenant 
@@ -48,9 +48,9 @@ CREATE TABLE gj_tenants (
 CREATE TABLE gj_tenant_details (
 	id SERIAL PRIMARY KEY NOT NULL,
 	tenant_key UUID UNIQUE NOT NULL, -- key de gj_tenants
-	connectionString TEXT, -- permite conectar a la base de datos del cliente
   style_parameters JSON, -- almacena parámetros de estilo en formato JSON
 	logo TEXT -- ruta del logo del cliente
+  -- connectionString TEXT, -- permite conectar a la base de datos del cliente
 	-- databaseName TEXT, -- eliminado, ahora solo se usa el connectionString | nombre de la base de datos 
 	-- connectionObject JSON, -- Columna eliminada, solo se usará el connectionString | objeto de conexión en formato JSON
 
@@ -98,14 +98,21 @@ CREATE OR REPLACE VIEW gj_tenant_connection_view AS (
   JOIN gj_tenant_connections tc ON t.tenant_key = tc.tenant_key
 );
 
+----------------------------------------------------
+
 
 SELECT * FROM gj_tenant_connection_view;
 
 SELECT * FROM gj_tenant_connections tc;
 
+DROP VIEW gj_tenant_connection_view;
 
 ----------------------------------------------------------------
 SELECT * FROM gj_proyects;
 SELECT * FROM gj_tenants;
 SELECT * FROM gj_tenant_details;
 SELECT * FROM gj_tenant_connections;
+---------------------------------------------------------------
+
+
+ALTER TABLE gj_tenants ALTER COLUMN name TYPE TEXT

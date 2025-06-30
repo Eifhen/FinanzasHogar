@@ -1,10 +1,9 @@
 import ApplicationContext from "../Configurations/ApplicationContext";
 import { HttpStatusMessage } from "../Utils/HttpCodes";
-import IApiResponse from "./Interfaces/IApiResponse";
 
 
 /** Clase que contiene la respuesta que se enviará al cliente */
-export class ApplicationResponse<T> implements IApiResponse<T> {
+export class ApplicationResponse<T> {
 	
 	/** Id de la request */
 	public requestID: string;
@@ -24,8 +23,8 @@ export class ApplicationResponse<T> implements IApiResponse<T> {
 		_data?: T, 
 		_redirectionRoute?:string
 	){
-		this.requestID = applicationContext.requestData.requestId;
-		this.message = applicationContext.translator.Translate(_message);
+		this.requestID = applicationContext.requestContext.requestId;
+		this.message = applicationContext.language.Translate(_message);
 		this.data = _data;
 		this.redirectionRoute = _redirectionRoute;
 	}

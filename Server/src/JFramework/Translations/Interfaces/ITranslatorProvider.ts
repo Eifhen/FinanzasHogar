@@ -1,4 +1,5 @@
-import { RequestData } from "../../Configurations/ApplicationContext";
+import { RequestContext } from "../../Configurations/Types/ContextTypes";
+
 
 
 
@@ -10,7 +11,11 @@ export interface ITranslationProvider {
   getTranslation(key: string): string | undefined;
 
   /** Contiene información acerca de la request en curso */
-  requestData: RequestData;
+  requestContext: RequestContext;
+}
+
+export interface ITranslatorProviderStrategyDependencies {
+	requestContext: RequestContext;
 }
 
 

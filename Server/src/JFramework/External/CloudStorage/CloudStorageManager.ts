@@ -102,7 +102,7 @@ export default class CloudStorageManager implements ICloudStorageManager {
 				HttpStatusName.CloudStorageConnectionException,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -139,7 +139,7 @@ export default class CloudStorageManager implements ICloudStorageManager {
 				HttpStatusName.CloudStorageDisconnectException,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -176,7 +176,7 @@ export default class CloudStorageManager implements ICloudStorageManager {
 				HttpStatusName.CloudStorageConnectionException,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -213,7 +213,7 @@ export default class CloudStorageManager implements ICloudStorageManager {
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -250,7 +250,7 @@ export default class CloudStorageManager implements ICloudStorageManager {
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);
@@ -287,7 +287,7 @@ export default class CloudStorageManager implements ICloudStorageManager {
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);

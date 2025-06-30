@@ -88,7 +88,7 @@ export default class MssqlConnectionStrategy<DataBaseEntity> implements IDatabas
 				HttpStatusName.InternalServerError,
 				err.message,
 				HttpStatusCode.InternalServerError,
-				this._applicationContext.requestData.requestId,
+				this._applicationContext.requestContext.requestId,
 				__filename,
 				err
 			);

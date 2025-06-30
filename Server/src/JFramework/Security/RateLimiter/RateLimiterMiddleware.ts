@@ -10,6 +10,8 @@ import ApplicationContext from "../../Configurations/ApplicationContext";
 
 // Define una interfaz base para las dependencias comunes
 interface CommonDependencies {
+
+	/** Esto es inyectado mediante el decorador Middlware */
 	applicationContext: ApplicationContext;
 }
 
@@ -43,7 +45,7 @@ export default function RateLimiterMiddleware<LimiterName extends Limiters>(limi
 		});
 
 		try {
-			logger.Activity();
+			logger.Activity("RateLimiterMiddleware");
 
 			/** Obtenemos el limiter */
 			const rateLimiter: RateLimitRequestHandler = deps[limiterName];

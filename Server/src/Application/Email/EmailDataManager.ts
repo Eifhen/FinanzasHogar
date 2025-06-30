@@ -43,27 +43,27 @@ export class EmailDataManager implements IEmailDataManager {
 		this._logger.Activity("GetValidationEmailData");
 
 		return {
-			title: this._applicationContext.translator.Translate("activar-cuenta"),
+			title: this._applicationContext.language.Translate("activar-cuenta"),
 			recipientEmail: email,
 			template: {
 				name: "verification_email",
 				data: {
-					headTitle: this._applicationContext.translator.Translate("activar-cuenta"),
+					headTitle: this._applicationContext.language.Translate("activar-cuenta"),
 					homeBudgetLogo: this._applicationContext.settings.apiData.defaultImages.APP_LOGO,
 					portfolioLogo: this._applicationContext.settings.apiData.defaultImages.PORTFOLIO_LOGO,
 					blackWave: this._applicationContext.settings.apiData.defaultImages.BLACK_WAVE,
-					subject: this._applicationContext.translator.Translate("activar-cuenta"),
+					subject: this._applicationContext.language.Translate("activar-cuenta"),
 					paragraph: {
 						accentColor: this._applicationContext.settings.apiData.styleConfig.primaryColor,
-						greating1: this._applicationContext.translator.Translate("hola"),
+						greating1: this._applicationContext.language.Translate("hola"),
 						recipientName: name,
-						greating2: this._applicationContext.translator.Translate("bienvenido-a").toLowerCase(),
+						greating2: this._applicationContext.language.Translate("bienvenido-a").toLowerCase(),
 						bussinessName: this._applicationContext.settings.appPrettyName ?? "",
-						argument: this._applicationContext.translator.Translate("cuenta-creada-exitosamente"),
+						argument: this._applicationContext.language.Translate("cuenta-creada-exitosamente"),
 					},
 					button: {
 						link: `${this._applicationContext.settings.apiData.appLinks.accountActivation}/${token}`,
-						text: this._applicationContext.translator.Translate("activar"),
+						text: this._applicationContext.language.Translate("activar"),
 						color: this._applicationContext.settings.apiData.styleConfig.primaryColor
 					}
 				}

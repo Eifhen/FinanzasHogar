@@ -7,7 +7,7 @@ import { CorsOptions } from "cors";
 export default interface IServerConfigurationManager {
 
   /** Agrega el middleware del contenedor de dependencias a la request en curso */
-  AddContainer(): void;
+  AddContainerMiddleware(): void;
 
   /** Método que maneja la respuesta JSON de la aplicación 
    * @param {string} limit - Limite del tamaño de la respuesta JSON

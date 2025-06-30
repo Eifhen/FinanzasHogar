@@ -22,9 +22,12 @@ export type ClassInstance<T> = T extends (...args: any[]) => any ? never : T;
   invocar con el operador new para crear instancias), pero difieren en 
   la cantidad de argumentos que se esperan
 */
-export type ClassConstructor<T = any> = 
-  (new (params?: any) => ClassInstance<T>) | 
-  (new (...args: any[]) => ClassInstance<T>);
+export type ClassConstructor<
+  TInstance = any,
+  TParams = any
+> =
+  | (new (params?: TParams) => ClassInstance<TInstance>)
+  | (new (...args: TParams extends any[] ? TParams : [TParams]) => ClassInstance<TInstance>);
 
 
 /** Indica una función */

@@ -1,26 +1,31 @@
 import { Application } from "express";
-import IStartup, { IStartupDependencies } from "./Interfaces/IStartup"
+import IStartup from "./Interfaces/IStartup"
 import { Server } from "http";
 import express from 'express';
 import LoggerManager from "../Managers/LoggerManager";
 import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
 import { EXIT_CODES } from "../Utils/exit_codes";
-import ServiceManager, { IServiceManagerDependencies } from "./ServiceManager";
+import ServiceManager from "./ServiceManager";
 import IContainerManager from "./Interfaces/IContainerManager";
 import ContainerManager from "./ContainerManager";
-import ServerConfigurationManager, { IServerConfigurationDependencies } from "./ServerConfigurationManager";
 import IInternalServiceManager from "./Interfaces/IInternalServiceManager";
-import { InternalServiceManager, InternalServiceManagerDependencies } from "./InternalServiceManager";
+import { InternalServiceManager } from "./InternalServiceManager";
 import IServiceManager from "./Interfaces/IServiceManager";
 import ConfigurationSettings from "./ConfigurationSettings";
 import { ClassConstructor } from "../Utils/Types/CommonTypes";
-import IServerConfigurationManager from "./Interfaces/IServerConfigurationManager";
+import { ITranslationProvider } from "../Translations/Interfaces/ITranslatorProvider";
+import ApplicationContext from "./ApplicationContext";
+import ApplicationException from "../ErrorHandling/ApplicationException";
+import { InternalServerException } from "../ErrorHandling/Exceptions";
 
 
 interface ServerInitializerManagerDependencies {
 
 	/** Recibe un constructor de la interfaz IStartup */
 	startup: ClassConstructor<IStartup>;
+
+	/** Proveedor de traducción del negocio */
+	translator?: ClassConstructor<ITranslationProvider>
 }
 
 export default class ServerInitializerManager {
@@ -46,11 +51,11 @@ export default class ServerInitializerManager {
 	/** Manejador de servicios */
 	private readonly _serviceManager: IServiceManager;
 
-	/**  Manejador de configuración del servidor */
-	private readonly _serverConfigurationManager: IServerConfigurationManager;
-
 	/** Objeto de configuración del sistema */
 	private readonly _configurationSettings: ConfigurationSettings;
+
+	/** Objecto de contexto de aplicación */
+	private readonly _applicationContext: ApplicationContext;
 
 
 	constructor(deps: ServerInitializerManagerDependencies) {
@@ -58,7 +63,7 @@ export default class ServerInitializerManager {
 		/** Instanciamos el logger */
 		this._logger = new LoggerManager({
 			entityCategory: "CONFIGURATION",
-			entityName: "ApplicationServer"
+			entityName: "ServerInitializerManager"
 		});
 
 		/** Instanciamos la app de express */
@@ -70,35 +75,35 @@ export default class ServerInitializerManager {
 		/** Agregamos el manejador de contenedores */
 		this._containerManager = new ContainerManager();
 
+		/** Agregamos el contexto de aplicación */
+		this._applicationContext = new ApplicationContext({
+			settings: this._configurationSettings,
+			rootContainerManager: this._containerManager,
+			businessTranslatorProvider: deps.translator
+		});
+
 		// Instanciamos el manejador de servicios
 		this._serviceManager = new ServiceManager({
 			app: this._app,
 			containerManager: this._containerManager,
 			configurationSettings: this._configurationSettings
-		} as IServiceManagerDependencies);
+		});
 
-		/** Instanciamos la configuración del server */
-		this._serverConfigurationManager = new ServerConfigurationManager({
-			app: this._app,
-			serviceManager: this._serviceManager,
-			containerManager: this._containerManager,
-			configurationSettings: this._configurationSettings,
-		} as IServerConfigurationDependencies);
 
 		/** Agregamos el manejador de servicios internos */
 		this._internalServiceManager = new InternalServiceManager({
 			app: this._app,
 			serviceManager: this._serviceManager,
 			containerManager: this._containerManager,
-			configurationSettings: this._configurationSettings
-		} as InternalServiceManagerDependencies);
+			configurationSettings: this._configurationSettings,
+			applicationContext: this._applicationContext,
+		});
 
 		/** Instanciamos el Startup */
 		this._startup = new deps.startup({
 			configurationSettings: this._configurationSettings,
-			serverConfigurationManager: this._serverConfigurationManager,
 			serviceManager: this._serviceManager,
-		} as IStartupDependencies);
+		});
 	}
 
 	/** Este evento se ejecuta si algún error no fue manejado por la app */
@@ -226,13 +231,10 @@ export default class ServerInitializerManager {
 			this.InitializeProcessListeners();
 
 			/** Agregamos la configuración inicial */
-			await this._startup.AddConfiguration();
+			await this._internalServiceManager.AddInternalConfiguration();
 
 			/** Agregamos todos los servicios que realizan conecciones */
 			await this._internalServiceManager.RunConnectionServices();
-
-			/** Agregamos la configuración de seguridad interna */
-			await this._internalServiceManager.AddInternalSecurity();
 
 			/** Se agregan servicios internos */
 			await this._internalServiceManager.AddInternalStrategies();
@@ -240,19 +242,20 @@ export default class ServerInitializerManager {
 			await this._internalServiceManager.AddInternalRepositories();
 			await this._internalServiceManager.AddInternalServices();
 
-			/** Agregamos la configuración de seguridad del negocio */
-			await this._startup.AddSecurityConfiguration();
+			/** Agregamos la configuración de seguridad interna */
+			await this._internalServiceManager.AddInternalSecurity();
+
+			/** Se agregan endpoints de uso interno */
+			await this._internalServiceManager.AddInternalEndpoints();
+
+			/** Se agregan los repositorios del negocio */
+			await this._startup.AddBusinessRepositories();
+
+			/** Se agregan servicios del negocio */
+			await this._startup.AddBusinessServices();
 
 			/** Agregamos los middleware del negocio */
 			await this._startup.AddBusinessMiddlewares();
-
-			/** A partir de aquí ya no se agregan middlewares, 
-			 * simplemente se llena el contenedor de dependencias */
-			await this._startup.AddBusinessRepositories();
-			await this._startup.AddBusinessServices();
-			
-			/** Se agregan endpoints de uso interno */
-			await this._internalServiceManager.AddInternalEndpoints();
 
 			/** Se agrega middleware interno para manejo de errores */
 			await this._internalServiceManager.AddExceptionManager();
@@ -264,7 +267,18 @@ export default class ServerInitializerManager {
 
 		} catch (err: any) {
 			this._logger.Error("FATAL", "OnServerStart", err);
-			throw err;
+
+			if (err instanceof ApplicationException) {
+				throw err;
+			}
+
+			throw new InternalServerException(
+				"OnServerStart",
+				"server-critical-exception",
+				this._applicationContext,
+				__filename,
+				err
+			);
 		}
 	}
 

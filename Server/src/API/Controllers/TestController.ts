@@ -17,7 +17,7 @@ import SignUpDTO from "../../Application/DTOs/SignUpDTO";
 import AppImage from "../../JFramework/Helpers/DTOs/AppImage";
 import ApplicationContext from "../../JFramework/Configurations/ApplicationContext";
 import ICloudStorageManager from "../../JFramework/External/CloudStorage/Interfaces/ICloudStorageManager";
-import CsrfValidationMiddleware from "../../JFramework/Security/CSRF/CsrfValidationMiddleware";
+import CsrfValidationMiddleware from "../../JFramework/Middlewares/CsrfValidationMiddleware";
 
 
 interface TestControllerDependencies {
@@ -155,7 +155,7 @@ export default class TestController {
 		try {
 			this._logger.Activity("GetUsuarios");
 
-			console.log("ApplicationRequest Controlador =>", req.container._identifier);
+			console.log("TEST CONTROLLER | GET USUARIOS contenedor =>", req.container._identifier);
 
 			// const [err, data] = await this._usuariosRepository.paginate({
 			//   pageSize: 10,
@@ -259,7 +259,7 @@ export default class TestController {
 		try {
 			this._logger.Activity("GetTranslations");
 
-			const result = this._applicationContext.translator.Translate("activar")
+			const result = this._applicationContext.language.Translate("activar")
 
 			res.status(HttpStatusCode.OK).send(result);
 

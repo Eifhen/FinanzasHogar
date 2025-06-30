@@ -3,6 +3,9 @@
 
 export default interface IInternalServiceManager {
 
+  /** Agrega la configuración interna */
+  AddInternalConfiguration() : Promise<void>;
+
   /** Agrega las estrategias del negocio */
   AddInternalStrategies(): Promise<void>;
 
