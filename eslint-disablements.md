@@ -12,8 +12,11 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 /* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 /* eslint-disable @typescript-eslint/no-this-alias */
-
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+
+
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable prefer-template */
 
