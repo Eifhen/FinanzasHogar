@@ -7,9 +7,8 @@ import LoggerManager from "../../Managers/LoggerManager";
 import ApplicationException from "../../ErrorHandling/ApplicationException";
 import { HttpStatusCode, HttpStatusName } from "../../Utils/HttpCodes";
 import { NO_REQUEST_ID, ROOT_CONTAINER_KEY } from "../../Utils/const";
-import IDatabaseConnectionStrategy from "./Interfaces/IDatabaseConnectionStrategy";
 import { Environment } from "../../Utils/Environment";
-import { DatabaseType } from "./Types/DatabaseType";
+import { ConnectionEntity } from "./Types/DatabaseType";
 
 
 
@@ -39,7 +38,7 @@ export default class DatabaseInstanceManager {
 	 * Este registro almacena un listado de las estrategias de conección utilizadas,
 	 * la estrategia de conexión utilizada tiene acceso a la instancia de la base de datos
 	 * y mediante la estrategia utilizada podemos cerrar u abrir conexiones */
-	private _instanceRegistry = new Map<string, IDatabaseConnectionStrategy<any, any>>();
+	private _instanceRegistry = new Map<string, ConnectionEntity>();
 
 	/** Contiene el dato de la identidad del container que 
 	 * se recibió cuando se creó la instancia */
@@ -127,44 +126,43 @@ export default class DatabaseInstanceManager {
 	 * */
 	public SetDatabaseInstance(
 		container: IContainerManager,
-		databaseInstanceName: string,
-		strategyRegistryName: string,
-		strategyInstance: IDatabaseConnectionStrategy<any, any>,
+		entity: ConnectionEntity,
 		databaseInstance?: any,
-		dbType?: DatabaseType
 	) {
 		try {
 			this._logger.Activity("SetDatabaseInstance");
 
 			/** Validar que la instancia que se intenta agregar no esté ya registrada */
-			if (this._instanceRegistry.has(strategyRegistryName)) {
+			if (this._instanceRegistry.has(entity.options.databaseRegistryName)) {
 				this._logger.Message("WARN", `
-					La instancia de la estrategia de conexión con la clave ${strategyRegistryName} ya 
+					La instancia de la estrategia de conexión con la clave ${entity.options.databaseRegistryName} ya 
 					está registrada en el registro de instancias | El container actual es ${container._identifier} |
-					Tipo de base de datos: ${dbType}
+					Tipo de base de datos: ${entity.options.databaseType}
 				`);
 				return;
 			}
 
 			/** Agregamos la instancia al registro */
-			this._instanceRegistry.set(strategyRegistryName, strategyInstance);
+			this._instanceRegistry.set(entity.options.databaseRegistryName, entity);
 
 			/** Obtenemos la instancia de la base de datos y 
 			 * la inyectamos en el contenedor de dependencias */
-			const dbInstance = databaseInstance ?? strategyInstance.GetInstance();
+			const dbInstance = databaseInstance ?? entity.strategy!.GetInstance();
 
 			/** Agregamos la instancia al container */
-			container.AddInstance(databaseInstanceName, dbInstance);
+			container.AddInstance(entity.options.databaseContainerInstanceName, dbInstance);
+
+			/** Agregamos el tipo de base de datos al contenedor de dependencias */
+			container.AddValue(entity.options.databaseTypeContainerName, entity.options.databaseType);
 
 			/** Logueamos  */
 			this._logger.Message("INFO", `
-				La instancia de la estrategia de conexión ${strategyRegistryName} fue registrada exitosamente en 
+				La instancia de la estrategia de conexión ${entity.options.databaseRegistryName} fue registrada exitosamente en 
 				contenedor de instancias
-				- STRATEGY INSTANCE CONTAINER NAME = ${strategyRegistryName}
-				- DATABASE INSTANCE DEPENDENCY CONTAINER NAME = ${databaseInstanceName}
-				- DATABASE TYPE = ${dbType}
+				- STRATEGY INSTANCE CONTAINER NAME = ${entity.options.databaseRegistryName}
+				- DATABASE INSTANCE DEPENDENCY CONTAINER NAME = ${entity.options.databaseContainerInstanceName}
+				- DATABASE TYPE = ${entity.options.databaseType}
 			`);
-
 		}
 		catch (err: any) {
 			this._logger.Error("ERROR", "SetScopedContainer", err);
@@ -186,14 +184,14 @@ export default class DatabaseInstanceManager {
 	}
 
 	/** Obtiene una instancia de la estrategia de base de datos mediante su key */
-	public GetDatabaseInstance(key: string): any {
+	public GetEntity(key: string): ConnectionEntity {
 		try {
 			this._logger.Activity("GetDatabaseInstance");
 
-			const strategyInstance = this._instanceRegistry.get(key);
+			const entity = this._instanceRegistry.get(key);
 
 			/** Validar que la instancia que se intenta buscar esté ya registrada */
-			if (!strategyInstance) {
+			if (!entity) {
 				throw new ApplicationException(
 					"GetDatabaseInstance",
 					HttpStatusName.InternalServerError,
@@ -204,11 +202,9 @@ export default class DatabaseInstanceManager {
 				);
 			}
 
-			/** Obtenemos la instancia de base de datos de la estrategia de conexión */
-			const databaseInstance = strategyInstance.GetInstance();
-
-			/** Retornamos la instancia */
-			return databaseInstance;
+			/** Retornamos la entidad de conexión la cual contiene 
+			 * la estrategia de conexión */
+			return entity;
 
 		}
 		catch (err: any) {
@@ -273,10 +269,10 @@ export default class DatabaseInstanceManager {
 		try {
 			this._logger.Activity("DisconnectInstance");
 
-			const instance = this._instanceRegistry.get(key);
+			const entity = this._instanceRegistry.get(key);
 
 			/** Validar que la instancia que se intenta buscar esté ya registrada */
-			if (!instance) {
+			if (!entity) {
 				throw new ApplicationException(
 					"DisconnectInstance",
 					HttpStatusName.InternalServerError,
@@ -288,7 +284,7 @@ export default class DatabaseInstanceManager {
 			}
 
 			/** Nos desconectamos */
-			await instance.CloseConnection();
+			await entity.strategy?.CloseConnection();
 
 			/** Removemos el key del registro de instancias */
 			this._instanceRegistry.delete(key);
@@ -325,9 +321,9 @@ export default class DatabaseInstanceManager {
 
 			/** Nos desconectamos de todas las instancias registradas una por una */
 			const promises = Array.from(this._instanceRegistry.entries()).map(
-				async ([key, strat]) => {
+				async ([key, entity]) => {
 					try {
-						await strat.CloseConnection();
+						await entity.strategy?.CloseConnection();
 						this._logger.Message("INFO", `Te has desconectado de la instancia ${key} exitosamente`);
 					} catch (err) {
 						this._logger.Message("ERROR", `Ha ocurrido un error al desconectar la instancia ${key}`, err);

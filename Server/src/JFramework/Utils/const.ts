@@ -40,14 +40,20 @@ export const DEFAULT_CONNECTION_POOL_SIZE = 10;
 /** Nombre de la base da datos de uso interno en el contenedor de dependencias */
 export const INTERNAL_DATABASE_INSTANCE_NAME = "internalDatabase";
 
-/** Nombre de la base de datos de uso interno en el registro de instancias del DatabaseInstanceManager */
-export const INTERNAL_DATABASE_REGISTRY_NAME = "internal_db";
-
 /** Nombre de la base da datos de uso del negocio en el contenedor de dependencias */
 export const BUSINESS_DATABASE_INSTANCE_NAME = "database";
 
+/** Nombre de la base de datos de uso interno en el registro de instancias del DatabaseInstanceManager */
+export const INTERNAL_DATABASE_REGISTRY_NAME = "internal_db";
+
 /** Nombre de la base de datos de uso del negocio en el registro de instancias del DatabaseInstanceManager */
 export const BUSINESS_DATABASE_REGISTRY_NAME = "business_no_tenant_db";
+
+/** Nombre del key que almacena el tipo de base de datos en el contenedor de dependencias */
+export const BUSINESS_DATABASE_TYPE_NAME = "business_db_type";
+
+/** Nombre del key que almacena el tipo de base de datos en el contenedor de dependencias */
+export const INTERNAL_DATABASE_TYPE_NAME = "internal_db_type";
 
 /** Texto a desplegar cuando queremos mandar algo en lugar de un request ID */
 export const NO_REQUEST_ID = "NO_REQUEST_ID";

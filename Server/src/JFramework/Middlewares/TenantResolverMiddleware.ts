@@ -5,7 +5,7 @@ import ApplicationContext from "../Configurations/ApplicationContext";
 import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../Managers/LoggerManager";
 import { ConnectionEnvironment } from "../Configurations/Types/IConnectionService";
-import { BUSINESS_DATABASE_INSTANCE_NAME } from "../Utils/const";
+import { BUSINESS_DATABASE_INSTANCE_NAME, BUSINESS_DATABASE_TYPE_NAME } from "../Utils/const";
 import { AutoClassBinder } from "../Helpers/Decorators/AutoBind";
 import IInternalTenantService from "../API/Services/Interfaces/IInternalTenantService";
 import { BadRequestException, DatabaseCommitmentException, DatabaseNoInstanceException, NotFoundException } from "../ErrorHandling/Exceptions";
@@ -99,13 +99,19 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 
 				/** Obtenemos la instancia de la conexión asociada al strategy de 
 				 * conexión esto sería el objeto kysely o mongoclient etc */
-				const dbInstance = this._databaseInstanceManager.GetDatabaseInstance(this._tenantKey);
+				const entity = this._databaseInstanceManager.GetEntity(this._tenantKey);
+
+				/** Obtenemos la instancia de la base de datos apartir de la estrategia */
+				const dbInstance = entity.strategy?.GetInstance();
 
 				/** agregamos la instancia al scopedContainer, 
 				 * en este punto la conexión ya se encuentra establecida solo es cuestión de meter 
 				 * la instancia al container para que los repositorios, servicios y controladores 
 				 * la puedan usar. */
 				scopedContainer.AddInstance(BUSINESS_DATABASE_INSTANCE_NAME, dbInstance);
+
+				/** Guardamos el tipo de base de datos que estamos utilizando */
+				scopedContainer.AddInstance(entity.options.databaseTypeContainerName, entity.options.databaseType);
 			}
 			else {
 				/** Si no está en el registro entonces creamos una instancia nueva y 
@@ -146,6 +152,7 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 				const entity = director.GetConnectionStrategy({
 					connectionEnvironment: ConnectionEnvironment.BUSINESS,
 					databaseType: tenant.data.database_type,
+					databaseTypeContainerName: BUSINESS_DATABASE_TYPE_NAME,
 					databaseRegistryName: this._tenantKey, // identificador en el map de conexiones
 					databaseContainerInstanceName: BUSINESS_DATABASE_INSTANCE_NAME, // identificador en el container
 					connectionData
@@ -169,11 +176,8 @@ export default class TenantResolverMiddleware extends ApplicationMiddleware {
 					* para que nuestros repositorios, servicios y controllers la puedan utilizar */
 				this._databaseInstanceManager.SetDatabaseInstance(
 					scopedContainer,
-					entity.options.databaseContainerInstanceName,
-					this._tenantKey,
-					entity.strategy,
+					entity,
 					dbInstance,
-					entity.options.databaseType
 				);
 			}
 

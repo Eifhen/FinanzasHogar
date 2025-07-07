@@ -29,13 +29,14 @@ create table gj_tenants (
 	proyect_key UNIQUEIDENTIFIER not null, -- key de gj_proyects
 	tenant_key UNIQUEIDENTIFIER UNIQUE DEFAULT NEWID() not null,
 	tenant_code char(20) UNIQUE not null,
-	name char(20) not null, -- nombre del cliente
+	name varchar(max) not null, -- nombre del cliente
 	description varchar(max), -- descripcion del cliente
 	status smallint, -- active = 1, inactive = 2,
 	domain varchar(max), -- nombre del dominio del tenant 
 	creation_date datetime -- fecha de creación del cliente
 	-- database_type varchar(max), -- tipo de base de datos ( "ms_sql_database" | "mongo_database" | "postgres_sql_database")
 );
+
 
 /*
 	Tabla de detalle de clientes, contiene información adicional 

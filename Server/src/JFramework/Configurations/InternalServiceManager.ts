@@ -15,7 +15,7 @@ import ILoggerManager from "../Managers/Interfaces/ILoggerManager";
 import ITokenManager from "../Managers/Interfaces/ITokenManager";
 import LoggerManager from "../Managers/LoggerManager";
 import TokenManager from "../Managers/TokenManager";
-import { BUSINESS_DATABASE_INSTANCE_NAME, BUSINESS_DATABASE_REGISTRY_NAME, INTERNAL_DATABASE_INSTANCE_NAME, INTERNAL_DATABASE_REGISTRY_NAME } from "../Utils/const";
+import { BUSINESS_DATABASE_INSTANCE_NAME, BUSINESS_DATABASE_REGISTRY_NAME, BUSINESS_DATABASE_TYPE_NAME, INTERNAL_DATABASE_INSTANCE_NAME, INTERNAL_DATABASE_REGISTRY_NAME, INTERNAL_DATABASE_TYPE_NAME } from "../Utils/const";
 import ConfigurationSettings from "./ConfigurationSettings";
 import IContainerManager from "./Interfaces/IContainerManager";
 import IInternalServiceManager from "./Interfaces/IInternalServiceManager";
@@ -145,6 +145,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 					/** Agregamos las opciones de la base de datos de uso interno */
 					connectionEnvironment: ConnectionEnvironment.INTERNAL,
 					databaseType: this._configurationSettings.databaseConnectionData.connections[ConnectionEnvironment.INTERNAL].type,
+					databaseTypeContainerName: INTERNAL_DATABASE_TYPE_NAME,				
 					databaseContainerInstanceName: INTERNAL_DATABASE_INSTANCE_NAME,
 					databaseRegistryName: INTERNAL_DATABASE_REGISTRY_NAME,
 				},
@@ -152,6 +153,7 @@ export class InternalServiceManager implements IInternalServiceManager {
 					// Agregamos las opciones de la base de datos del negocio
 					connectionEnvironment: ConnectionEnvironment.BUSINESS,
 					databaseType: this._configurationSettings.databaseConnectionData.connections[ConnectionEnvironment.BUSINESS].type,
+					databaseTypeContainerName: BUSINESS_DATABASE_TYPE_NAME,
 					databaseContainerInstanceName: BUSINESS_DATABASE_INSTANCE_NAME,
 					databaseRegistryName: BUSINESS_DATABASE_REGISTRY_NAME,
 

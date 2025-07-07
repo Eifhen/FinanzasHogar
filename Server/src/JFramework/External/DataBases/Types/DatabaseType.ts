@@ -51,7 +51,10 @@ export type DatabaseConnectionManagerOptions = {
   connectionEnvironment: ConnectionEnvironment;
 
   /** Tipo de base de datos (mongodb o sql), si el tipo NO es especificado se toamará desde el objeto de configuración */
-  databaseType: DatabaseType
+  databaseType: DatabaseType;
+
+  /** Nombre del databaseType en el contenedor de dependencias */
+  databaseTypeContainerName: string;
 
   /** Define el nombre que tendrá la instancia de la base de datos dentro del contenedor de dependencias */
   databaseContainerInstanceName: string;

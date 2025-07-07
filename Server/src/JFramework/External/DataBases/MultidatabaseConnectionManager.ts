@@ -154,12 +154,9 @@ export default class MultidatabaseConnectionManager<DataBaseEntity> implements I
 					/** Agrega la instancia de la base de datos al contenedor de dependencias */
 					this._databaseInstanceManager.SetDatabaseInstance(
 						this._containerManager,
-						entity.options.databaseContainerInstanceName,
-						entity.options.databaseRegistryName,
-						entity.strategy,
+						entity,
 						dbInstance,
-						entity.options.databaseType
-					)
+					);
 
 					/** Notifcamos el environment al cual nos hemos conectado */
 					this._logger.Message("INFO", `El servidor está conectado a la base de datos [${entity.options.connectionEnvironment.toUpperCase()}] | [${entity.options.databaseRegistryName}]`);

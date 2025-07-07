@@ -72,6 +72,7 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 		this._options = {
 			connectionEnvironment: this._connectionEnv,
 			databaseType: deps.options.databaseType ?? this._configurationSettings.databaseConnectionData.connections[this._connectionEnv].type,
+			databaseTypeContainerName: deps.options.databaseTypeContainerName ?? "",
 			databaseContainerInstanceName: deps.options.databaseContainerInstanceName ?? "",
 			databaseRegistryName: deps.options.databaseRegistryName ?? ""
 		};
@@ -123,12 +124,9 @@ export default class DatabaseConnectionManager<DataBaseEntity> implements IDatab
 			/** Agrega la instancia de la base de datos al contenedor de dependencias */
 			this._databaseInstanceManager.SetDatabaseInstance(
 				this._containerManager,
-				this._options.databaseContainerInstanceName,
-				this._options.databaseRegistryName,
-				this._connectionEntity.strategy,
+				this._connectionEntity,
 				dbInstance,
-				this._options.databaseType	
-			)
+			);
 
 			/** Notifcamos el environment al cual nos hemos conectado */
 			this._logger.Message("INFO", `
