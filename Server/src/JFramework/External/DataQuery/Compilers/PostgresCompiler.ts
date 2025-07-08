@@ -6,7 +6,35 @@ import { AstCondition, AstExpression } from "../Types/AstExpression";
 import { IQueryCompiler } from "./Interfaces/IQueryCompiler";
 import { CompilerResult, TableColumns } from "../Types/CompilerTypes";
 
-
+/** Compilador de querys para PostgreSQL, 
+ * traduce una expresión AST a una consulta `WHERE` 
+ * valida para kysely esto nos permite traducir expresiones como:
+ * 
+ * @example
+ * ```ts
+ * const filter = [
+ *   ["edad", ">", 25],
+ *   "and",
+ *   ["sexo", "=", "F"],
+ *   "or",
+ *   ["not", ["activo", "=", true]]
+ * ];
+ * 
+ * await adapter.find(filter);
+ * ```
+ * 
+ * En codigo de kysely:
+ * 
+ * @example
+ * ```ts 
+ * const person = await db.selectFrom("person")
+ * .select("name")
+ * .where("edad", ">", 25)
+ * .where("sexo", "=", "F")
+ * .execute();	
+ * ```
+ *  
+ * */
 export class PostgresQueryCompiler<DB, TB extends keyof DB> implements IQueryCompiler<TableColumns<DB, TB>, CompilerResult<DB, TB>> {
 
 	/** Expresion abstract syntax tree */

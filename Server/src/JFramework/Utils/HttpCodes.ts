@@ -1,3 +1,4 @@
+import { NotImplementedException } from "../ErrorHandling/Exceptions";
 
 
 export const HttpStatusCode = {
@@ -75,6 +76,7 @@ export const HttpStatusName = {
 	ServiceUnavailable : 'ServiceUnavailable',
 
 	// Custom Errors
+	NotImplementedException: "NotImplementedException",
 	NullParameterException:  "NullParameterException",
 	InvalidParameterException: "InvalidParameterException",
 	RecordAlreadyExists: "RecordAlreadyExists",

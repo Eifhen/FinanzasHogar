@@ -179,6 +179,30 @@ export class BadRequestException extends ApplicationException {
 	}
 }
 
+/** Error que indica que un recurso no está implementado */
+export class NotImplementedException extends ApplicationException {
+	constructor(
+		methodName: string,
+		applicationContext?: ApplicationContext,
+		path?: string,
+	){
+		super(
+			methodName,
+			HttpStatusName.NotImplementedException,
+			"",
+			HttpStatusCode.InternalServerError,
+			applicationContext?.requestContext.requestId,
+			path,
+		);
+
+		this.message = this.GetErrorMessage(
+			"not-implemented-exception", 
+			applicationContext, 
+			"not-implemented-exception"
+		);
+	}
+}
+
 
 /** Cuando un registro ya existe 
  * @param {string}  methodName - Nombre del método
@@ -387,7 +411,7 @@ export class DatabaseCommitmentException extends ApplicationException {
 	}
 }
 
-
+/** Error de validación de zod */
 export class ValidationException extends ApplicationException {
 
 	constructor(
@@ -396,7 +420,7 @@ export class ValidationException extends ApplicationException {
 		applicationContext: ApplicationContext,
 		path?: string,
 		innerException?: Error
-	){
+	) {
 		super(
 			methodName,
 			HttpStatusName.ValidationException,

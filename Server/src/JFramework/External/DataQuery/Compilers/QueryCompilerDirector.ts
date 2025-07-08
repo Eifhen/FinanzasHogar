@@ -1,6 +1,6 @@
 import ApplicationContext from "../../../Configurations/ApplicationContext";
 import ApplicationException from "../../../ErrorHandling/ApplicationException";
-import { InternalServerException } from "../../../ErrorHandling/Exceptions";
+import { InternalServerException, NotImplementedException } from "../../../ErrorHandling/Exceptions";
 import ILoggerManager from "../../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../../Managers/LoggerManager";
 import { DatabaseType } from "../../DataBases/Types/DatabaseType";
@@ -41,7 +41,6 @@ export default class QueryCompilerDirector<DB, TB extends keyof DB> {
 		this._applicationContext = deps.applicationContext;
 	}
 
-
 	/** Método que nos permite obtener un compilador dependiendo del tipo de base de datos */
 	public GetCompiler(astExpresion: AstExpression): IQueryCompiler<TableColumns<DB, TB>, CompilerResult<DB, TB>> {
 		try {
@@ -52,18 +51,13 @@ export default class QueryCompilerDirector<DB, TB extends keyof DB> {
 					return new PostgresQueryCompiler<DB, TB>(astExpresion);
 
 				case "ms_sql_database":
-					return new PostgresQueryCompiler<DB, TB>(astExpresion);
+					throw new NotImplementedException("GetCompiler", this._applicationContext, __filename);
 
 				case "mongo_database":
-					return new PostgresQueryCompiler<DB, TB>(astExpresion);
+					throw new NotImplementedException("GetCompiler", this._applicationContext, __filename);
 
 				default:
-					throw new InternalServerException(
-						"GetCompiler",
-						"internal-error",
-						this._applicationContext,
-						__filename
-					);
+					throw new InternalServerException("GetCompiler", "internal-error", this._applicationContext, __filename);
 			}
 		}
 		catch (err: any) {

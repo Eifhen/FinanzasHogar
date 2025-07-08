@@ -48,6 +48,15 @@ export type QueryOperator = QueryComparisonOperator | QueryTextOperator;
  */
 export type QueryCondition<T extends string> = [field: T, operator: QueryOperator, value: any];
 
+
+/** Representa una condición de unión para realizar JOINS */
+export type QueryUnionCondition<LeftFields extends string, RightFields extends string> = [
+	leftField: LeftFields, 
+	operator: QueryComparisonOperator, 
+	rightFiled: RightFields 
+];
+
+
 /**
  * Representa la negación de una condición o grupo.
  * 

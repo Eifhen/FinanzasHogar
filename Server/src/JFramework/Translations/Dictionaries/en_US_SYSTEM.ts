@@ -43,6 +43,7 @@ export const EN_US_SYSTEM = {
 	"record-exists": "There is already a record with {0} equal to {1}.",
 	"record-not-found": "No record found with identifier {0}.",
 	"null-parameter-exception": "The parameter {0} can't be null.",
+	"not-implemented-exception": "Resource not implemented",
 	"invalid-parameter-exception": "The value entered for parameter {0} is invalid",
 	"database-desconnection-exception": "An error ocurred while desconnecting to the database",
 	"database-connection-exception": "An error occurred while connecting to the database.",
