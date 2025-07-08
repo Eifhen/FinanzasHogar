@@ -185,7 +185,7 @@ export class NotImplementedException extends ApplicationException {
 		methodName: string,
 		applicationContext?: ApplicationContext,
 		path?: string,
-	){
+	) {
 		super(
 			methodName,
 			HttpStatusName.NotImplementedException,
@@ -196,8 +196,8 @@ export class NotImplementedException extends ApplicationException {
 		);
 
 		this.message = this.GetErrorMessage(
-			"not-implemented-exception", 
-			applicationContext, 
+			"not-implemented-exception",
+			applicationContext,
 			"not-implemented-exception"
 		);
 	}
@@ -228,6 +228,27 @@ export class RecordAlreadyExistsException extends ApplicationException {
 			path,
 			innerException
 		);
+	}
+}
+
+/** Error al construir consulta */
+export class DatabaseQueryBuildException extends ApplicationException {
+	constructor(
+		methodName: string,
+		param: string,
+		applicationContext: ApplicationContext,
+		path?: string,
+		innerException?: Error
+	) {
+		super(
+			methodName,
+			HttpStatusName.DatabaseConnectionException,
+			applicationContext.language.Translate("database-query-exception", [param]),
+			HttpStatusCode.InternalServerError,
+			applicationContext.requestContext.requestId,
+			path,
+			innerException
+		)
 	}
 }
 

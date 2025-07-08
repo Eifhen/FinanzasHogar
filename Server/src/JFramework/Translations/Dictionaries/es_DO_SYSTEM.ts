@@ -47,6 +47,7 @@ export const ES_DO_SYSTEM: Record<LenguageKeys, string> = {
 	"null-parameter-exception": "El parámetro {0} no puede ser nulo.",
 	"not-implemented-exception": "Recurso no implementado",
 	"invalid-parameter-exception": "El valor ingresado al parámetro {0} es invalido",
+	"database-query-exception": "Ha ocurrido un error al construir la consulta '{0}'",
 	"database-desconnection-exception": "Ha ocurrido un error al intentar desconectarse de la base de datos.",
 	"database-connection-exception": "Ha ocurrido un error al conectarse a la base de datos.",
 	"database-no-instance-exception": "Por el momento no hay una instancia de la base de datos disponible.",

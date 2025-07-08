@@ -34,10 +34,18 @@ export type QueryTextOperator = 'contains' | 'startsWith' | 'endsWith' | 'in';
  */
 export type QueryComparisonOperator = '=' | '!=' | '<' | '>' | '>=' | '<=';
 
+
+/** Operadores para orden de datos
+ * - asc = orden ascendente
+ * - des = oren descendiente
+ */
+export type QueryOrderOperator = 'asc' | 'des';
+
 /**
  * Unión de todos los operadores de comparación y texto disponibles.
  */
 export type QueryOperator = QueryComparisonOperator | QueryTextOperator;
+
 
 /**
  * Representa una condición simple para un campo específico.

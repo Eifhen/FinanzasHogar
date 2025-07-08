@@ -4,7 +4,7 @@
 import { ExpressionBuilder } from "kysely";
 import { AstCondition, AstExpression } from "../Types/AstExpression";
 import { IQueryCompiler } from "./Interfaces/IQueryCompiler";
-import { CompilerResult, TableColumns } from "../Types/CompilerTypes";
+import { CompilerResult  } from "../Types/CompilerTypes";
 
 /** Compilador de querys para PostgreSQL, 
  * traduce una expresión AST a una consulta `WHERE` 
@@ -35,13 +35,19 @@ import { CompilerResult, TableColumns } from "../Types/CompilerTypes";
  * ```
  *  
  * */
-export class PostgresQueryCompiler<DB, TB extends keyof DB> implements IQueryCompiler<TableColumns<DB, TB>, CompilerResult<DB, TB>> {
+export class SqlQueryCompiler<DB, TB extends Extract<keyof DB, string>> implements IQueryCompiler<DB, TB, CompilerResult<DB, TB>> 
+{
 
 	/** Expresion abstract syntax tree */
-	public readonly astExpression: AstExpression;
+	public astExpression: AstExpression | null = null;
 
-	constructor(ast: AstExpression) {
-		this.astExpression = ast;
+	constructor() {
+		//
+	}
+
+	/** Setea la expresión AST */
+	public SetExpression(expr: AstExpression): void {
+		this.astExpression = expr;
 	}
 
 	/** Compila una condición simple del AST */
@@ -92,6 +98,10 @@ export class PostgresQueryCompiler<DB, TB extends keyof DB> implements IQueryCom
 
 	/** Compila el AST en una función que puede ser pasada a .where() */
 	public Compile(): CompilerResult<DB, TB> {
-		return (eb) => this.compileExpression(this.astExpression, eb);
+		if(!this.astExpression){
+			throw new Error("error");
+		}
+
+		return (eb) => this.compileExpression(this.astExpression!, eb);
 	}
 }

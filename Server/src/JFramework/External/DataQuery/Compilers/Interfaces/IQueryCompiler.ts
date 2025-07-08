@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { AstExpression } from "../../Types/AstExpression";
-
+import {ColumnFields } from "../../Types/CompilerTypes";
 
 /**
  * Interfaz base para compilar un árbol de sintaxis (AST) a cualquier formato,
@@ -10,9 +10,13 @@ import { AstExpression } from "../../Types/AstExpression";
  * @template TFields Campos válidos para construir la consulta
  * @template TResult Tipo de resultado producido (ej. función Kysely, objeto Mongo, string SQL, etc.)
  */
-export interface IQueryCompiler<TFields extends string, TResult> {
+export interface IQueryCompiler<DB, TB extends keyof DB, TResult> {
+	
 	/** Expresión ya convertida a AST */
-	astExpression: AstExpression;
+	astExpression: AstExpression | null;
+
+	/** Setea la propiedad astExpression */
+	SetExpression(expr: AstExpression): void;
 
 	/**
 	 * Método abstracto que debe implementar cada compilador según su motor.

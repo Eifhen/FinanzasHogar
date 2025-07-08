@@ -1,46 +1,26 @@
-
-
-import { Kysely, ReferenceExpression, SelectQueryBuilder } from "kysely";
-import { IDataQueryBuilder, IQueryBuilderDependencies } from "./Interfaces/IDataQueryBuilder";
-import { AstExpression } from "../Types/AstExpression";
-import { QueryExpression } from "../Types/QueryExpression";
-import { AstParser } from "../Compilers/Parser/AstParser";
-import { SqlQueryCompiler } from "../Compilers/SqlQueryCompiler";
-import { ColumnFields, SelectionFields, UnionParams } from "../Types/CompilerTypes";
-import { IQueryCompiler } from "../Compilers/Interfaces/IQueryCompiler";
+import { Kysely, SelectQueryBuilder, ReferenceExpression, Selectable } from "kysely";
 import { OrderByDirection } from "kysely/dist/cjs/parser/order-by-parser";
 import ApplicationContext from "../../../Configurations/ApplicationContext";
+import { DatabaseQueryBuildException, NullParameterException } from "../../../ErrorHandling/Exceptions";
 import ILoggerManager from "../../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../../Managers/LoggerManager";
-import { DatabaseQueryBuildException, NullParameterException } from "../../../ErrorHandling/Exceptions";
+import { IQueryCompiler } from "../Compilers/Interfaces/IQueryCompiler";
+import { AstParser } from "../Compilers/Parser/AstParser";
+import { SqlQueryCompiler } from "../Compilers/SqlQueryCompiler";
+import { AstExpression } from "../Types/AstExpression";
+import { ColumnFields, SelectionFields, UnionParams } from "../Types/CompilerTypes";
+import { QueryExpression } from "../Types/QueryExpression";
+import { IDataQueryBuilder, IQueryBuilderDependencies } from "./Interfaces/IDataQueryBuilder";
 import { DEFAULT_NUMBER } from "../../../Utils/const";
-import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
 import IPaginationArgs from "../../../Helpers/Interfaces/IPaginationArgs";
+import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
 
 
-/** Query Builder para PostgreSQl
- * 
- * @example
- * ```ts 
- * const builder = new PostgresQueryBuilder<InternalDatabase, "gj_proyects">({
- *   database: new Kysely({} as KyselyConfig),
- *	 table: "gj_proyects"
- * });
- * 
- * const result = await builder.Where(["name", "=", "Gabo"])
- * .SelectFields(["description", "name"])
- * .Skip(10)
- * .Take(10)
- * .SortBy("name", "desc")
- * .Include(
- *   "gj_tenant_connection_view", 
- *	 ["name", "=", "connection"], 
- *	 ["status", "<", "hola"]
- * )
- * .Execute();
- * ```
- */
-export class PostgresQueryBuilder<
+
+
+
+
+export class MssqlQueryBuilder<
 	DatabaseEntity,
 	Table extends Extract<keyof DatabaseEntity, string>
 > implements IDataQueryBuilder<DatabaseEntity, Table> {
@@ -66,6 +46,9 @@ export class PostgresQueryBuilder<
 	/** Contexto de aplicación */
 	private readonly _applicationContext: ApplicationContext;
 
+	/** Indica si el metodo sort ha sido llamado */
+	private _hasSort: boolean = false;
+
 	constructor(deps: IQueryBuilderDependencies<DatabaseEntity, Table>) {
 		this._db = deps.database;
 		this._table = deps.table;
@@ -77,7 +60,7 @@ export class PostgresQueryBuilder<
 		// Instanciamos el logger
 		this._logger = new LoggerManager({
 			entityCategory: "BUILDER",
-			entityName: "PostgresQueryBuilder",
+			entityName: "MssqlQueryBuilder",
 			applicationContext: deps.applicationContext
 		});
 	}
@@ -107,7 +90,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Permite traer relaciones anidadas */
-	Include<OtherTable extends Extract<keyof DatabaseEntity, string>>(otherTable: OtherTable, args: UnionParams<DatabaseEntity, Table, OtherTable>): IDataQueryBuilder<DatabaseEntity, Table> {
+	Include<OtherTable extends Extract<keyof DatabaseEntity, string>,>(otherTable: OtherTable, args: UnionParams<DatabaseEntity, Table, OtherTable>): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Include");
 
@@ -222,6 +205,8 @@ export class PostgresQueryBuilder<
 				direction
 			);
 
+			this._hasSort = true;
+
 			return this;
 		}
 		catch (err: any) {
@@ -241,7 +226,13 @@ export class PostgresQueryBuilder<
 		try {
 			this._logger.Activity("Take");
 
-			this._queryBuilder = this._queryBuilder.limit(count);
+			/** Si no se ha realizado un ordenamiento con anterioridad, 
+			 * ordenamos los registros por clave primaria*/
+			if (!this._hasSort) {
+				this.SortBy(this._primaryKey);
+			}
+
+			this._queryBuilder = this._queryBuilder.top(count);
 			return this;
 		}
 		catch (err: any) {
@@ -273,7 +264,6 @@ export class PostgresQueryBuilder<
 				err
 			);
 		}
-
 	}
 
 	/** Devuelve el número total de registros que cumplen con la consulta actual (sin aplicar Take ni Skip) */
@@ -309,7 +299,7 @@ export class PostgresQueryBuilder<
 			const offset = (args.currentPage - offsetIndex) * args.pageSize;
 
 			const totalItems = await this.Count();
-			const totalPages = Math.ceil(totalItems / args.pageSize);
+			const totalPages = Math.ceil(totalItems/args.pageSize);
 
 			const sortField = `${this._table}.${this._primaryKey}`;
 
@@ -386,31 +376,3 @@ export class PostgresQueryBuilder<
 		}
 	}
 }
-
-
-
-// import { KyselyConfig} from "kysely";
-// import { InternalDatabase } from "../../../API/DataAccess/InternalDatabase";
-
-// const take = 10;
-
-// const builder = new PostgresQueryBuilder<InternalDatabase, "gj_tenants">({
-// 	database: new Kysely({} as KyselyConfig),
-// 	table: "gj_tenants"
-// });
-
-// const result = await builder.Where(["name", "=", "Gabo"])
-// .SelectFields(["description", "name"])
-// .Skip(take)
-// .Take(take)
-// .SortBy("name", "desc")
-// .Where(["domain", "contains", "http://www"])
-// .Include(
-// 	"gj_tenant_connection_view",
-// 	["id", "=", "tenant_id"],
-// 	[
-// 		["status", "<", "hola"],
-// 		"and",
-// 		["pool_min", "<", "10"]
-// 	]
-// ).Execute();

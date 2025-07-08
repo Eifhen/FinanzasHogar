@@ -45,6 +45,7 @@ export const EN_US_SYSTEM = {
 	"null-parameter-exception": "The parameter {0} can't be null.",
 	"not-implemented-exception": "Resource not implemented",
 	"invalid-parameter-exception": "The value entered for parameter {0} is invalid",
+	"database-query-exception": "An error ocurred while building the '{0}' query",
 	"database-desconnection-exception": "An error ocurred while desconnecting to the database",
 	"database-connection-exception": "An error occurred while connecting to the database.",
 	"database-no-instance-exception": "There is no database instance available at the moment.",

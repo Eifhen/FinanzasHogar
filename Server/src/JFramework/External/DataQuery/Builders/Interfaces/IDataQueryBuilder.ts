@@ -1,5 +1,28 @@
-import { QueryExpression, QueryUnionCondition } from "../../Types/QueryExpression";
+import { OrderByDirection } from "kysely/dist/cjs/parser/order-by-parser";
+import { ColumnFields, SelectionFields, UnionParams } from "../../Types/CompilerTypes";
+import { QueryExpression } from "../../Types/QueryExpression";
+import { Kysely } from "kysely";
+import ApplicationContext from "../../../../Configurations/ApplicationContext";
+import IPaginationArgs from "../../../../Helpers/Interfaces/IPaginationArgs";
+import IPaginationResult from "../../../../Helpers/Interfaces/IPaginationResult";
 
+
+
+/** Dependencias de cada querybuilder */
+export interface IQueryBuilderDependencies<DatabaseEntity, TableName extends keyof DatabaseEntity> {
+	/** instancia de kysely de la base de datos en cuestion*/
+	database: Kysely<DatabaseEntity>;
+
+	/** Nombre de la tabla en cuestion */
+	table: TableName;
+
+  /** Indicamos el nombre de la clave primaria, 
+   * este campo se utiliza como ordenamiento por default */
+  primaryKey: ColumnFields<DatabaseEntity, TableName>;
+
+	/** Contexto de aplicación */
+	applicationContext: ApplicationContext;
+}
 
 
 /**
@@ -12,7 +35,7 @@ import { QueryExpression, QueryUnionCondition } from "../../Types/QueryExpressio
 export interface IDataQueryBuilder<DB, TB extends keyof DB, TResult extends object = any> {
 
   /** Agrega un filtro de busqueda a la consulta en curso */
-	Where(expr: QueryExpression<TB & string>): IDataQueryBuilder<DB, TB, TResult>;
+	Where(expr: QueryExpression<ColumnFields<DB, TB>>): IDataQueryBuilder<DB, TB, TResult>;
 
   /**
    * Incluye datos relacionados desde otra entidad.
@@ -20,11 +43,11 @@ export interface IDataQueryBuilder<DB, TB extends keyof DB, TResult extends obje
    * En SQL se traduce a JOIN, en MongoDB a populate o $lookup.
    *
    * @param entity Nombre de la entidad relacionada (tabla/colección)
-   * @param unionCondition Condición opcional de relación (en SQL es obligatoria, en MongoDB puede omitirse)
+   * @param args Parámetros de unión
    */
-  Include<OtherTable extends keyof DB & string>(
+  Include<OtherTable extends Extract<keyof DB, string>>(
     entity: OtherTable,
-    unionCondition?: QueryUnionCondition<keyof DB[TB] & string, DB[OtherTable] & string>
+    args: UnionParams<DB, TB, OtherTable>
   ): IDataQueryBuilder<DB, TB, TResult>;
 
  
@@ -36,7 +59,7 @@ export interface IDataQueryBuilder<DB, TB extends keyof DB, TResult extends obje
    *
    * @param fields Lista de campos a incluir
    */
-  SelectFields(fields: (keyof TResult | string)[]): IDataQueryBuilder<DB, TB, Partial<TResult>>;
+  Fields(fields: SelectionFields<DB, TB>): IDataQueryBuilder<DB, TB, Partial<TResult>>;
 
   /**
    * Ordena los resultados por un campo.
@@ -44,7 +67,7 @@ export interface IDataQueryBuilder<DB, TB extends keyof DB, TResult extends obje
    * @param field Campo por el cual ordenar
    * @param direction Dirección del ordenamiento (ascendente por defecto)
    */
-  SortBy(field: keyof TResult | string, direction?: 'asc' | 'desc'): IDataQueryBuilder<DB, TB, TResult>;
+  SortBy(field: ColumnFields<DB, TB>, direction?: OrderByDirection): IDataQueryBuilder<DB, TB, TResult>;
 
   /**
    * Limita la cantidad de registros devueltos (equivalente a LIMIT).
@@ -56,8 +79,17 @@ export interface IDataQueryBuilder<DB, TB extends keyof DB, TResult extends obje
    */
   Skip(count: number): IDataQueryBuilder<DB, TB, TResult>;
 
+  /** Devuelve el número total de registros que cumplen con la consulta actual (sin aplicar Take ni Skip) */
+  Count() : Promise<number>;
+
+  /** Pagina la data según los argumentos de paginación proporcionados */
+  Paginate(args: IPaginationArgs) : Promise<IPaginationResult<TResult[]>>;
+
   /**
    * Ejecuta la consulta y devuelve los resultados.
    */
   Execute(): Promise<TResult[]>;
+
+  /** Ejecuta la consulta y devuelve el primer registro */
+  ExecuteAndTakeFirst(): Promise<TResult>;
 }
