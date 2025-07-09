@@ -66,6 +66,18 @@ export class PostgresQueryBuilder<
 	/** Contexto de aplicación */
 	private readonly _applicationContext: ApplicationContext;
 
+	/** Indica si el metodo sort ha sido llamado */
+	public builderFlags = {
+		hasWhere: false,
+		hasInclude: false,
+		hasSort: false,
+		hasSelect: false,
+		hasTake: false,
+		hasSkip: false,
+		hasCount: false,
+		hasPagination: false,
+	}
+
 	constructor(deps: IQueryBuilderDependencies<DatabaseEntity, Table>) {
 		this._db = deps.database;
 		this._table = deps.table;
@@ -86,6 +98,7 @@ export class PostgresQueryBuilder<
 	Where(expr: QueryExpression<ColumnFields<DatabaseEntity, Table>>): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Where");
+			this.builderFlags.hasWhere = true;
 
 			const ast: AstExpression = new AstParser(expr).parse();
 			this._compiler.SetExpression(ast);
@@ -110,6 +123,7 @@ export class PostgresQueryBuilder<
 	Include<OtherTable extends Extract<keyof DatabaseEntity, string>>(otherTable: OtherTable, args: UnionParams<DatabaseEntity, Table, OtherTable>): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Include");
+			this.builderFlags.hasInclude = true;
 
 			/** Validamos que la condición de unión exista, 
 			 * esto es necesario en SQL */
@@ -183,6 +197,7 @@ export class PostgresQueryBuilder<
 	Fields(data: SelectionFields<DatabaseEntity, Table>): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("SelectFields");
+			this.builderFlags.hasSelect = true;
 
 			/** Seleccionamos todos los registros */
 			if (data === "all") {
@@ -214,6 +229,7 @@ export class PostgresQueryBuilder<
 	SortBy(field: ColumnFields<DatabaseEntity, Table>, direction?: OrderByDirection): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("SortBy");
+			this.builderFlags.hasSort = true;
 
 			const fieldSort: ReferenceExpression<DatabaseEntity, Table> = `${this._table}.${field}`;
 
@@ -240,7 +256,8 @@ export class PostgresQueryBuilder<
 	Take(count: number): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Take");
-
+			this.builderFlags.hasTake = true;
+			
 			this._queryBuilder = this._queryBuilder.limit(count);
 			return this;
 		}
@@ -260,6 +277,8 @@ export class PostgresQueryBuilder<
 	Skip(offset: number): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Skip");
+			this.builderFlags.hasSkip = true;
+
 			this._queryBuilder = this._queryBuilder.offset(offset);
 			return this;
 		}
@@ -280,11 +299,14 @@ export class PostgresQueryBuilder<
 	async Count(): Promise<number> {
 		try {
 			this._logger.Activity("Count");
+			this.builderFlags.hasCount = true;
 
-			const result: any = this._db
-			.selectFrom(this._table)
-			.select((eb) => eb.fn.countAll().as('total'))
-			.executeTakeFirst();
+			/** Aplicamos el count */
+			this._queryBuilder
+			.select((eb) => eb.fn.countAll().as('total'));
+			
+			/** Ejecutamos la consulta */
+			const result = await this.ExecuteAndTakeFirst();
 
 			return Number(result?.total || DEFAULT_NUMBER);
 		}
@@ -304,8 +326,11 @@ export class PostgresQueryBuilder<
 	async Paginate(args: IPaginationArgs): Promise<IPaginationResult<any>> {
 		try {
 			this._logger.Activity("Paginate");
+			this.builderFlags.hasPagination = true;
 
 			const offsetIndex = 1;
+
+			/** Representa el registro apartir del cual se comienza a contar */
 			const offset = (args.currentPage - offsetIndex) * args.pageSize;
 
 			const totalItems = await this.Count();
@@ -313,13 +338,19 @@ export class PostgresQueryBuilder<
 
 			const sortField = `${this._table}.${this._primaryKey}`;
 
-			const paginatedQuery = this._db.selectFrom(this._table)
-			.selectAll()
-			.orderBy(sortField as any, 'asc')
-			.offset(offset)
-			.fetch(args.pageSize);
+			/** Si no se ha hecho selección seleccionamos todos los registros */
+			if(!this.builderFlags.hasSelect){
+				this._queryBuilder.selectAll();
+			}
 
-			const result = await paginatedQuery.execute();
+			/** Aplicamos la paginación */
+			this._queryBuilder
+			.orderBy(sortField as any)
+			.offset(offset)
+			.limit(args.pageSize);
+
+			/** Ejecutamos la consulta */
+			const result = await this.Execute();
 
 			return {
 				result,
@@ -350,10 +381,30 @@ export class PostgresQueryBuilder<
 		}
 	}
 
+	/** Resetea todas las banderas */
+	private ResetFlags(): void {
+		this._logger.Activity("ResetFlags");
+		this.builderFlags = {
+			hasWhere: false,
+			hasInclude: false,
+			hasSort: false,
+			hasSelect: false,
+			hasTake: false,
+			hasSkip: false,
+			hasCount: false,
+			hasPagination: false
+		}
+	}
+
 	/** Ejecuta la consulta y devuelve los datos */
 	async Execute(): Promise<any[]> {
 		try {
 			this._logger.Activity("Execute");
+
+			/** Reseteamos las banderas */
+			this.ResetFlags();
+
+			/** Ejecutamos el query */
 			return await this._queryBuilder.execute();
 		}
 		catch (err: any) {
@@ -372,6 +423,11 @@ export class PostgresQueryBuilder<
 	async ExecuteAndTakeFirst(): Promise<any> {
 		try {
 			this._logger.Activity("ExecuteAndTakeFirst");
+			
+			/** Reseteamos las banderas */
+			this.ResetFlags();
+
+			/** Ejecutamos el query */
 			return await this._queryBuilder.executeTakeFirstOrThrow();
 		}
 		catch (err: any) {
@@ -389,28 +445,3 @@ export class PostgresQueryBuilder<
 
 
 
-// import { KyselyConfig} from "kysely";
-// import { InternalDatabase } from "../../../API/DataAccess/InternalDatabase";
-
-// const take = 10;
-
-// const builder = new PostgresQueryBuilder<InternalDatabase, "gj_tenants">({
-// 	database: new Kysely({} as KyselyConfig),
-// 	table: "gj_tenants"
-// });
-
-// const result = await builder.Where(["name", "=", "Gabo"])
-// .SelectFields(["description", "name"])
-// .Skip(take)
-// .Take(take)
-// .SortBy("name", "desc")
-// .Where(["domain", "contains", "http://www"])
-// .Include(
-// 	"gj_tenant_connection_view",
-// 	["id", "=", "tenant_id"],
-// 	[
-// 		["status", "<", "hola"],
-// 		"and",
-// 		["pool_min", "<", "10"]
-// 	]
-// ).Execute();

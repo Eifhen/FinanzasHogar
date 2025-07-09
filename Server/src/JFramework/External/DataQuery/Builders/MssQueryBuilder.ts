@@ -1,4 +1,4 @@
-import { Kysely, SelectQueryBuilder, ReferenceExpression, Selectable } from "kysely";
+import { Kysely, SelectQueryBuilder, ReferenceExpression } from "kysely";
 import { OrderByDirection } from "kysely/dist/cjs/parser/order-by-parser";
 import ApplicationContext from "../../../Configurations/ApplicationContext";
 import { DatabaseQueryBuildException, NullParameterException } from "../../../ErrorHandling/Exceptions";
@@ -19,7 +19,28 @@ import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
 
 
 
-
+/** Query Builder para Microsoft SQL Server
+ * 
+ * @example
+ * ```ts 
+ * const builder = new MssqlQueryBuilder<InternalDatabase, "gj_proyects">({
+ *   database: new Kysely({} as KyselyConfig),
+ *	 table: "gj_proyects"
+ * });
+ * 
+ * const result = await builder.Where(["name", "=", "Gabo"])
+ * .SelectFields(["description", "name"])
+ * .Skip(10)
+ * .Take(10)
+ * .SortBy("name", "desc")
+ * .Include(
+ *   "gj_tenant_connection_view", 
+ *	 ["name", "=", "connection"], 
+ *	 ["status", "<", "hola"]
+ * )
+ * .Execute();
+ * ```
+ */
 export class MssqlQueryBuilder<
 	DatabaseEntity,
 	Table extends Extract<keyof DatabaseEntity, string>
@@ -47,15 +68,24 @@ export class MssqlQueryBuilder<
 	private readonly _applicationContext: ApplicationContext;
 
 	/** Indica si el metodo sort ha sido llamado */
-	private _hasSort: boolean = false;
+	public builderFlags = {
+		hasWhere: false,
+		hasInclude: false,
+		hasSort: false,
+		hasSelect: false,
+		hasTake: false,
+		hasSkip: false,
+		hasCount: false,
+		hasPagination: false,
+	}
 
 	constructor(deps: IQueryBuilderDependencies<DatabaseEntity, Table>) {
 		this._db = deps.database;
 		this._table = deps.table;
 		this._primaryKey = deps.primaryKey;
-		this._queryBuilder = this._db.selectFrom(deps.table);
-		this._compiler = new SqlQueryCompiler();
 		this._applicationContext = deps.applicationContext;
+		this._compiler = new SqlQueryCompiler();
+		this._queryBuilder = this._db.selectFrom(deps.table);
 
 		// Instanciamos el logger
 		this._logger = new LoggerManager({
@@ -69,6 +99,7 @@ export class MssqlQueryBuilder<
 	Where(expr: QueryExpression<ColumnFields<DatabaseEntity, Table>>): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Where");
+			this.builderFlags.hasWhere = true;
 
 			const ast: AstExpression = new AstParser(expr).parse();
 			this._compiler.SetExpression(ast);
@@ -93,6 +124,7 @@ export class MssqlQueryBuilder<
 	Include<OtherTable extends Extract<keyof DatabaseEntity, string>,>(otherTable: OtherTable, args: UnionParams<DatabaseEntity, Table, OtherTable>): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Include");
+			this.builderFlags.hasInclude = true;
 
 			/** Validamos que la condición de unión exista, 
 			 * esto es necesario en SQL */
@@ -147,7 +179,7 @@ export class MssqlQueryBuilder<
 			if (args.filterCondition) {
 				return this.Where(args.filterCondition);
 			}
-
+			
 			return this;
 		}
 		catch (err: any) {
@@ -166,7 +198,8 @@ export class MssqlQueryBuilder<
 	Fields(data: SelectionFields<DatabaseEntity, Table>): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("SelectFields");
-
+			this.builderFlags.hasSelect = true;
+			
 			/** Seleccionamos todos los registros */
 			if (data === "all") {
 				this._queryBuilder = this._queryBuilder.selectAll();
@@ -179,6 +212,7 @@ export class MssqlQueryBuilder<
 				fields.map(field => `${this._table}.${field}`) as any
 			);
 
+		
 			return this;
 		}
 		catch (err: any) {
@@ -197,6 +231,7 @@ export class MssqlQueryBuilder<
 	SortBy(field: ColumnFields<DatabaseEntity, Table>, direction?: OrderByDirection): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("SortBy");
+			this.builderFlags.hasSort = true;
 
 			const fieldSort: ReferenceExpression<DatabaseEntity, Table> = `${this._table}.${field}`;
 
@@ -204,8 +239,6 @@ export class MssqlQueryBuilder<
 				fieldSort,
 				direction
 			);
-
-			this._hasSort = true;
 
 			return this;
 		}
@@ -225,10 +258,11 @@ export class MssqlQueryBuilder<
 	Take(count: number): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Take");
+			this.builderFlags.hasTake = true;
 
 			/** Si no se ha realizado un ordenamiento con anterioridad, 
 			 * ordenamos los registros por clave primaria*/
-			if (!this._hasSort) {
+			if (!this.builderFlags.hasSort) {
 				this.SortBy(this._primaryKey);
 			}
 
@@ -251,6 +285,8 @@ export class MssqlQueryBuilder<
 	Skip(offset: number): IDataQueryBuilder<DatabaseEntity, Table> {
 		try {
 			this._logger.Activity("Skip");
+			this.builderFlags.hasSkip = true;
+
 			this._queryBuilder = this._queryBuilder.offset(offset);
 			return this;
 		}
@@ -270,11 +306,14 @@ export class MssqlQueryBuilder<
 	async Count(): Promise<number> {
 		try {
 			this._logger.Activity("Count");
+			this.builderFlags.hasCount = true;
 
-			const result: any = this._db
-			.selectFrom(this._table)
-			.select((eb) => eb.fn.countAll().as('total'))
-			.executeTakeFirst();
+			/** Aplicamos el count */
+			this._queryBuilder
+			.select((eb) => eb.fn.countAll().as('total'));
+			
+			/** Ejecutamos la consulta */
+			const result = await this.ExecuteAndTakeFirst();
 
 			return Number(result?.total || DEFAULT_NUMBER);
 		}
@@ -294,22 +333,31 @@ export class MssqlQueryBuilder<
 	async Paginate(args: IPaginationArgs): Promise<IPaginationResult<any>> {
 		try {
 			this._logger.Activity("Paginate");
+			this.builderFlags.hasPagination = true;
 
 			const offsetIndex = 1;
+
+			/** Representa el registro apartir del cual se comienza a contar */
 			const offset = (args.currentPage - offsetIndex) * args.pageSize;
 
 			const totalItems = await this.Count();
-			const totalPages = Math.ceil(totalItems/args.pageSize);
+			const totalPages = Math.ceil(totalItems / args.pageSize);
 
 			const sortField = `${this._table}.${this._primaryKey}`;
 
-			const paginatedQuery = this._db.selectFrom(this._table)
-			.selectAll()
-			.orderBy(sortField as any, 'asc')
+			/** Si no se ha hecho selección seleccionamos todos los registros */
+			if(!this.builderFlags.hasSelect){
+				this._queryBuilder.selectAll();
+			}
+
+			/** Aplicamos la paginación */
+			this._queryBuilder
+			.orderBy(sortField as any)
 			.offset(offset)
 			.fetch(args.pageSize);
 
-			const result = await paginatedQuery.execute();
+			/** Ejecutamos la consulta */
+			const result = await this.Execute();
 
 			return {
 				result,
@@ -340,10 +388,30 @@ export class MssqlQueryBuilder<
 		}
 	}
 
+	/** Resetea todas las banderas */
+	private ResetFlags(): void {
+		this._logger.Activity("ResetFlags");
+		this.builderFlags = {
+			hasWhere: false,
+			hasInclude: false,
+			hasSort: false,
+			hasSelect: false,
+			hasTake: false,
+			hasSkip: false,
+			hasCount: false,
+			hasPagination: false
+		}
+	}
+
 	/** Ejecuta la consulta y devuelve los datos */
 	async Execute(): Promise<any[]> {
 		try {
 			this._logger.Activity("Execute");
+
+			/** Reseteamos las banderas */
+			this.ResetFlags();
+
+			/** Ejecutamos el query */
 			return await this._queryBuilder.execute();
 		}
 		catch (err: any) {
@@ -362,6 +430,11 @@ export class MssqlQueryBuilder<
 	async ExecuteAndTakeFirst(): Promise<any> {
 		try {
 			this._logger.Activity("ExecuteAndTakeFirst");
+
+			/** Reseteamos las banderas */
+			this.ResetFlags();
+
+			/** Ejecutamos el query */
 			return await this._queryBuilder.executeTakeFirstOrThrow();
 		}
 		catch (err: any) {
