@@ -135,3 +135,7 @@ SET
   database_type = 'ms_sql_database' -- "ms_sql_database" | "postgres_sql_database" | "mongo_database"
 WHERE id = 1;
 
+
+
+SELECT * FROM gj_tenants;
+SELECT * FROM gj_tenants OFFSET 2 LIMIT 1;

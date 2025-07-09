@@ -47,6 +47,8 @@ export const ES_DO_SYSTEM: Record<LenguageKeys, string> = {
 	"null-parameter-exception": "El parámetro {0} no puede ser nulo.",
 	"not-implemented-exception": "Recurso no implementado",
 	"invalid-parameter-exception": "El valor ingresado al parámetro {0} es invalido",
+	"database-dml-exception": "Ha ocurrido un error mientras se realizaba la operación DML.",
+	"database-require-filtering": "Ha ocurrido un error mientras se realizaba la operacion {0}, es necesario aplicar un filtro antes de proseguir",
 	"database-query-exception": "Ha ocurrido un error al construir la consulta '{0}'",
 	"database-desconnection-exception": "Ha ocurrido un error al intentar desconectarse de la base de datos.",
 	"database-connection-exception": "Ha ocurrido un error al conectarse a la base de datos.",

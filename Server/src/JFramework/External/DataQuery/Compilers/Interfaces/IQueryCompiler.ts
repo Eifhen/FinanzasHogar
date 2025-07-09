@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { AstExpression } from "../../Types/AstExpression";
-import {ColumnFields } from "../../Types/CompilerTypes";
+import { AstExpression } from "../../Utils/AstExpression";
+
 
 /**
  * Interfaz base para compilar un árbol de sintaxis (AST) a cualquier formato,

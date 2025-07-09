@@ -252,6 +252,26 @@ export class DatabaseQueryBuildException extends ApplicationException {
 	}
 }
 
+/** Error al realizar operación DML */
+export class DatabaseOperationException extends ApplicationException {
+	constructor(
+		methodName: string,
+		applicationContext: ApplicationContext,
+		path?: string,
+		innerException?: Error
+	) {
+		super(
+			methodName,
+			HttpStatusName.DatabaseConnectionException,
+			applicationContext.language.Translate("database-dml-exception"),
+			HttpStatusCode.InternalServerError,
+			applicationContext.requestContext.requestId,
+			path,
+			innerException
+		)
+	}
+}
+
 /** Error que indica que hay un problema de conección a la base de datos */
 export class DatabaseConnectionException extends ApplicationException {
 	constructor(
@@ -396,6 +416,7 @@ export class DatabaseUndefinedConnectionException extends ApplicationException {
 export class DatabaseException extends ApplicationException {
 	constructor(
 		methodName: string,
+		messageData: string | ErrorMessageData,
 		applicationContext: ApplicationContext,
 		path?: string,
 		innerException?: Error
@@ -403,12 +424,14 @@ export class DatabaseException extends ApplicationException {
 		super(
 			methodName,
 			HttpStatusName.DatabaseException,
-			applicationContext.language.Translate("database-exception"),
+			"",
 			HttpStatusCode.InternalServerError,
 			applicationContext.requestContext.requestId,
 			path,
 			innerException
 		)
+
+		this.message = this.GetErrorMessage(messageData, applicationContext, "database-exception");
 	}
 }
 

@@ -2,9 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { ExpressionBuilder } from "kysely";
-import { AstCondition, AstExpression } from "../Types/AstExpression";
+import { AstCondition, AstExpression } from "../Utils/AstExpression";
 import { IQueryCompiler } from "./Interfaces/IQueryCompiler";
-import { CompilerResult  } from "../Types/CompilerTypes";
+import { CompilerResult } from "./Types/Types";
+
 
 /** Compilador de querys para PostgreSQL, 
  * traduce una expresión AST a una consulta `WHERE` 

@@ -41,7 +41,7 @@ export class ApplicationPromise {
 			} else if (err instanceof ConnectionError) {
 				exception = new DatabaseConnectionException(callerName, this._applicationContext, __filename, err);
 			} else {
-				exception = new DatabaseException(callerName, this._applicationContext, __filename, err);
+				exception = new DatabaseException(callerName, "database-exception", this._applicationContext, __filename, err);
 			}
 
 			return [exception, null];

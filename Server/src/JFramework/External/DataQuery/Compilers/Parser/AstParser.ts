@@ -6,7 +6,7 @@ import {
 	QueryCondition,
 	QueryLogicalOperator,
 	QueryNegation
-} from "../../Types/QueryExpression";
+} from "../../Utils/QueryExpression";
 
 import {
 	AstExpression,
@@ -14,7 +14,7 @@ import {
 	AstGroup,
 	AstNot,
 	AstOperator
-} from "../../Types/AstExpression";
+} from "../../Utils/AstExpression";
 
 
 /** Convierte la expresion DSL (QueryExpression)

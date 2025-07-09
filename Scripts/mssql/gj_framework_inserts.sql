@@ -135,3 +135,9 @@ SET connection = 'eyJpdiI6Ikg3NnlLSUc3R0pLa1g5SE9ZSy9IdHc9PSIsInZhbHVlIjoiUS9wZV
 WHERE id = 2;
 
 
+
+
+SELECT * FROM gj_tenants 
+ORDER BY id 
+OFFSET 1 ROWS
+FETCH NEXT 2 ROWS ONLY;
