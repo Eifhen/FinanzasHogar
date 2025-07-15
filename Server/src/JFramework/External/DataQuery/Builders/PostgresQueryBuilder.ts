@@ -1,8 +1,7 @@
 
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { Insertable, Kysely, KyselyConfig, ReferenceExpression, SelectQueryBuilder, Updateable } from "kysely";
+
+import { Insertable, Kysely, ReferenceExpression, SelectQueryBuilder, Updateable } from "kysely";
 import { IDataQueryBuilder } from "./Interfaces/IDataQueryBuilder";
 import { AstExpression } from "../Utils/AstExpression";
 import { QueryExpression } from "../Utils/QueryExpression";
@@ -21,7 +20,7 @@ import { QueryBuilderConfigurationOptions, QueryBuilderDependencies, QueryBuilde
 import { ColumnFields } from "../Compilers/Types/Types";
 import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
 import { UpdateObjectExpression } from "kysely/dist/cjs/parser/update-set-parser";
-import { ExecutionStage, IncludeStage, InitialStage, WhereStage, WhereStageQuery } from "./Interfaces/IDataQueryBuilderStages";
+import { ExecutionStage, IncludeStage, WhereStage, WhereStageQuery } from "./Interfaces/IDataQueryBuilderStages";
 import { AutoClassBindAll } from "../../../Helpers/Decorators/AutoBind";
 
 
@@ -75,6 +74,9 @@ export class PostgresQueryBuilder<
 
 	/** Contexto de aplicación */
 	private readonly _applicationContext: ApplicationContext;
+	
+	/** AstParser */
+	private readonly _parser: AstParser;
 
 	/** Indica si el metodo sort ha sido llamado */
 	public builderFlags: QueryBuilderFlags = {
@@ -88,16 +90,21 @@ export class PostgresQueryBuilder<
 		hasPagination: false,
 	}
 
-	/** Expone los metodos */
-	public query: InitialStage<DB, TB, TResult>;
-
 	constructor(deps: QueryBuilderDependencies<DB, TB>) {
 	
 		this._options = deps.options;
 		this._applicationContext = deps.applicationContext;
 		this._queryBuilder = this._options.database.selectFrom(this._options.table);
-		this._compiler = new SqlQueryCompiler();
-		this.query = this.SetInitialStage();
+		
+		/** Agregamos el compiler */
+		this._compiler = new SqlQueryCompiler({
+			applicationContext:deps.applicationContext
+		});
+
+		/** Agregamos el parser */
+		this._parser = new AstParser({
+			applicationContext:deps.applicationContext
+		});
 
 		// Instanciamos el logger
 		this._logger = new LoggerManager({
@@ -105,11 +112,10 @@ export class PostgresQueryBuilder<
 			entityName: "PostgresQueryBuilder",
 			applicationContext: deps.applicationContext
 		});
-		
 	}
 
 	/** Resetea todas las banderas */
-	private ResetFlags(): void {
+	public ResetFlags(): void {
 		this._logger.Activity("ResetFlags");
 		this.builderFlags = {
 			hasWhere: false,
@@ -124,12 +130,12 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Procesa la expresión y construye el AST */
-	private Where(expr: QueryExpression<ColumnFields<DB, TB>>): any {
+	public Where(expr: QueryExpression<ColumnFields<DB, TB>>): any {
 		try {
 			this._logger.Activity("Where");
 			this.builderFlags.hasWhere = true;
 
-			const ast: AstExpression = new AstParser(expr).parse();
+			const ast: AstExpression = this._parser.parse(expr);
 			this._compiler.SetExpression(ast);
 			const whereFn = this._compiler.Compile();
 			this._queryBuilder = this._queryBuilder.where(whereFn);
@@ -149,7 +155,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Permite traer relaciones anidadas */
-	private Include<OTB extends Extract<keyof DB, string>>(otherTable: OTB, args: UnionParams<DB, TB, OTB>): IncludeStage<DB, TB, any> {
+	public Include<OTB extends Extract<keyof DB, string>>(otherTable: OTB, args: UnionParams<DB, TB, OTB>): IncludeStage<DB, TB, any> {
 		try {
 			this._logger.Activity("Include");
 			this.builderFlags.hasInclude = true;
@@ -223,7 +229,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Campos específicos a seleccionar */
-	private Select(data: SelectionFields<DB, TB>): WhereStageQuery<DB, TB, TResult> {
+	public Select(data: SelectionFields<DB, TB>): WhereStageQuery<DB, TB, TResult> {
 		try {
 			this._logger.Activity("SelectFields");
 			this.builderFlags.hasSelect = true;
@@ -255,7 +261,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Ordenar por campo */
-	private SortBy(field: ColumnFields<DB, TB>, dir?: OrderByDirection): WhereStageQuery<DB, TB, TResult> {
+	public SortBy(field: ColumnFields<DB, TB>, dir?: OrderByDirection): WhereStageQuery<DB, TB, TResult> {
 		try {
 			this._logger.Activity("SortBy");
 			this.builderFlags.hasSort = true;
@@ -282,7 +288,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Limita el número de resultados */
-	private Take(count: number): WhereStageQuery<DB, TB, TResult> {
+	public Take(count: number): WhereStageQuery<DB, TB, TResult> {
 		try {
 			this._logger.Activity("Take");
 			this.builderFlags.hasTake = true;
@@ -303,7 +309,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Saltar X resultados (paginación) */
-	private Skip(offset: number): WhereStageQuery<DB, TB, TResult> {
+	public Skip(offset: number): WhereStageQuery<DB, TB, TResult> {
 		try {
 			this._logger.Activity("Skip");
 			this.builderFlags.hasSkip = true;
@@ -325,7 +331,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Devuelve el número total de registros que cumplen con la consulta actual (sin aplicar Take ni Skip) */
-	private async Count(): Promise<number> {
+	public async Count(): Promise<number> {
 		try {
 			this._logger.Activity("Count");
 			this.builderFlags.hasCount = true;
@@ -352,7 +358,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Pagina la data según los argumentos de paginación proporcionados */
-	private async Paginate(args: IPaginationArgs): Promise<IPaginationResult<any>> {
+	public async Paginate(args: IPaginationArgs): Promise<IPaginationResult<any>> {
 		try {
 			this._logger.Activity("Paginate");
 			this.builderFlags.hasPagination = true;
@@ -411,7 +417,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Método que nos permite insertar un registro en la base de datos */
-	private Insert(record: Insertable<DB[TB]>) : ExecutionStage<TResult>{
+	public Insert(record: Insertable<DB[TB]>) : ExecutionStage<TResult>{
 		try {
 			this._logger.Activity("Insert");
 
@@ -434,7 +440,7 @@ export class PostgresQueryBuilder<
 	}
 
  	/** Método que nos permite actualizar un registro en la base de datos */
-	private Update(changes: Updateable<DB[TB]>) : WhereStage<DB, TB, TResult, 'operation'>{
+	public Update(changes: Updateable<DB[TB]>) : WhereStage<DB, TB, TResult, 'operation'>{
 		try {
 			this._logger.Activity("Update");
 
@@ -458,12 +464,14 @@ export class PostgresQueryBuilder<
 
 	/** Método que nos permite eliminar un registro, 
    * debe ser usado en conjunto con WHERE para eliminar registros especificos */
-	private Delete() : WhereStage<DB, TB, TResult, 'operation'>{
+	public Delete() : WhereStage<DB, TB, TResult, 'operation'>{
 		try {
 			this._logger.Activity("Delete");
 
-			// Por implementar
-
+			this._queryBuilder = (this._queryBuilder as any as Kysely<DB>)
+			.deleteFrom(this._options.table)
+			.returningAll() as any;
+			
 			return this as unknown as WhereStage<DB, TB, TResult, 'operation'>;
 		}
 		catch(err:any){
@@ -478,7 +486,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Ejecuta la consulta y devuelve los datos */
-	private async Execute(): Promise<any> {
+	public async Execute(): Promise<any> {
 		try {
 			this._logger.Activity("Execute");
 
@@ -501,7 +509,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Ejecuta la consulta y devuelve el primer registro */
-	private async ExecuteAndTakeFirst(): Promise<any> {
+	public async ExecuteAndTakeFirst(): Promise<any> {
 		try {
 			this._logger.Activity("ExecuteAndTakeFirst");
 			
@@ -523,31 +531,6 @@ export class PostgresQueryBuilder<
 		}
 	}
 
-	/** Setea la etapa inicial del builder */
-	private SetInitialStage() : InitialStage<DB, TB, TResult>{
-		this._logger.Activity("SetInitialStage");
-		return {
-			Select: this.Select,
-			Where: this.Where,
-			Include: this.Include,
-			Insert: this.Insert,
-			Update: this.Update,
-			Delete: this.Delete
-		} as InitialStage<DB, TB, TResult>;
-	}
 }
-
-// import { InternalDatabase } from "../../../API/DataAccess/InternalDatabase";
-
-// const builder = new PostgresQueryBuilder<InternalDatabase, "gj_proyects">({
-// 	applicationContext: {} as ApplicationContext,
-// 	options: {
-// 		databaseType: "postgre_sql_database",
-// 		primaryKey: "id",
-// 		database: new Kysely({} as KyselyConfig),
-// 		table: "gj_proyects"
-// 	}
-// });
-  
 
 

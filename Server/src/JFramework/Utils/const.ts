@@ -25,6 +25,9 @@ export const DEFAULT_INDENT = 2;
 /** Representa el valor default de un numero */
 export const DEFAULT_NUMBER = 0;
 
+/** Indice por defecto */
+export const DEFAULT_INDEX = 0;
+
 /** Representa la longitud del secreto que necesita el cifrado AES_256 */
 export const AES_256_SECRET_LENGTH = 32;
 
@@ -60,3 +63,11 @@ export const NO_REQUEST_ID = "NO_REQUEST_ID";
 
 /** Identificador del contenedor de dependencias root */
 export const ROOT_CONTAINER_KEY = "ROOT_CONTAINER";
+
+/** Indica la longitud de una expresión AST, 
+ * las expresiones AST son arrays de 3 elementos
+ * @example - ["field", "=", 123] */
+export const AST_EXPRESSION_LENGTH = 3;
+
+/** longitud por defecto del AST buffer */
+export const AST_BUFFER_MIN_LENGTH = 1;

@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import ApplicationContext from "../../../../Configurations/ApplicationContext";
 import { AstExpression } from "../../Utils/AstExpression";
 
+
+
+export interface IQueryCompilerDependencies {
+	applicationContext:  ApplicationContext;
+}
 
 /**
  * Interfaz base para compilar un árbol de sintaxis (AST) a cualquier formato,

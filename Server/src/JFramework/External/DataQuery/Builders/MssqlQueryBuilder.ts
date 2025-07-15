@@ -1,4 +1,4 @@
-import { SelectQueryBuilder, ReferenceExpression, Insertable, Selectable, Updateable } from "kysely";
+import { SelectQueryBuilder, ReferenceExpression, Insertable, Updateable, Kysely } from "kysely";
 import { OrderByDirection } from "kysely/dist/cjs/parser/order-by-parser";
 import ApplicationContext from "../../../Configurations/ApplicationContext";
 import { DatabaseOperationException, DatabaseQueryBuildException, NullParameterException } from "../../../ErrorHandling/Exceptions";
@@ -15,9 +15,9 @@ import IPaginationArgs from "../../../Helpers/Interfaces/IPaginationArgs";
 import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
 import { QueryBuilderConfigurationOptions, QueryBuilderDependencies, QueryBuilderFlags, SelectionFields, UnionParams } from "./Types/Types";
 import { ColumnFields } from "../Compilers/Types/Types";
-
-
-
+import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
+import { UpdateObjectExpression } from "kysely/dist/cjs/parser/update-set-parser";
+import { IncludeStage, WhereStageQuery, ExecutionStage, WhereStage } from "./Interfaces/IDataQueryBuilderStages";
 
 
 /** Query Builder para Microsoft SQL Server
@@ -42,7 +42,12 @@ import { ColumnFields } from "../Compilers/Types/Types";
  * .Execute();
  * ```
  */
-export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> implements IDataQueryBuilder<DB, TB> {
+export class MssqlQueryBuilder<
+	DB, 
+	TB extends Extract<keyof DB, string>,
+	TResult extends object = any
+> implements IDataQueryBuilder<DB, TB> 
+{
 
 	/** Opciones de configuración del queryBuilder */
 	private readonly _options: QueryBuilderConfigurationOptions<DB, TB>;
@@ -58,6 +63,9 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 
 	/** Contexto de aplicación */
 	private readonly _applicationContext: ApplicationContext;
+
+	/** AstParser */
+	private readonly _parser: AstParser;
 
 	/** Indica si el metodo sort ha sido llamado */
 	public builderFlags: QueryBuilderFlags = {
@@ -75,7 +83,16 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 		this._options = deps.options;
 		this._applicationContext = deps.applicationContext;
 		this._queryBuilder = this._options.database.selectFrom(this._options.table);
-		this._compiler = new SqlQueryCompiler();
+
+		/** Agregamos el compiler */
+		this._compiler = new SqlQueryCompiler({
+			applicationContext:deps.applicationContext
+		});
+
+		/** Agregamos el parser */
+		this._parser = new AstParser({
+			applicationContext:deps.applicationContext
+		});
 
 		// Instanciamos el logger
 		this._logger = new LoggerManager({
@@ -101,12 +118,12 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Procesa la expresión y construye el AST */
-	public Where(expr: QueryExpression<ColumnFields<DB, TB>>): IDataQueryBuilder<DB, TB> {
+	public Where(expr: QueryExpression<ColumnFields<DB, TB>>): any {
 		try {
 			this._logger.Activity("Where");
 			this.builderFlags.hasWhere = true;
 
-			const ast: AstExpression = new AstParser(expr).parse();
+			const ast: AstExpression = this._parser.parse(expr);
 			this._compiler.SetExpression(ast);
 			const whereFn = this._compiler.Compile();
 			this._queryBuilder = this._queryBuilder.where(whereFn);
@@ -126,7 +143,7 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Permite traer relaciones anidadas */
-	public Include<OtherTable extends Extract<keyof DB, string>,>(otherTable: OtherTable, args: UnionParams<DB, TB, OtherTable>): IDataQueryBuilder<DB, TB> {
+	public Include<OTB extends Extract<keyof DB, string>>(otherTable: OTB, args: UnionParams<DB, TB, OTB>): IncludeStage<DB, TB, any> {
 		try {
 			this._logger.Activity("Include");
 			this.builderFlags.hasInclude = true;
@@ -182,10 +199,10 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 
 			/** Aplicamos la condición de filtrado */
 			if (args.filterCondition) {
-				return this.Where(args.filterCondition);
+				this.Where(args.filterCondition);
 			}
 
-			return this;
+			return this as unknown as IncludeStage<DB, TB, any>;
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "Include", err);
@@ -200,7 +217,7 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Campos específicos a seleccionar */
-	public Select(data: SelectionFields<DB, TB>): IDataQueryBuilder<DB, TB> {
+	public Select(data: SelectionFields<DB, TB>): WhereStageQuery<DB, TB, TResult> {
 		try {
 			this._logger.Activity("SelectFields");
 			this.builderFlags.hasSelect = true;
@@ -208,7 +225,7 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 			/** Seleccionamos todos los registros */
 			if (data === "all") {
 				this._queryBuilder = this._queryBuilder.selectAll();
-				return this;
+				return this as unknown as WhereStageQuery<DB, TB, TResult>;
 			}
 
 			const fields = Array.isArray(data) ? data : [data];
@@ -217,8 +234,7 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 				fields.map(field => `${this._options.table}.${field}`) as any
 			);
 
-
-			return this;
+			return this as unknown as WhereStageQuery<DB, TB, TResult>;
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "SelectFields", err);
@@ -233,7 +249,7 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Ordenar por campo */
-	public SortBy(field: ColumnFields<DB, TB>, direction?: OrderByDirection): IDataQueryBuilder<DB, TB> {
+	public SortBy(field: ColumnFields<DB, TB>, dir?: OrderByDirection): WhereStageQuery<DB, TB, TResult> {
 		try {
 			this._logger.Activity("SortBy");
 			this.builderFlags.hasSort = true;
@@ -242,10 +258,10 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 
 			this._queryBuilder = this._queryBuilder.orderBy(
 				fieldSort,
-				direction
+				dir
 			);
 
-			return this;
+			return this as unknown as WhereStageQuery<DB, TB, TResult>;
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "SortBy", err);
@@ -260,19 +276,13 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Limita el número de resultados */
-	public Take(count: number): IDataQueryBuilder<DB, TB> {
+	public Take(count: number): WhereStageQuery<DB, TB, TResult> {
 		try {
 			this._logger.Activity("Take");
 			this.builderFlags.hasTake = true;
 
-			/** Si no se ha realizado un ordenamiento con anterioridad, 
-			 * ordenamos los registros por clave primaria*/
-			if (!this.builderFlags.hasSort) {
-				this.SortBy(this._options.primaryKey);
-			}
-
 			this._queryBuilder = this._queryBuilder.top(count);
-			return this;
+			return this as unknown as WhereStageQuery<DB, TB, TResult>;
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "Take", err);
@@ -287,13 +297,13 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Saltar X resultados (paginación) */
-	public Skip(offset: number): IDataQueryBuilder<DB, TB> {
+	public Skip(offset: number): WhereStageQuery<DB, TB, TResult> {
 		try {
 			this._logger.Activity("Skip");
 			this.builderFlags.hasSkip = true;
 
 			this._queryBuilder = this._queryBuilder.offset(offset);
-			return this;
+			return this as unknown as WhereStageQuery<DB, TB, TResult>;
 		}
 		catch (err: any) {
 			this._logger.Error("FATAL", "Skip", err);
@@ -305,6 +315,7 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 				err
 			);
 		}
+
 	}
 
 	/** Devuelve el número total de registros que cumplen con la consulta actual (sin aplicar Take ni Skip) */
@@ -315,7 +326,7 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 
 			/** Aplicamos el count */
 			this._queryBuilder
-				.select((eb) => eb.fn.countAll().as('total'));
+			.select((eb) => eb.fn.countAll().as('total'));
 
 			/** Ejecutamos la consulta */
 			const result = await this.ExecuteAndTakeFirst();
@@ -357,9 +368,9 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 
 			/** Aplicamos la paginación */
 			this._queryBuilder
-				.orderBy(sortField as any)
-				.offset(offset)
-				.fetch(args.pageSize);
+			.orderBy(sortField as any)
+			.offset(offset)
+			.fetch(args.pageSize);
 
 			/** Ejecutamos la consulta */
 			const result = await this.Execute();
@@ -394,20 +405,18 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Método que nos permite insertar un registro en la base de datos */
-	public async Insert(record: Insertable<DB[TB]>) : Promise<Selectable<DB[TB]>>{
+	public Insert(record: Insertable<DB[TB]>): ExecutionStage<TResult> {
 		try {
 			this._logger.Activity("Insert");
 
-			const result = await this._options.database
+			this._options.database
 			.insertInto(this._options.table)
 			.values(record)
-			.outputAll("inserted")
-			.executeTakeFirst();
+			.outputAll("inserted");
 
-			return result as unknown as Selectable<DB[TB]>;
-
+			return this as unknown as ExecutionStage<TResult>;
 		}
-		catch(err:any){
+		catch (err: any) {
 			this._logger.Error("ERROR", "Insert", err);
 			throw new DatabaseOperationException(
 				"Insert",
@@ -419,12 +428,18 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Método que nos permite actualizar un registro en la base de datos */
-	public async Update(changes: Updateable<DB[TB]>) : Promise<Selectable<DB[TB]>>{
+	public Update(changes: Updateable<DB[TB]>): WhereStage<DB, TB, TResult, 'operation'> {
 		try {
 			this._logger.Activity("Update");
-			
+
+			this._queryBuilder = (this._queryBuilder as any as Kysely<DB>)
+			.updateTable(this._options.table)
+			.set(changes as UpdateObjectExpression<DB, ExtractTableAlias<DB, TB>>)
+			.outputAll("inserted") as any;
+
+			return this as unknown as WhereStage<DB, TB, TResult, 'operation'>;
 		}
-		catch(err:any){
+		catch (err: any) {
 			this._logger.Error("ERROR", "Update", err);
 			throw new DatabaseOperationException(
 				"Update",
@@ -437,12 +452,17 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 
 	/** Método que nos permite eliminar un registro, 
 	 * debe ser usado en conjunto con WHERE para eliminar registros especificos */
-	public async Delete() : Promise<Selectable<DB[TB]>>{
+	public Delete(): WhereStage<DB, TB, TResult, 'operation'> {
 		try {
 			this._logger.Activity("Delete");
 
+			this._queryBuilder = (this._queryBuilder as any as Kysely<DB>)
+			.deleteFrom(this._options.table)
+			.outputAll("deleted") as any;
+
+			return this as unknown as WhereStage<DB, TB, TResult, 'operation'>;
 		}
-		catch(err:any){
+		catch (err: any) {
 			this._logger.Error("ERROR", "Delete", err);
 			throw new DatabaseOperationException(
 				"Delete",
@@ -454,7 +474,7 @@ export class MssqlQueryBuilder<DB, TB extends Extract<keyof DB, string>> impleme
 	}
 
 	/** Ejecuta la consulta y devuelve los datos */
-	public async Execute(): Promise<any[]> {
+	public async Execute(): Promise<any> {
 		try {
 			this._logger.Activity("Execute");
 
