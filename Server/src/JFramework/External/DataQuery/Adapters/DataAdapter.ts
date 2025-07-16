@@ -15,7 +15,7 @@ import { DataAdapterConfigurationOptions, DataAdapterDependencies } from "./Type
  * @description Clase que nos permite controlar el acceso y manipulación de los datos.
  * 
  * ```ts
- * const adapter = new DataAdapter<InternalDatabase, "gj_tenants">({
+		 const adapter = new DataAdapter<InternalDatabase, "gj_tenants">({
 		applicationContext: {} as ApplicationContext,
 		options: {} as DataAdapterConfigurationOptions<InternalDatabase, "gj_tenants">
 	});

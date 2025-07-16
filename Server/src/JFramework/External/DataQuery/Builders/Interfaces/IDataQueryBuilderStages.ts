@@ -1,6 +1,6 @@
 import { Insertable, Updateable } from "kysely";
 import { QueryExpression } from "../../Utils/QueryExpression";
-import { UnionParams, SelectionFields } from "../Types/Types";
+import { IncludeParams, SelectionFields } from "../Types/Types";
 import { OrderByDirection } from "kysely/dist/cjs/parser/order-by-parser";
 import { ColumnFields } from "../../Compilers/Types/Types";
 import IPaginationArgs from "../../../../Helpers/Interfaces/IPaginationArgs";
@@ -99,6 +99,12 @@ export interface IncludeStage<
 
   /** Selecciona campos específicos de la tabla. */
   Select(fields: SelectionFields<DB, TB>): WhereStage<DB, TB, TResult, 'query'>;
+
+  /** Realiza un JOIN o populate con otra tabla y permite continuar la construcción. */
+  Include<OTB extends Extract<keyof DB, string>>(
+    entity: OTB,
+    args: IncludeParams<DB, TB, OTB>
+  ): IncludeStage<DB, TB, TResult>;
 }
 
 /** Etapa inicial de construcción de consulta.
@@ -118,7 +124,7 @@ export interface InitialStage<
   /** Realiza un JOIN con otra tabla y permite continuar la construcción. */
   Include<OTB extends Extract<keyof DB, string>>(
     entity: OTB,
-    args: UnionParams<DB, TB, OTB>
+    args: IncludeParams<DB, TB, OTB>
   ): IncludeStage<DB, TB, TResult>;
 
   /** Inserta un nuevo registro en la tabla y permite ejecutar la operación. */

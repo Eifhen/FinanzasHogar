@@ -16,7 +16,7 @@ import { DatabaseOperationException, DatabaseQueryBuildException, NullParameterE
 import { DEFAULT_NUMBER } from "../../../Utils/const";
 import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
 import IPaginationArgs from "../../../Helpers/Interfaces/IPaginationArgs";
-import { QueryBuilderConfigurationOptions, QueryBuilderDependencies, QueryBuilderFlags, SelectionFields, UnionParams } from "./Types/Types";
+import { QueryBuilderConfigurationOptions, QueryBuilderDependencies, QueryBuilderFlags, SelectionFields, IncludeParams } from "./Types/Types";
 import { ColumnFields } from "../Compilers/Types/Types";
 import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
 import { UpdateObjectExpression } from "kysely/dist/cjs/parser/update-set-parser";
@@ -155,7 +155,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Permite traer relaciones anidadas */
-	public Include<OTB extends Extract<keyof DB, string>>(otherTable: OTB, args: UnionParams<DB, TB, OTB>): IncludeStage<DB, TB, any> {
+	public Include<OTB extends Extract<keyof DB, string>>(otherTable: OTB, args: IncludeParams<DB, TB, OTB>): IncludeStage<DB, TB, any> {
 		try {
 			this._logger.Activity("Include");
 			this.builderFlags.hasInclude = true;

@@ -10,7 +10,7 @@ import { DatabaseType } from "../../../DataBases/Types/DatabaseType";
  * @param TB - Main table type
  * @param OTB - Union table type
  */
-export type UnionParams<DB, TB extends keyof DB, OTB extends keyof DB> = {
+export type IncludeParams<DB, TB extends keyof DB, OTB extends keyof DB> = {
 
 	/** - Indica la condición de unión.
 	 * - Condición opcional de relación (en SQL es obligatoria, en MongoDB puede omitirse) */
