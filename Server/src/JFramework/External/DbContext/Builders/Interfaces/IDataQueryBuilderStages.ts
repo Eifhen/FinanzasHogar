@@ -1,5 +1,5 @@
 import { Insertable, Updateable } from "kysely";
-import { QueryExpression } from "../../Utils/QueryExpression";
+import { QueryExpression } from "../../Compilers/Types/QueryExpression";
 import { IncludeParams, SelectionFields } from "../Types/Types";
 import { OrderByDirection } from "kysely/dist/cjs/parser/order-by-parser";
 import { ColumnFields } from "../../Compilers/Types/Types";
@@ -52,7 +52,7 @@ export interface WhereStageQuery<
   Count(): Promise<number>;
 
   /** Devuelve una estructura de paginación con los resultados y metadatos. */
-  Paginate(args: IPaginationArgs): Promise<IPaginationResult<TResult>>;
+  Paginate(sortField: ColumnFields<DB, TB>, args: IPaginationArgs): Promise<IPaginationResult<TResult>>;
 }
 
 
@@ -111,7 +111,7 @@ export interface IncludeStage<
  * Permite comenzar con Select, Where, Include, Insert, Update o Delete. */
 export interface InitialStage<
   DB,
-  TB extends keyof DB,
+  TB extends Extract<keyof DB, string>,
   TResult extends object = any
 > {
 
@@ -136,4 +136,15 @@ export interface InitialStage<
   /** Inicia una operación de eliminación de registros. */
   Delete(): WhereStage<DB, TB, TResult, 'operation'>;
 }
+
+/** Define la tabla sobre la cual se hará la consulta y 
+ * da inicio a la cadena de etapas */
+export interface QueryStage<DB> {
+
+  /** Define la tabla sobre la cual se hará la consulta y 
+   * da inicio a la cadena de etapas */
+  Query<TB extends Extract<keyof DB, string>,  TResult extends object = any>
+  (table: TB) : InitialStage<DB, TB, TResult>;
+}
+
 

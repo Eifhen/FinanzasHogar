@@ -4,7 +4,7 @@ import {
 	QueryCondition,
 	QueryLogicalOperator,
 	QueryNegation
-} from "../../Utils/QueryExpression";
+} from "../Types/QueryExpression";
 
 import {
 	AstExpression,
@@ -12,7 +12,7 @@ import {
 	AstGroup,
 	AstNot,
 	AstOperator
-} from "../../Utils/AstExpression";
+} from "../Types/AstExpression";
 import ApplicationContext from "../../../../Configurations/ApplicationContext";
 import ILoggerManager from "../../../../Managers/Interfaces/ILoggerManager";
 import LoggerManager from "../../../../Managers/LoggerManager";

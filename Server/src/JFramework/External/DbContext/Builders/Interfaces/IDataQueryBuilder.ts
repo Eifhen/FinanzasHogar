@@ -1,5 +1,5 @@
 import { QueryBuilderFlags } from "../Types/Types";
-import { InitialStage } from "./IDataQueryBuilderStages";
+import { InitialStage, QueryStage } from "./IDataQueryBuilderStages";
 
 
 /**
@@ -19,4 +19,15 @@ export interface IDataQueryBuilder<
   /** Banderas del builder */
   builderFlags: QueryBuilderFlags
 
+  /** Limpia la query en curso de todos los filtros */
+  ClearQuery(): void;
+  
+	/** Setea la tabla que se va a consultar */
+  SetTable(table: TB) : void
 }
+
+
+/** Inicializador del queryBuilder */
+export interface IDataQueryBuilderInitializer<DB> extends QueryStage<DB> {
+}
+

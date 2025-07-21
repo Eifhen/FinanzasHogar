@@ -1,70 +1,60 @@
-
-
-
-import { Insertable, Kysely, ReferenceExpression, SelectQueryBuilder, Updateable } from "kysely";
-import { IDataQueryBuilder } from "./Interfaces/IDataQueryBuilder";
-import { AstExpression } from "../Utils/AstExpression";
-import { QueryExpression } from "../Utils/QueryExpression";
-import { AstParser } from "../Compilers/Parser/AstParser";
-import { SqlQueryCompiler } from "../Compilers/SqlQueryCompiler";
-import { IQueryCompiler } from "../Compilers/Interfaces/IQueryCompiler";
+import { SelectQueryBuilder, ReferenceExpression, Insertable, Updateable, Kysely } from "kysely";
 import { OrderByDirection } from "kysely/dist/cjs/parser/order-by-parser";
-import ApplicationContext from "../../../Configurations/ApplicationContext";
-import ILoggerManager from "../../../Managers/Interfaces/ILoggerManager";
-import LoggerManager from "../../../Managers/LoggerManager";
-import { DatabaseOperationException, DatabaseQueryBuildException, NullParameterException } from "../../../ErrorHandling/Exceptions";
-import { DEFAULT_NUMBER } from "../../../Utils/const";
-import IPaginationResult from "../../../Helpers/Interfaces/IPaginationResult";
-import IPaginationArgs from "../../../Helpers/Interfaces/IPaginationArgs";
-import { QueryBuilderConfigurationOptions, QueryBuilderDependencies, QueryBuilderFlags, SelectionFields, IncludeParams } from "./Types/Types";
-import { ColumnFields } from "../Compilers/Types/Types";
+import ApplicationContext from "../../../../Configurations/ApplicationContext";
+import { DatabaseOperationException, DatabaseQueryBuildException, NullParameterException } from "../../../../ErrorHandling/Exceptions";
+import ILoggerManager from "../../../../Managers/Interfaces/ILoggerManager";
+import { IQueryCompiler } from "../../Compilers/Interfaces/IQueryCompiler";
+import { AstParser } from "../../Compilers/Parser/AstParser";
+import { AstExpression } from "../../Compilers/Types/AstExpression";
+import { QueryExpression } from "../../Compilers/Types/QueryExpression";
+import { IDataQueryBuilder } from "../Interfaces/IDataQueryBuilder";
+import { DEFAULT_NUMBER } from "../../../../Utils/const";
+import IPaginationArgs from "../../../../Helpers/Interfaces/IPaginationArgs";
+import IPaginationResult from "../../../../Helpers/Interfaces/IPaginationResult";
+import { QueryBuilderConfigurationOptions, QueryBuilderFlags, SelectionFields, IncludeParams, QueryBuilderDependencies } from "../Types/Types";
+import { ColumnFields } from "../../Compilers/Types/Types";
 import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
 import { UpdateObjectExpression } from "kysely/dist/cjs/parser/update-set-parser";
-import { ExecutionStage, IncludeStage, WhereStage, WhereStageQuery } from "./Interfaces/IDataQueryBuilderStages";
-import { AutoClassBindAll } from "../../../Helpers/Decorators/AutoBind";
+import { IncludeStage, WhereStageQuery, ExecutionStage, WhereStage } from "../Interfaces/IDataQueryBuilderStages";
 
 
-
-/** Query Builder para PostgreSQl
-
-@example
-```ts 
- const builder = new PostgresQueryBuilder<InternalDatabase, "gj_proyects">({
-	applicationContext: {} as ApplicationContext,
-	options: {
-		databaseType: "postgre_sql_database",
-		primaryKey: "id",
-		database: new Kysely({} as KyselyConfig),
-		table: "gj_proyects"
-	}
-});
-		
-	const result = await builder.Where(["name", "=", "Gabo"])
-	.Select(["description", "name"])
-	.Skip(10)
-	.Take(10)
-	.SortBy("name", "desc")
-	.Include(
-		"gj_tenant_connection_view", 
-		["name", "=", "connection"], 
-		["status", "<", "hola"]
-	)
-	.Execute();
-``` */
-
-@AutoClassBindAll
-export class PostgresQueryBuilder<	
+/** Query Builder para Microsoft SQL Server
+ * 
+ * @example
+ * ```ts 
+ * const builder = new MssqlQueryBuilder<InternalDatabase, "gj_proyects">({
+ *   database: new Kysely({} as KyselyConfig),
+ *	 table: "gj_proyects"
+ * });
+ * 
+ * const result = await builder.Where(["name", "=", "Gabo"])
+ * .SelectFields(["description", "name"])
+ * .Skip(10)
+ * .Take(10)
+ * .SortBy("name", "desc")
+ * .Include(
+ *   "gj_tenant_connection_view", 
+ *	 ["name", "=", "connection"], 
+ *	 ["status", "<", "hola"]
+ * )
+ * .Execute();
+ * ```
+ */
+export class MssqlQueryBuilder<
 	DB, 
-	TB extends Extract<keyof DB, string>, 
+	TB extends Extract<keyof DB, string>,
 	TResult extends object = any
-> implements IDataQueryBuilder<DB, TB, TResult>
+> implements IDataQueryBuilder<DB, TB, TResult> 
 {
 
 	/** Opciones de configuración del queryBuilder */
-	private readonly _options: QueryBuilderConfigurationOptions<DB, TB>;
+	private readonly _options: QueryBuilderConfigurationOptions<DB>;
 
 	/** Objeto querybuilder de kysely */
-	private _queryBuilder: SelectQueryBuilder<DB, any, {}>;
+	private _queryBuilder = {} as SelectQueryBuilder<DB, any, {}>;
+
+	/** Tabla en cuestión */
+	private _table = "" as TB;
 
 	/** Compilador */
 	private readonly _compiler: IQueryCompiler<DB, TB, any>;
@@ -74,7 +64,7 @@ export class PostgresQueryBuilder<
 
 	/** Contexto de aplicación */
 	private readonly _applicationContext: ApplicationContext;
-	
+
 	/** AstParser */
 	private readonly _parser: AstParser;
 
@@ -90,33 +80,17 @@ export class PostgresQueryBuilder<
 		hasPagination: false,
 	}
 
-	constructor(deps: QueryBuilderDependencies<DB, TB>) {
-	
-		this._options = deps.options;
+	constructor(deps: QueryBuilderDependencies) {
+		this._logger = deps.logger;
 		this._applicationContext = deps.applicationContext;
-		this._queryBuilder = this._options.database.selectFrom(this._options.table);
-		
-		/** Agregamos el compiler */
-		this._compiler = new SqlQueryCompiler({
-			applicationContext:deps.applicationContext
-		});
-
-		/** Agregamos el parser */
-		this._parser = new AstParser({
-			applicationContext:deps.applicationContext
-		});
-
-		// Instanciamos el logger
-		this._logger = new LoggerManager({
-			entityCategory: "BUILDER",
-			entityName: "PostgresQueryBuilder",
-			applicationContext: deps.applicationContext
-		});
+		this._parser = deps.parser;
+		this._options = deps.options;
+		this._compiler = deps.compiler;
 	}
 
 	/** Resetea todas las banderas */
-	public ResetFlags(): void {
-		this._logger.Activity("ResetFlags");
+	public ClearQuery(): void {
+		this._logger.Activity("ClearQuery");
 		this.builderFlags = {
 			hasWhere: false,
 			hasInclude: false,
@@ -127,6 +101,15 @@ export class PostgresQueryBuilder<
 			hasCount: false,
 			hasPagination: false
 		}
+
+		this._table = "" as TB;
+	}
+
+	/** Setea la tabla que se va a consultar */
+	public SetTable(table: TB) : void {
+		this._logger.Activity("SetTable");
+		this._table = table;
+		this._queryBuilder = this._options.database.selectFrom(table);
 	}
 
 	/** Procesa la expresión y construye el AST */
@@ -180,7 +163,7 @@ export class PostgresQueryBuilder<
 				this._queryBuilder = this._queryBuilder.innerJoin(
 					otherTable,
 					(join) => join.on(
-						`${this._options.table}.${args.unionCondition![leftFieldIndex]}` as any,
+						`${this._table}.${args.unionCondition![leftFieldIndex]}` as any,
 						`${args.unionCondition![operatorIndex]}`,
 						`${otherTable}.${args.unionCondition![rightFieldIndex]}` as any
 					)
@@ -191,7 +174,7 @@ export class PostgresQueryBuilder<
 				this._queryBuilder = this._queryBuilder.leftJoin(
 					otherTable,
 					(join) => join.on(
-						`${this._options.table}.${args.unionCondition![leftFieldIndex]}` as any,
+						`${this._table}.${args.unionCondition![leftFieldIndex]}` as any,
 						`${args.unionCondition![operatorIndex]}`,
 						`${otherTable}.${args.unionCondition![rightFieldIndex]}` as any
 					)
@@ -202,7 +185,7 @@ export class PostgresQueryBuilder<
 				this._queryBuilder = this._queryBuilder.rightJoin(
 					otherTable,
 					(join) => join.on(
-						`${this._options.table}.${args.unionCondition![leftFieldIndex]}` as any,
+						`${this._table}.${args.unionCondition![leftFieldIndex]}` as any,
 						`${args.unionCondition![operatorIndex]}`,
 						`${otherTable}.${args.unionCondition![rightFieldIndex]}` as any
 					)
@@ -243,7 +226,7 @@ export class PostgresQueryBuilder<
 			const fields = Array.isArray(data) ? data : [data];
 
 			this._queryBuilder = this._queryBuilder.select(
-				fields.map(field => `${this._options.table}.${field}`) as any
+				fields.map(field => `${this._table}.${field}`) as any
 			);
 
 			return this as unknown as WhereStageQuery<DB, TB, TResult>;
@@ -266,7 +249,7 @@ export class PostgresQueryBuilder<
 			this._logger.Activity("SortBy");
 			this.builderFlags.hasSort = true;
 
-			const fieldSort: ReferenceExpression<DB, TB> = `${this._options.table}.${field}`;
+			const fieldSort: ReferenceExpression<DB, TB> = `${this._table}.${field}`;
 
 			this._queryBuilder = this._queryBuilder.orderBy(
 				fieldSort,
@@ -292,8 +275,8 @@ export class PostgresQueryBuilder<
 		try {
 			this._logger.Activity("Take");
 			this.builderFlags.hasTake = true;
-			
-			this._queryBuilder = this._queryBuilder.limit(count);
+
+			this._queryBuilder = this._queryBuilder.top(count);
 			return this as unknown as WhereStageQuery<DB, TB, TResult>;
 		}
 		catch (err: any) {
@@ -339,7 +322,7 @@ export class PostgresQueryBuilder<
 			/** Aplicamos el count */
 			this._queryBuilder
 			.select((eb) => eb.fn.countAll().as('total'));
-			
+
 			/** Ejecutamos la consulta */
 			const result = await this.ExecuteAndTakeFirst();
 
@@ -358,7 +341,7 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Pagina la data según los argumentos de paginación proporcionados */
-	public async Paginate(args: IPaginationArgs): Promise<IPaginationResult<any>> {
+	public async Paginate(sortField: ColumnFields<DB, TB>, args: IPaginationArgs): Promise<IPaginationResult<any>> {
 		try {
 			this._logger.Activity("Paginate");
 			this.builderFlags.hasPagination = true;
@@ -371,18 +354,18 @@ export class PostgresQueryBuilder<
 			const totalItems = await this.Count();
 			const totalPages = Math.ceil(totalItems / args.pageSize);
 
-			const sortField = `${this._options.table}.${this._options.primaryKey}`;
+			const sortBy = `${this._table}.${sortField}`;
 
 			/** Si no se ha hecho selección seleccionamos todos los registros */
-			if(!this.builderFlags.hasSelect){
+			if (!this.builderFlags.hasSelect) {
 				this._queryBuilder.selectAll();
 			}
 
 			/** Aplicamos la paginación */
 			this._queryBuilder
-			.orderBy(sortField as any)
+			.orderBy(sortBy as any)
 			.offset(offset)
-			.limit(args.pageSize);
+			.fetch(args.pageSize);
 
 			/** Ejecutamos la consulta */
 			const result = await this.Execute();
@@ -417,18 +400,18 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Método que nos permite insertar un registro en la base de datos */
-	public Insert(record: Insertable<DB[TB]>) : ExecutionStage<TResult>{
+	public Insert(record: Insertable<DB[TB]>): ExecutionStage<TResult> {
 		try {
 			this._logger.Activity("Insert");
 
 			this._options.database
-			.insertInto(this._options.table)
+			.insertInto(this._table)
 			.values(record)
-			.returningAll();
-			
+			.outputAll("inserted");
+
 			return this as unknown as ExecutionStage<TResult>;
 		}
-		catch(err:any){
+		catch (err: any) {
 			this._logger.Error("ERROR", "Insert", err);
 			throw new DatabaseOperationException(
 				"Insert",
@@ -439,19 +422,19 @@ export class PostgresQueryBuilder<
 		}
 	}
 
- 	/** Método que nos permite actualizar un registro en la base de datos */
-	public Update(changes: Updateable<DB[TB]>) : WhereStage<DB, TB, TResult, 'operation'>{
+	/** Método que nos permite actualizar un registro en la base de datos */
+	public Update(changes: Updateable<DB[TB]>): WhereStage<DB, TB, TResult, 'operation'> {
 		try {
 			this._logger.Activity("Update");
 
 			this._queryBuilder = (this._queryBuilder as any as Kysely<DB>)
-			.updateTable(this._options.table)
+			.updateTable(this._table)
 			.set(changes as UpdateObjectExpression<DB, ExtractTableAlias<DB, TB>>)
-			.returningAll() as any;
-			
+			.outputAll("inserted") as any;
+
 			return this as unknown as WhereStage<DB, TB, TResult, 'operation'>;
 		}
-		catch(err:any){
+		catch (err: any) {
 			this._logger.Error("ERROR", "Update", err);
 			throw new DatabaseOperationException(
 				"Update",
@@ -463,18 +446,18 @@ export class PostgresQueryBuilder<
 	}
 
 	/** Método que nos permite eliminar un registro, 
-   * debe ser usado en conjunto con WHERE para eliminar registros especificos */
-	public Delete() : WhereStage<DB, TB, TResult, 'operation'>{
+	 * debe ser usado en conjunto con WHERE para eliminar registros especificos */
+	public Delete(): WhereStage<DB, TB, TResult, 'operation'> {
 		try {
 			this._logger.Activity("Delete");
 
 			this._queryBuilder = (this._queryBuilder as any as Kysely<DB>)
-			.deleteFrom(this._options.table)
-			.returningAll() as any;
-			
+			.deleteFrom(this._table)
+			.outputAll("deleted") as any;
+
 			return this as unknown as WhereStage<DB, TB, TResult, 'operation'>;
 		}
-		catch(err:any){
+		catch (err: any) {
 			this._logger.Error("ERROR", "Delete", err);
 			throw new DatabaseOperationException(
 				"Delete",
@@ -491,7 +474,7 @@ export class PostgresQueryBuilder<
 			this._logger.Activity("Execute");
 
 			/** Reseteamos las banderas */
-			this.ResetFlags();
+			this.ClearQuery();
 
 			/** Ejecutamos el query */
 			return await this._queryBuilder.execute();
@@ -512,9 +495,9 @@ export class PostgresQueryBuilder<
 	public async ExecuteAndTakeFirst(): Promise<any> {
 		try {
 			this._logger.Activity("ExecuteAndTakeFirst");
-			
+
 			/** Reseteamos las banderas */
-			this.ResetFlags();
+			this.ClearQuery();
 
 			/** Ejecutamos el query */
 			return await this._queryBuilder.executeTakeFirstOrThrow();
@@ -530,7 +513,4 @@ export class PostgresQueryBuilder<
 			);
 		}
 	}
-
 }
-
-

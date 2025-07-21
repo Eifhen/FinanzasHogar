@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import ApplicationContext from "../../../../Configurations/ApplicationContext";
-import { AstExpression } from "../../Utils/AstExpression";
+import { AstExpression } from "../Types/AstExpression";
 
 
 

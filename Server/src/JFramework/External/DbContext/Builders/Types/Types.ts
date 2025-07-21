@@ -1,8 +1,11 @@
 import { Kysely } from "kysely";
 import { ColumnFields } from "../../Compilers/Types/Types";
-import { QueryUnionCondition, QueryExpression } from "../../Utils/QueryExpression"
+import { QueryUnionCondition, QueryExpression } from "../../Compilers/Types/QueryExpression"
 import ApplicationContext from "../../../../Configurations/ApplicationContext";
 import { DatabaseType } from "../../../DataBases/Types/DatabaseType";
+import ILoggerManager from "../../../../Managers/Interfaces/ILoggerManager";
+import { IQueryCompiler } from "../../Compilers/Interfaces/IQueryCompiler";
+import { AstParser } from "../../Compilers/Parser/AstParser";
 
 /**
  * Representa la configuración del comportamiento del método Include del DataQueryBuilder
@@ -62,28 +65,29 @@ export type QueryBuilderFlags = {
 }
 
 /** Opciones de configuración del queryBuilder */
-export type QueryBuilderConfigurationOptions<DB, TB extends keyof DB> = {
+export type QueryBuilderConfigurationOptions<DB> = {
 
 	/** Tipo debase de datos */
 	databaseType: DatabaseType;
 
 	/** instancia de kysely de la base de datos en cuestion*/
   database: Kysely<DB>;
-
-  /** Nombre de la tabla en cuestion */
-  table: TB;
-
-  /** Indicamos el nombre de la clave primaria, 
-   * este campo se utiliza como ordenamiento por default */
-  primaryKey: ColumnFields<DB, TB>;
 }
 
 /** Dependencias de cada querybuilder */
-export type QueryBuilderDependencies<DB, TB extends keyof DB> = {
+export type QueryBuilderInitializerDependencies<DB> = {
 
   /** Contexto de aplicación */
   applicationContext: ApplicationContext;
 
   /** Opciones de configuración del queryBuilder */
-  options: QueryBuilderConfigurationOptions<DB, TB>
+  options: QueryBuilderConfigurationOptions<DB>
+}
+
+export type QueryBuilderDependencies = {
+  compiler: IQueryCompiler<any, any, any>,
+  parser: AstParser,
+  logger: ILoggerManager,
+  applicationContext: ApplicationContext,
+  options: QueryBuilderConfigurationOptions<any>
 }

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { ExpressionBuilder } from "kysely";
-import { AstCondition, AstExpression } from "../Utils/AstExpression";
+import { AstCondition, AstExpression } from "./Types/AstExpression";
 import { IQueryCompiler, IQueryCompilerDependencies } from "./Interfaces/IQueryCompiler";
 import { CompilerResult } from "./Types/Types";
 import ILoggerManager from "../../../Managers/Interfaces/ILoggerManager";
